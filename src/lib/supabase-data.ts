@@ -19,7 +19,7 @@ function toListing(r:Row):Listing{
 }
 const demoListings=():Listing[]=>centres.map(c=>({...c,listingType:"service_centre" as const}));
 
-export type CentreFilters={q?:string;location?:string;type?:string;page?:string|number};
+export type CentreFilters={q?:string;location?:string;type?:string;status?:string;page?:string|number};
 
 /** Searches active listings. `location` matching a known city filters by city; other text is matched against the listing's search text. */
 export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE):Promise<{items:Listing[];total:number;live:boolean}>{
@@ -30,6 +30,9 @@ export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE):Promi
   const city=matchCity(filters.location);
   let query=supabase.from("service_centres").select(CARD_FIELDS,{count:"exact"}).eq("is_active",true);
   if(type)query=query.eq("listing_type",type);
+  if(filters.status==="verified")query=query.eq("verification_status","verified");
+  else if(filters.status==="phone")query=query.not("phone","is",null);
+  else if(filters.status==="hours")query=query.not("opening_hours_text","is",null);
   if(city)query=query.eq("city",city);
   else if(filters.location?.trim())query=query.ilike("search_text",`%${escapeLike(filters.location.trim().toLowerCase())}%`);
   // Category phrases ("Riding gear fitting") are handled by the type filter; anything else is a text search.
