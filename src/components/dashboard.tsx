@@ -1,0 +1,13 @@
+import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,UserCog} from "lucide-react";import {signOut} from "@/app/partner/actions";
+type NavKey="overview"|"listings"|"enquiries"|"messages"|"partner";
+const ADMIN_NAV:[NavKey,string,string,typeof Store][]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail]];
+/** App-style layout for the admin and partner workspaces. */
+export function DashShell({area,active,title,subtitle,actions,badges,children}:{area:"admin"|"partner";active:NavKey;title:string;subtitle?:string;actions?:React.ReactNode;badges?:Partial<Record<NavKey,number>>;children:React.ReactNode}){
+  const nav=area==="admin"?ADMIN_NAV:[["partner","/partner/dashboard","My dashboard",LayoutDashboard] as [NavKey,string,string,typeof Store]];
+  return <main className="dash"><div className="container dash-layout"><aside className="dash-nav"><p className="dash-area">{area==="admin"?"Admin":"Partner"} workspace</p><nav>{nav.map(([key,href,label,Icon])=><Link key={key} href={href} className={active===key?"active":undefined}><Icon/><span>{label}</span>{badges?.[key]?<em>{badges[key]}</em>:null}</Link>)}{area==="admin"?<Link href="/partner/dashboard"><UserCog/><span>Partner view</span></Link>:null}</nav>{area==="admin"&&<Link className="button small dash-new" href="/admin/listings/new"><Plus/> New listing</Link>}<form action={signOut}><button className="dash-signout"><LogOut/> Sign out</button></form></aside>
+  <section className="dash-main"><header className="dash-head"><div><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div>{actions&&<div className="dash-actions">{actions}</div>}</header>{children}</section></div></main>;
+}
+const TONES:Record<string,string>={new:"blue",pending:"amber",accepted:"amber",quoted:"amber",verified:"green",closed:"green",read:"grey",unverified:"grey",declined:"grey",rejected:"red",suspended:"red",hidden:"red",live:"green"};
+export function Pill({value,label}:{value:string;label?:string}){return <span className={`pill-status ${TONES[value]||"grey"}`}>{label||value}</span>}
+export function Stat({label,value,href,tone}:{label:string;value:number|string;href?:string;tone?:string}){const body=<><span>{label}</span><b>{typeof value==="number"?value.toLocaleString("en-IN"):value}</b></>;return href?<Link className={`stat ${tone||""}`} href={href}>{body}</Link>:<div className={`stat ${tone||""}`}>{body}</div>}
+export function Flash({saved,error}:{saved?:string;error?:string}){if(error)return <p className="flash error" role="alert">{error}</p>;if(saved)return <p className="flash ok" role="status">Changes saved.</p>;return null}

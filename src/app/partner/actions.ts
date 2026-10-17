@@ -6,12 +6,14 @@ export async function signOut(){const {supabase}=await getSessionProfile();await
 export async function updateCentre(form:FormData){
   const {supabase,user}=await getSessionProfile();if(!supabase||!user)redirect("/partner/login");
   const text=(k:string,max:number)=>String(form.get(k)||"").trim().slice(0,max)||null;
-  await supabase.from("service_centres").update({phone:text("phone",40),website:text("website",200),opening_hours_text:text("opening_hours_text",200),description:text("description",2000)}).eq("id",String(form.get("id"))).eq("owner_id",user.id);
+  const {data,error}=await supabase.from("service_centres").update({phone:text("phone",40),email:text("email",120),website:text("website",200),opening_hours_text:text("opening_hours_text",200),description:text("description",2000),manually_edited:true}).eq("id",String(form.get("id"))).eq("owner_id",user.id).select("slug").maybeSingle();
+  if(data)revalidatePath(`/services/${data.slug}`);
   revalidatePath("/partner/dashboard");
+  redirect(error||!data?`/partner/dashboard?error=${encodeURIComponent("Could not save your listing.")}#profile`:"/partner/dashboard?saved=1#profile");
 }
 export async function updateEnquiryStatus(form:FormData){
   const {supabase,user}=await getSessionProfile();if(!supabase||!user)redirect("/partner/login");
   const status=String(form.get("status"));if(!ENQUIRY_STATUSES.includes(status))return;
   await supabase.from("enquiries").update({status}).eq("id",String(form.get("id")));
-  revalidatePath("/partner/dashboard");revalidatePath("/admin");
+  revalidatePath("/partner/dashboard");revalidatePath("/admin","layout");
 }

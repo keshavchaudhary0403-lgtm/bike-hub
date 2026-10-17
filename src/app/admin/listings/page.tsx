@@ -1,0 +1,26 @@
+import Link from "next/link";import {Pencil,ExternalLink,Plus} from "lucide-react";import {DashShell,Pill} from "@/components/dashboard";import {escapeLike,requireStaff,VERIFICATION_STATUSES} from "@/lib/admin";import {CITIES,LISTING_TYPES,typeLabel} from "@/lib/listings";import {setListingActive} from "../actions";
+export const metadata={title:"Listings · Admin"};
+const PER_PAGE=25;
+type Params={q?:string;city?:string;type?:string;verification?:string;visibility?:string;source?:string;page?:string};
+export default async function AdminListings({searchParams}:{searchParams:Promise<Params>}){const {supabase}=await requireStaff();const p=await searchParams;const page=Math.max(1,Number(p.page)||1);
+let q=supabase.from("service_centres").select("id,slug,name,city,locality,listing_type,centre_type,phone,verification_status,is_active,is_featured,source,manually_edited,owner_id",{count:"exact"});
+if(p.q?.trim())q=q.ilike("search_text",`%${escapeLike(p.q.trim().toLowerCase())}%`);
+if(p.city)q=q.eq("city",p.city);if(p.type)q=q.eq("listing_type",p.type);if(p.verification)q=q.eq("verification_status",p.verification);
+if(p.visibility==="hidden")q=q.eq("is_active",false);else if(p.visibility==="live")q=q.eq("is_active",true);
+if(p.source==="osm")q=q.eq("source","osm");else if(p.source==="manual")q=q.neq("source","osm");else if(p.source==="edited")q=q.eq("manually_edited",true);else if(p.source==="claimed")q=q.not("owner_id","is",null);
+const {data,count}=await q.order("name").range((page-1)*PER_PAGE,page*PER_PAGE-1);const total=count||0;const pages=Math.ceil(total/PER_PAGE);
+const href=(n:number)=>`/admin/listings?${new URLSearchParams({...p,page:String(n)} as Record<string,string>)}`;
+return <DashShell area="admin" active="listings" title="Listings" subtitle={`${total.toLocaleString("en-IN")} service centres, repair shops and gear shops`} actions={<Link className="button" href="/admin/listings/new"><Plus/> New listing</Link>}>
+<form className="dash-filters"><input name="q" defaultValue={p.q} placeholder="Search name, area or brand" aria-label="Search listings"/>
+<select name="city" defaultValue={p.city||""} aria-label="City"><option value="">All cities</option>{CITIES.map(c=><option key={c}>{c}</option>)}</select>
+<select name="type" defaultValue={p.type||""} aria-label="Type"><option value="">All types</option>{LISTING_TYPES.map(t=><option key={t.value} value={t.value}>{t.plural}</option>)}</select>
+<select name="verification" defaultValue={p.verification||""} aria-label="Verification"><option value="">Any verification</option>{VERIFICATION_STATUSES.map(s=><option key={s} value={s}>{s[0].toUpperCase()+s.slice(1)}</option>)}</select>
+<select name="visibility" defaultValue={p.visibility||""} aria-label="Visibility"><option value="">Live & hidden</option><option value="live">Live only</option><option value="hidden">Hidden only</option></select>
+<select name="source" defaultValue={p.source||""} aria-label="Source"><option value="">Any source</option><option value="osm">OpenStreetMap</option><option value="manual">Added by BikeHub</option><option value="edited">Edited by admin</option><option value="claimed">Claimed by partner</option></select>
+<button className="button dark">Filter</button>{Object.values(p).some(Boolean)&&<Link className="link" href="/admin/listings">Clear</Link>}</form>
+<div className="dash-card flush">{data?.length?<div className="table-wrap"><table className="data-table"><thead><tr><th>Listing</th><th>Type</th><th>Status</th><th>Phone</th><th aria-label="Actions"></th></tr></thead><tbody>{data.map(c=><tr key={c.id}>
+<td><Link className="row-title" href={`/admin/listings/${c.id}`}>{c.name}</Link><small>{[c.locality,c.city].filter(Boolean).join(", ")}{c.owner_id?" · Claimed":""}{c.manually_edited?" · Edited":""}</small></td>
+<td>{typeLabel(c.listing_type)}</td><td><div className="pill-row"><Pill value={c.is_active?"live":"hidden"} label={c.is_active?"Live":"Hidden"}/><Pill value={c.verification_status}/>{c.is_featured&&<Pill value="verified" label="Featured"/>}</div></td><td>{c.phone||<span className="muted">—</span>}</td>
+<td><div className="row-actions"><Link className="icon-btn" href={`/admin/listings/${c.id}`} title="Edit listing" aria-label={`Edit ${c.name}`}><Pencil/></Link>{c.is_active&&<Link className="icon-btn" href={`/services/${c.slug}`} target="_blank" title="View on site" aria-label={`View ${c.name} on site`}><ExternalLink/></Link>}<form action={setListingActive}><input type="hidden" name="id" value={c.id}/><input type="hidden" name="active" value={String(!c.is_active)}/><button className="button secondary small">{c.is_active?"Hide":"Show"}</button></form></div></td></tr>)}</tbody></table></div>:<p className="dash-empty">No listings match these filters.</p>}</div>
+{pages>1&&<nav className="pagination" aria-label="Pages">{page>1&&<Link className="button secondary small" href={href(page-1)}>← Previous</Link>}<span>Page {page} of {pages}</span>{page<pages&&<Link className="button secondary small" href={href(page+1)}>Next →</Link>}</nav>}
+</DashShell>}
