@@ -39,6 +39,23 @@ Create a new Supabase project, open SQL Editor and run these files in order:
 3. `supabase/migrations/003_seed.sql`
 4. `supabase/migrations/004_launch_content.sql`
 5. `supabase/migrations/005_api_grants.sql`
+6. `supabase/migrations/006_listings_live.sql`
+
+## Importing listings (free, OpenStreetMap)
+
+Service centres, repair shops and riding-gear shops are imported from OpenStreetMap for 18 cities (Delhi NCR, Mumbai, Pune, Bengaluru, Hyderabad, Chennai, Kolkata, Ahmedabad, Jaipur, Chandigarh, Lucknow, Kochi, Indore, Dehradun). It needs `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `.env.local`.
+
+```bash
+npm run import:osm              # all cities
+npm run import:osm -- pune      # one city
+npm run import:osm -- --dry     # fetch and classify without writing
+```
+
+Re-running updates existing rows in place (matched on the OSM id) and never overwrites listings a partner has claimed. OSM data must be credited, and the listing pages already do this. OSM covers far fewer shops than Google Maps. `service_centres.google_place_id` is reserved for a later Google Places API enrichment. Google's terms only allow storing the place id, so other Google fields should be fetched live or cached for no more than 30 days.
+
+## Partners and admins
+
+Create users in Supabase → Authentication. To link a partner to their listing, set `service_centres.owner_id` to the user's id. To make someone an administrator, set `profiles.role = 'admin'`. Partners can then edit their listing and manage enquiries at `/partner/dashboard`. Admins can verify or hide listings and read enquiries and contact messages at `/admin`.
 
 Set partner and administrator roles by updating `public.profiles.role` from a secure administrator process. Never expose the service-role key in browser code.
 
@@ -56,7 +73,6 @@ For continued development, connecting a Git repository to Vercel is more reliabl
 
 - Replace demonstration centre details with verified partner data.
 - Replace demonstration telephone numbers.
-- Connect enquiry and registration forms to Supabase.
 - Add Supabase Storage buckets for partner-uploaded centre images.
 - Configure partner password reset and email templates.
 - Protect `/partner/dashboard` and `/admin` with server-side role checks before production use.
