@@ -1,6 +1,6 @@
 import {createClient} from "@supabase/supabase-js";
 import {centres} from "@/lib/data";
-import {inferType,listingImage,matchCity,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
+import {detectBrand,inferType,listingImage,matchCity,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
 
 export const PAGE_SIZE=24;
 const CARD_FIELDS="slug,name,listing_type,centre_type,locality,city,phone,opening_hours_text,brands";
@@ -15,7 +15,7 @@ type Row={slug:string;name:string;listing_type:ListingType;centre_type:string|nu
 function toListing(r:Row):Listing{
   const brands=(r.brands||[]).slice(0,3);
   return {slug:r.slug,name:r.name,listingType:r.listing_type,type:r.centre_type||typeLabel(r.listing_type),location:[r.locality,r.city].filter(Boolean).join(", "),
-    image:listingImage(r.listing_type,r.slug),tags:brands.length?brands:[typeLabel(r.listing_type)],phone:r.phone,open:r.opening_hours_text};
+    image:listingImage(r.listing_type,r.slug),tags:brands.length?brands:[typeLabel(r.listing_type)],brand:detectBrand(r.brands||[],r.name),phone:r.phone,open:r.opening_hours_text};
 }
 const demoListings=():Listing[]=>centres.map(c=>({...c,listingType:"service_centre" as const}));
 

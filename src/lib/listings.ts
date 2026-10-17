@@ -8,7 +8,8 @@ export const LISTING_TYPES:{value:ListingType;label:string;plural:string}[]=[
 export const CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad","Mumbai","Pune","Bengaluru","Hyderabad","Chennai","Kolkata","Ahmedabad","Jaipur","Chandigarh","Lucknow","Kochi","Indore","Dehradun"];
 const CITY_ALIASES:Record<string,string>={delhi:"New Delhi","new delhi":"New Delhi",gurgaon:"Gurugram",bangalore:"Bengaluru",bombay:"Mumbai",calcutta:"Kolkata",madras:"Chennai",cochin:"Kochi"};
 
-export type Listing={slug:string;name:string;type:string;listingType:ListingType;location:string;image:string;tags:string[];rating?:number;reviews?:number;phone?:string|null;open?:string|null};
+export type Brand={name:string;logo:string};
+export type Listing={slug:string;name:string;type:string;listingType:ListingType;location:string;image:string;tags:string[];brand?:Brand|null;rating?:number;reviews?:number;phone?:string|null;open?:string|null};
 export type ListingDetail=Listing&{id?:string;description?:string|null;address?:string|null;locality?:string|null;city:string;state?:string|null;postalCode?:string|null;latitude?:number|null;longitude?:number|null;website?:string|null;email?:string|null;brands:string[];source:string;verification:string;sourceId?:string|null};
 
 const IMAGES:Record<ListingType,string[]>={
@@ -36,3 +37,28 @@ export function inferType(q?:string):ListingType|undefined{
 }
 export const googleMapsUrl=(l:{name:string;city:string;latitude?:number|null;longitude?:number|null})=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${l.name}, ${l.city}`)}`;
 export const directionsUrl=(lat:number,lon:number)=>`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+
+// Official brand logos (from Wikimedia Commons via Wikidata), served from /public/brands.
+// Logos are trademarks of their owners and are used only to identify the brand a shop deals in.
+const BRANDS:[RegExp,Brand][]=[
+ [/royal\s*enfield/i,{name:"Royal Enfield",logo:"/brands/royal-enfield.png"}],
+ [/harley/i,{name:"Harley-Davidson",logo:"/brands/harley-davidson.png"}],
+ [/\bhero\b/i,{name:"Hero",logo:"/brands/hero.png"}],
+ [/\bhonda\b/i,{name:"Honda",logo:"/brands/honda.png"}],
+ [/\bbajaj\b/i,{name:"Bajaj",logo:"/brands/bajaj.png"}],
+ [/\bktm\b/i,{name:"KTM",logo:"/brands/ktm.png"}],
+ [/\bsuzuki\b/i,{name:"Suzuki",logo:"/brands/suzuki.png"}],
+ [/\byamaha\b/i,{name:"Yamaha",logo:"/brands/yamaha.png"}],
+ [/\btriumph\b/i,{name:"Triumph",logo:"/brands/triumph.jpg"}],
+ [/\bbmw\b/i,{name:"BMW Motorrad",logo:"/brands/bmw.png"}],
+ [/\bkawasaki\b/i,{name:"Kawasaki",logo:"/brands/kawasaki.png"}],
+ [/\bducati\b/i,{name:"Ducati",logo:"/brands/ducati.png"}],
+ [/\bvespa\b/i,{name:"Vespa",logo:"/brands/vespa.png"}],
+ [/\bola\s*electric\b/i,{name:"Ola Electric",logo:"/brands/ola-electric.png"}]
+];
+/** Finds the brand a shop deals in from its OSM brand tags, falling back to its name. */
+export function detectBrand(brands:string[],name:string):Brand|null{
+ for(const text of [...brands,name])for(const [re,brand] of BRANDS)if(re.test(text))return brand;
+ return null;
+}
+export function initials(name:string){return name.replace(/[^\p{L}\p{N}\s]/gu,"").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"BH"}
