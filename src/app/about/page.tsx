@@ -1,0 +1,1 @@
+export default function About(){return <main><section className="page-hero"><div className="container"><h1>Built around rider confidence</h1><p>BikeHub makes specialist quality visible and turns rider experience into useful, credible decisions.</p></div></section></main>}

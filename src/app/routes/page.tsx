@@ -1,0 +1,2 @@
+import {routes} from "@/lib/data";import {RouteCard} from "@/components/ui";
+export default function Routes(){return <main><section className="page-hero"><div className="container"><h1>Rides, routes and events</h1><p>Discover roads worth riding, practical support points and the conditions you should know before leaving.</p></div></section><section className="section"><div className="container route-grid">{routes.map(r=><RouteCard key={r.slug} route={r}/>)}</div></section></main>}
