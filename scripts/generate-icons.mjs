@@ -3,11 +3,10 @@
 import sharp from "sharp";import {writeFileSync} from "node:fs";
 
 // Logo colours per theme: tile background, gradient start (light), middle and end (deep), tile glow.
-// Usage: node scripts/generate-icons.mjs <classic|ember|trail|racing>
+// Usage: node scripts/generate-icons.mjs <classic|ember|racing>
 const THEMES={
   classic:["#031c38","#ffe066","#ffd31a","#f5b800","#0a2c55"],
   ember:["#0f1114","#ffb020","#ff5a1f","#e23d0b","#22262c"],
-  trail:["#1c2b22","#ecd6ab","#d9692a","#a94c14","#2a3d31"],
   racing:["#0b0b0d","#ff4d40","#e10600","#9e0400","#1f2024"]
 };
 const theme=process.argv[2]||"ember";

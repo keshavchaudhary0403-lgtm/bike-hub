@@ -1,6 +1,6 @@
 import Image from "next/image";import Link from "next/link";
 import {ArrowRight,BadgeCheck,MapPin,Navigation,Phone,Route as RouteIcon,Search,Send,ShieldCheck,Wrench,CircleDot,HardHat} from "lucide-react";
-import {routes} from "@/lib/data";import {THEME,type HeroPhoto} from "@/lib/theme";
+import {THEME,type HeroPhoto} from "@/lib/theme";
 
 const popular=["Service centre","Tyre change","Performance tuning","Riding gear fitting","Riding routes","Upcoming rides"];
 const popularHref=(x:string)=>/route|ride/i.test(x)?"/routes":`/services?q=${encodeURIComponent(x)}`;
@@ -37,10 +37,6 @@ export function Hero({stats}:{stats:HeroStats}){
     <Copy stats={stats}/>
     <div className="arch" aria-hidden="true"><Photo className="arch-frame" p={photos[0]} sizes="(max-width:900px) 80vw, 34vw" priority/>
       <span className="float-chip c1"><Phone/> Call in one tap</span><span className="float-chip c2"><Navigation/> Directions</span><span className="float-chip c3"><Send/> Free enquiries</span></div>
-  </div><Credit photos={photos}/></section>;
-  if(layout==="explorer")return <section className="hero hero-explorer"><Image className="explorer-bg" src={photos[0].src} alt="" fill priority sizes="100vw"/><div className="speed-lines" aria-hidden="true"/><div className="container explorer-inner">
-    <Copy stats={stats}/>
-    <aside className="route-card"><b><RouteIcon/> Roads worth riding</b>{routes.slice(0,3).map(r=><Link key={r.slug} href={`/routes/${r.slug}`}><Image src={r.image} alt="" width={56} height={56}/><span><strong>{r.name}</strong><small>{r.distance} · {r.level}</small></span><ArrowRight/></Link>)}<Link className="link" href="/routes">All routes <ArrowRight size={15}/></Link></aside>
   </div><Credit photos={photos}/></section>;
   return <section className="hero hero-studio"><span className="studio-word" aria-hidden="true">Ride</span><div className="container hero-grid">
     <Copy stats={stats}/>
