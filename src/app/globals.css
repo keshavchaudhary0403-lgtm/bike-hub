@@ -154,7 +154,8 @@ p{margin:0 0 1em}
 .hero-collage{position:absolute;z-index:1;right:max(24px,calc((100vw - 1240px)/2));top:50%;width:min(44vw,560px);height:min(80%,640px);transform:translateY(-50%)}
 .hero-collage>div{position:absolute;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.45);animation:rise 1s var(--ease) both}
 .hero-collage img{object-fit:cover}
-.collage-1{inset:0 0 0 16%;border-radius:30px}
+.collage-1{inset:0 0 0 16%;border-radius:30px;z-index:1}
+.collage-2,.collage-3{z-index:2}
 .collage-2{left:0;bottom:7%;width:40%;aspect-ratio:3/4;border-radius:22px;border:5px solid var(--asphalt);animation:rise 1s var(--ease) .25s both,float 7s ease-in-out 1.3s infinite!important}
 .collage-3{right:-3%;top:-4%;width:32%;aspect-ratio:1;border-radius:50%;border:5px solid var(--asphalt);animation:rise 1s var(--ease) .4s both,float 8s ease-in-out 1.5s infinite reverse!important}
 @keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(1deg)}}
