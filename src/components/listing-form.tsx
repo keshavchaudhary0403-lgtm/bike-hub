@@ -1,5 +1,5 @@
-import Link from "next/link";import {ExternalLink,Save} from "lucide-react";import {VERIFICATION_STATUSES} from "@/lib/admin";import {CITIES,LISTING_TYPES} from "@/lib/listings";import {saveListing} from "@/app/admin/actions";
-export type ListingRow={id:string;slug:string;name:string;listing_type:string;centre_type:string|null;description:string|null;address_line:string|null;locality:string|null;city:string;state:string;postal_code:string|null;latitude:number|null;longitude:number|null;phone:string|null;email:string|null;website:string|null;opening_hours_text:string|null;brands:string[]|null;verification_status:string;is_active:boolean;is_featured:boolean;source:string;source_id:string|null;manually_edited:boolean};
+import Link from "next/link";import {ExternalLink,Save} from "lucide-react";import {VERIFICATION_STATUSES} from "@/lib/admin";import {CITIES,LISTING_TYPES} from "@/lib/listings";import {saveListing} from "@/app/admin/actions";import {PhotoManager} from "@/components/photo-manager";
+export type ListingRow={id:string;slug:string;name:string;listing_type:string;centre_type:string|null;description:string|null;address_line:string|null;locality:string|null;city:string;state:string;postal_code:string|null;latitude:number|null;longitude:number|null;phone:string|null;email:string|null;website:string|null;opening_hours_text:string|null;brands:string[]|null;photos:string[]|null;verification_status:string;is_active:boolean;is_featured:boolean;source:string;source_id:string|null;manually_edited:boolean};
 /** Admin editor for every listing field. Without `listing` it creates a new one. */
 export function ListingForm({listing:l,ownerEmail}:{listing?:ListingRow;ownerEmail?:string|null}){
   return <form action={saveListing} className="editor">{l&&<input type="hidden" name="id" value={l.id}/>}<input type="hidden" name="current_owner" value={ownerEmail||""}/>
@@ -27,6 +27,7 @@ export function ListingForm({listing:l,ownerEmail}:{listing?:ListingRow;ownerEma
       <label>Longitude<input name="longitude" inputMode="decimal" defaultValue={l?.longitude??""} placeholder="77.5946"/></label>
       <p className="hint span-2">Tip: in Google Maps, right-click the shop’s location and click the coordinates to copy them.</p>
     </fieldset>
+    {l?<PhotoManager centreId={l.id} initial={l.photos||[]}/>:<div className="dash-card"><h2>Photos</h2><p className="hint">Create the listing first, then add photos.</p></div>}
   </div>
   <aside className="editor-side">
     <div className="dash-card"><h2>Publishing</h2>

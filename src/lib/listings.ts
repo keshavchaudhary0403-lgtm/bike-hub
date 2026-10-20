@@ -9,8 +9,8 @@ export const CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad","Mum
 const CITY_ALIASES:Record<string,string>={delhi:"New Delhi","new delhi":"New Delhi",gurgaon:"Gurugram",bangalore:"Bengaluru",bombay:"Mumbai",calcutta:"Kolkata",madras:"Chennai",cochin:"Kochi"};
 
 export type Brand={name:string;logo:string};
-export type Listing={slug:string;name:string;type:string;listingType:ListingType;location:string;image:string;tags:string[];brand?:Brand|null;rating?:number;reviews?:number;phone?:string|null;open?:string|null};
-export type ListingDetail=Listing&{id?:string;description?:string|null;address?:string|null;locality?:string|null;city:string;state?:string|null;postalCode?:string|null;latitude?:number|null;longitude?:number|null;website?:string|null;email?:string|null;brands:string[];source:string;verification:string;sourceId?:string|null};
+export type Listing={slug:string;name:string;type:string;listingType:ListingType;location:string;image:string;tags:string[];brand?:Brand|null;photo?:string|null;rating?:number;reviews?:number;phone?:string|null;open?:string|null};
+export type ListingDetail=Listing&{id?:string;description?:string|null;address?:string|null;locality?:string|null;city:string;state?:string|null;postalCode?:string|null;latitude?:number|null;longitude?:number|null;website?:string|null;email?:string|null;brands:string[];photos:string[];source:string;verification:string;sourceId?:string|null};
 
 const IMAGES:Record<ListingType,string[]>={
  service_centre:["/images/service-centre-1.jpg","/images/service-centre-2.jpg","/images/service-centre-3.jpg","/images/service-centre-4.jpg"],
@@ -35,6 +35,8 @@ export function inferType(q?:string):ListingType|undefined{
  if(/service cent|showroom|dealer|authori[sz]ed/.test(v))return "service_centre";
  return undefined;
 }
+/** Public URL of a photo stored in the `listing-photos` bucket. */
+export const photoUrl=(path:string)=>`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-photos/${path}`;
 export const googleMapsUrl=(l:{name:string;city:string;latitude?:number|null;longitude?:number|null})=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${l.name}, ${l.city}`)}`;
 export const directionsUrl=(lat:number,lon:number)=>`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
 

@@ -1,9 +1,9 @@
 import {createClient} from "@supabase/supabase-js";
 import {centres} from "@/lib/data";
-import {detectBrand,inferType,listingImage,matchCity,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
+import {detectBrand,inferType,listingImage,matchCity,photoUrl,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
 
 export const PAGE_SIZE=24;
-const CARD_FIELDS="slug,name,listing_type,centre_type,locality,city,phone,opening_hours_text,brands";
+const CARD_FIELDS="slug,name,listing_type,centre_type,locality,city,phone,opening_hours_text,brands,photos";
 
 function publicClient(){
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -11,11 +11,11 @@ function publicClient(){
   return url&&key?createClient(url,key,{auth:{persistSession:false}}):null;
 }
 
-type Row={slug:string;name:string;listing_type:ListingType;centre_type:string|null;locality:string|null;city:string;phone:string|null;opening_hours_text:string|null;brands:string[]|null};
+type Row={slug:string;name:string;listing_type:ListingType;centre_type:string|null;locality:string|null;city:string;phone:string|null;opening_hours_text:string|null;brands:string[]|null;photos?:string[]|null};
 function toListing(r:Row):Listing{
   const brands=(r.brands||[]).slice(0,3);
   return {slug:r.slug,name:r.name,listingType:r.listing_type,type:r.centre_type||typeLabel(r.listing_type),location:[r.locality,r.city].filter(Boolean).join(", "),
-    image:listingImage(r.listing_type,r.slug),tags:brands.length?brands:[typeLabel(r.listing_type)],brand:detectBrand(r.brands||[],r.name),phone:r.phone,open:r.opening_hours_text};
+    image:listingImage(r.listing_type,r.slug),tags:brands.length?brands:[typeLabel(r.listing_type)],brand:detectBrand(r.brands||[],r.name),photo:r.photos?.[0]?photoUrl(r.photos[0]):null,phone:r.phone,open:r.opening_hours_text};
 }
 const demoListings=():Listing[]=>centres.map(c=>({...c,listingType:"service_centre" as const}));
 
@@ -47,12 +47,12 @@ export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE):Promi
 
 export async function getCentre(slug:string):Promise<ListingDetail|null>{
   const supabase=publicClient();
-  if(!supabase){const c=centres.find(x=>x.slug===slug);return c?{...c,listingType:"service_centre",city:c.location.split(",").pop()!.trim(),brands:[],source:"demo",verification:"unverified"}:null}
+  if(!supabase){const c=centres.find(x=>x.slug===slug);return c?{...c,listingType:"service_centre",city:c.location.split(",").pop()!.trim(),brands:[],photos:[],source:"demo",verification:"unverified"}:null}
   const {data:r,error}=await supabase.from("service_centres").select("*").eq("slug",slug).eq("is_active",true).maybeSingle();
   if(error||!r)return null;
   return {...toListing(r as Row),id:r.id,description:r.description,address:r.address_line,locality:r.locality,city:r.city,state:r.state,postalCode:r.postal_code,
     latitude:r.latitude==null?null:Number(r.latitude),longitude:r.longitude==null?null:Number(r.longitude),website:r.website,email:r.email,
-    brands:r.brands||[],source:r.source,sourceId:r.source_id,verification:r.verification_status};
+    brands:r.brands||[],photos:(r.photos||[]).map(photoUrl),source:r.source,sourceId:r.source_id,verification:r.verification_status};
 }
 
 export async function getNearby(c:ListingDetail,limit=4){

@@ -4,9 +4,10 @@ import type {routes,posts} from "@/lib/data";import {initials,typeLabel,type Lis
 type Route=(typeof routes)[number];type Post=(typeof posts)[number];
 const TYPE_ICON={service_centre:ShieldCheck,repair_shop:Wrench,gear_shop:HardHat};
 
-/** Brand logo on white when the shop's brand is known, otherwise a monogram tile coloured by listing type. */
-export function ListingCover({listing,showChip=true}:{listing:Pick<Listing,"name"|"listingType"|"brand">;showChip?:boolean}){
+/** The partner's cover photo when there is one, else the brand logo on white when the shop's brand is known, otherwise a monogram tile coloured by listing type. */
+export function ListingCover({listing,showChip=true}:{listing:Pick<Listing,"name"|"listingType"|"brand"|"photo">;showChip?:boolean}){
   const Icon=TYPE_ICON[listing.listingType]||Wrench;const chip=showChip&&<span className="chip">{typeLabel(listing.listingType)}</span>;
+  if(listing.photo)return <div className="listing-cover photo"><Image src={listing.photo} alt={listing.name} fill sizes="(max-width:640px) 100vw, 400px"/>{chip}</div>;
   if(listing.brand)return <div className="listing-cover"><span className="logo-box"><Image src={listing.brand.logo} alt={`${listing.brand.name} logo`} fill sizes="200px"/></span>{chip}</div>;
   return <div className={`listing-cover mono ${listing.listingType}`}><span className="initials" aria-hidden="true">{initials(listing.name)}</span><Icon className="mono-icon" aria-hidden="true"/>{chip}</div>;
 }

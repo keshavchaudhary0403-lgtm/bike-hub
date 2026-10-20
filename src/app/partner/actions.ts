@@ -17,3 +17,12 @@ export async function updateEnquiryStatus(form:FormData){
   await supabase.from("enquiries").update({status}).eq("id",String(form.get("id")));
   revalidatePath("/partner/dashboard");revalidatePath("/admin","layout");
 }
+/** Saves a listing's photo order (first is the cover). Partners can only touch their own listings: RLS and the photos check enforce it. */
+export async function saveListingPhotos(id:string,photos:string[]):Promise<{error?:string}>{
+  const {supabase,user}=await getSessionProfile();if(!supabase||!user)return {error:"Please sign in again."};
+  if(!Array.isArray(photos)||photos.length>8||photos.some(p=>typeof p!=="string"||!p.startsWith(`${id}/`)))return {error:"Invalid photos."};
+  const {data,error}=await supabase.from("service_centres").update({photos,manually_edited:true}).eq("id",id).select("slug").maybeSingle();
+  if(error||!data)return {error:"Could not save photos."};
+  revalidatePath(`/services/${data.slug}`);revalidatePath("/services");revalidatePath("/");revalidatePath("/partner/dashboard");revalidatePath("/admin","layout");
+  return {};
+}
