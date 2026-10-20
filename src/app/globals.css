@@ -151,6 +151,8 @@ p{margin:0 0 1em}
 .hero-split::after,.hero-diagonal::after{display:none}
 .hero-split .hero-notes,.hero-diagonal .hero-notes{display:none}
 .hero-split .hero-content>*{max-width:min(600px,calc(100% - min(44vw,560px) - 48px))}
+.hero-split .hero-search,.hero-diagonal .hero-search{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) auto}
+.hero-split .hero-search .button,.hero-diagonal .hero-search .button{padding-inline:20px}
 .hero-collage{position:absolute;z-index:1;right:max(24px,calc((100vw - 1240px)/2));top:50%;width:min(44vw,560px);height:min(80%,640px);transform:translateY(-50%)}
 .hero-collage>div{position:absolute;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.45);animation:rise 1s var(--ease) both}
 .hero-collage img{object-fit:cover}
