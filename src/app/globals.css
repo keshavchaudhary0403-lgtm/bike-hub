@@ -175,6 +175,7 @@ p{margin:0 0 1em}
   .hero-panel img{clip-path:polygon(0 0,100% 0,100% 82%,0 100%)}
   .hero-stripe{display:none}
 }
+@media(max-width:640px){.hero-split .hero-search,.hero-diagonal .hero-search{grid-template-columns:1fr}.hero-collage{height:280px}}
 
 /* Road divider + city marquee */
 .road{height:6px;background:var(--asphalt) repeating-linear-gradient(90deg,var(--amber) 0 48px,transparent 48px 96px) center/96px 2px no-repeat;background-repeat:repeat-x;animation:road 1.2s linear infinite}
