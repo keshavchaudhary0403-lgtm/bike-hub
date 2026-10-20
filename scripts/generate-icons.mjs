@@ -2,12 +2,13 @@
 // Usage: node scripts/generate-icons.mjs
 import sharp from "sharp";import {writeFileSync} from "node:fs";
 
-const BG="#0f1114",EMBER="#ff5a1f",AMBER="#ffb020";
+// Theme colours: tile background, gradient start (light), middle and end (deep), tile glow.
+const BG="#0f1114",AMBER="#ffb020",EMBER="#ff5a1f",DEEP="#e23d0b",GLOW="#22262c";
 const spokes=[0,72,144,216,288].map(a=>`<rect x="244" y="98" width="24" height="120" rx="6" transform="rotate(${a} 256 256)"/>`).join("");
 // `bleed` fills the whole square (maskable icons); otherwise a rounded tile.
 const svg=({bleed=false,scale=1}={})=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs><linearGradient id="e" gradientUnits="userSpaceOnUse" x1="80" y1="80" x2="432" y2="432"><stop offset="0" stop-color="${AMBER}"/><stop offset=".55" stop-color="${EMBER}"/><stop offset="1" stop-color="#e23d0b"/></linearGradient>
-<radialGradient id="g" cx=".5" cy=".42" r=".7"><stop offset="0" stop-color="#22262c"/><stop offset="1" stop-color="${BG}"/></radialGradient></defs>
+<defs><linearGradient id="e" gradientUnits="userSpaceOnUse" x1="80" y1="80" x2="432" y2="432"><stop offset="0" stop-color="${AMBER}"/><stop offset=".55" stop-color="${EMBER}"/><stop offset="1" stop-color="${DEEP}"/></linearGradient>
+<radialGradient id="g" cx=".5" cy=".42" r=".7"><stop offset="0" stop-color="${GLOW}"/><stop offset="1" stop-color="${BG}"/></radialGradient></defs>
 ${bleed?`<rect width="512" height="512" fill="url(#g)"/>`:`<rect width="512" height="512" rx="104" fill="url(#g)"/>`}
 <g transform="translate(256 256) scale(${scale}) translate(-256 -256)" fill="url(#e)">
 <circle cx="256" cy="256" r="172" fill="none" stroke="url(#e)" stroke-width="34"/>${spokes}
