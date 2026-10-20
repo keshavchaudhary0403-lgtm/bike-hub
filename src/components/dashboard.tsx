@@ -1,11 +1,27 @@
-import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,UserCog} from "lucide-react";import {signOut} from "@/app/partner/actions";
+import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,ShieldCheck,Building2,Eye,ArrowLeft} from "lucide-react";import {signOut} from "@/app/partner/actions";
 type NavKey="overview"|"listings"|"enquiries"|"messages"|"partner";
-const ADMIN_NAV:[NavKey,string,string,typeof Store][]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail]];
-/** App-style layout for the admin and partner workspaces. */
-export function DashShell({area,active,title,subtitle,actions,badges,children}:{area:"admin"|"partner";active:NavKey;title:string;subtitle?:string;actions?:React.ReactNode;badges?:Partial<Record<NavKey,number>>;children:React.ReactNode}){
-  const nav=area==="admin"?ADMIN_NAV:[["partner","/partner/dashboard","My dashboard",LayoutDashboard] as [NavKey,string,string,typeof Store]];
-  return <main className="dash"><div className="container dash-layout"><aside className="dash-nav"><p className="dash-area">{area==="admin"?"Admin":"Partner"} workspace</p><nav>{nav.map(([key,href,label,Icon])=><Link key={key} href={href} className={active===key?"active":undefined}><Icon/><span>{label}</span>{badges?.[key]?<em>{badges[key]}</em>:null}</Link>)}{area==="admin"?<Link href="/partner/dashboard"><UserCog/><span>Partner view</span></Link>:null}</nav>{area==="admin"&&<Link className="button small dash-new" href="/admin/listings/new"><Plus/> New listing</Link>}<form action={signOut}><button className="dash-signout"><LogOut/> Sign out</button></form></aside>
-  <section className="dash-main"><header className="dash-head"><div><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div>{actions&&<div className="dash-actions">{actions}</div>}</header>{children}</section></div></main>;
+type NavItem=[NavKey,string,string,typeof Store];
+const ADMIN_NAV:NavItem[]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail]];
+const PARTNER_NAV:NavItem[]=[["partner","/partner/dashboard","Overview",LayoutDashboard],["enquiries","/partner/dashboard#enquiries","Enquiries",Inbox],["listings","/partner/dashboard#profile","My listing",Building2]];
+
+/** Admin ↔ Partner switch, shown only to staff. */
+function WorkspaceSwitch({area}:{area:"admin"|"partner"}){
+  return <nav className="ws-switch" aria-label="Switch workspace"><Link href="/admin" className={area==="admin"?"on":undefined} aria-current={area==="admin"?"page":undefined}><ShieldCheck/> Admin</Link><Link href="/partner/dashboard" className={area==="partner"?"on":undefined} aria-current={area==="partner"?"page":undefined}><Store/> Partner</Link></nav>;
+}
+
+/** App-style layout for the admin and partner workspaces. Admin is the dark workspace; partner is the light one.
+ *  `canSwitch` (staff only) adds the workspace switch and, in the partner workspace, a preview banner. */
+export function DashShell({area,active,title,subtitle,actions,badges,canSwitch,children}:{area:"admin"|"partner";active:NavKey;title:string;subtitle?:string;actions?:React.ReactNode;badges?:Partial<Record<NavKey,number>>;canSwitch?:boolean;children:React.ReactNode}){
+  const admin=area==="admin";const nav=admin?ADMIN_NAV:PARTNER_NAV;
+  return <main className={`dash dash-${area}`}><div className="container dash-layout"><aside className={`dash-nav ${area}`}>
+    {(canSwitch||admin)&&<WorkspaceSwitch area={area}/>}
+    <p className="dash-area">{admin?<><ShieldCheck/> Admin workspace</>:<><Store/> Partner workspace</>}</p>
+    <nav>{nav.map(([key,href,label,Icon])=><Link key={key+href} href={href} className={active===key?"active":undefined}><Icon/><span>{label}</span>{badges?.[key]?<em>{badges[key]}</em>:null}</Link>)}</nav>
+    {admin&&<Link className="button small dash-new" href="/admin/listings/new"><Plus/> New listing</Link>}
+    <form action={signOut}><button className="dash-signout"><LogOut/> Sign out</button></form></aside>
+  <section className="dash-main">
+    {!admin&&canSwitch&&<div className="ws-banner" role="status"><Eye/><p><b>Partner preview.</b> This is what a shop owner sees: only listings linked to your account and their enquiries.</p><Link className="button small" href="/admin"><ArrowLeft/> Back to admin</Link></div>}
+    <header className="dash-head"><div><span className="dash-kicker">{admin?"Admin":"Partner"}</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div>{actions&&<div className="dash-actions">{actions}</div>}</header>{children}</section></div></main>;
 }
 const TONES:Record<string,string>={new:"blue",pending:"amber",accepted:"amber",quoted:"amber",verified:"green",closed:"green",read:"grey",unverified:"grey",declined:"grey",rejected:"red",suspended:"red",hidden:"red",live:"green"};
 export function Pill({value,label}:{value:string;label?:string}){return <span className={`pill-status ${TONES[value]||"grey"}`}>{label||value}</span>}
