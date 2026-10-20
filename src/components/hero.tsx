@@ -1,11 +1,10 @@
 import Image from "next/image";import Link from "next/link";
-import {ArrowRight,BadgeCheck,MapPin,Navigation,Phone,Route as RouteIcon,Search,Send,ShieldCheck,Wrench,CircleDot,HardHat} from "lucide-react";
+import {ArrowRight,MapPin,Navigation,Phone,Search,Send,ShieldCheck} from "lucide-react";
 import {THEME,type HeroPhoto} from "@/lib/theme";
 
 const popular=["Service centre","Tyre change","Performance tuning","Riding gear fitting","Riding routes","Upcoming rides"];
 const popularHref=(x:string)=>/route|ride/i.test(x)?"/routes":`/services?q=${encodeURIComponent(x)}`;
 const rotating=["service centres","repair shops","riding gear","epic routes"];
-const quick=[["Service & repair","/services?type=service_centre",Wrench],["Tyres & wheels","/services?q=Tyre",CircleDot],["Riding gear","/services?type=gear_shop",HardHat],["Routes","/routes",RouteIcon]] as const;
 export type HeroStats={listings:number|null;cities:number;routes:number;guides:number};
 
 const Photo=({p,sizes,priority,className}:{p:HeroPhoto;sizes:string;priority?:boolean;className?:string})=><div className={className}><Image src={p.src} alt={p.alt} fill priority={priority} sizes={sizes}/></div>;
@@ -27,12 +26,6 @@ const Credit=({photos}:{photos:HeroPhoto[]})=><p className="hero-credit">Photo{p
 /** Home hero. The layout and photos come from the active theme. */
 export function Hero({stats}:{stats:HeroStats}){
   const {layout,photos}=THEME.hero;
-  if(layout==="mosaic")return <section className="hero hero-mosaic"><div className="container hero-grid">
-    <Copy stats={stats}><nav className="quick" aria-label="Quick links">{quick.map(([label,href,Icon])=><Link key={label} href={href}><span><Icon/></span>{label}</Link>)}</nav></Copy>
-    <div className="mosaic" aria-hidden="true"><Photo className="m-1" p={photos[0]} sizes="(max-width:900px) 60vw, 30vw" priority/><Photo className="m-2" p={photos[1]??photos[0]} sizes="(max-width:900px) 40vw, 22vw"/>
-      <Link href="/services" className="m-card" tabIndex={-1}><b>{fmt(stats.listings)}</b><span>listings across {stats.cities} cities</span><ArrowRight/></Link>
-      <span className="m-badge"><BadgeCheck/> Verified badges</span><span className="m-badge two"><Phone/> Call in one tap</span></div>
-  </div><Credit photos={photos.slice(0,2)}/></section>;
   if(layout==="arch")return <section className="hero hero-arch"><div className="hero-sun" aria-hidden="true"/><div className="speed-lines" aria-hidden="true"/><div className="container hero-grid">
     <Copy stats={stats}/>
     <div className="arch" aria-hidden="true"><Photo className="arch-frame" p={photos[0]} sizes="(max-width:900px) 80vw, 34vw" priority/>

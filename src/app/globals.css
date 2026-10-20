@@ -147,27 +147,7 @@ p{margin:0 0 1em}
 .hero-credit{position:absolute;right:16px;bottom:10px;z-index:3;margin:0;font-size:11px;color:var(--muted)}
 .hero-credit a{text-decoration:underline;text-underline-offset:2px}
 .hero-credit a:hover{color:var(--ink)}
-.m-1 img,.m-2 img,.arch-frame img,.studio-photo img{object-fit:cover}
-
-/* Hero — mosaic (photo grid beside the search) */
-.quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px;max-width:640px}
-.quick a{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:700;text-align:center;transition:transform .25s var(--ease),box-shadow .25s,border-color .25s}
-.quick a:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--brand)}
-.quick span{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand-text)}
-.quick svg{width:22px;height:22px}
-.mosaic{position:relative;display:grid;grid-template-columns:1.1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;height:min(560px,70vh);min-height:440px}
-.mosaic::before{content:"";position:absolute;z-index:-1;inset:8% -6% -6% 10%;border-radius:40% 60% 55% 45%/50% 45% 55% 50%;background:var(--accent);opacity:.9}
-.mosaic>div{position:relative;overflow:hidden;border-radius:var(--radius-lg);box-shadow:var(--shadow);animation:rise 1s var(--ease) both}
-.m-1{grid-row:1/3}
-.mosaic>.m-2{animation-delay:.15s}
-.m-card{display:flex;flex-direction:column;justify-content:flex-end;gap:2px;padding:22px;border-radius:var(--radius-lg);background:var(--dark);color:#fff;box-shadow:var(--shadow);position:relative;animation:rise 1s var(--ease) .3s both}
-.m-card b{font-family:var(--display);font-style:var(--display-style);font-size:46px;font-weight:var(--display-weight);line-height:1}
-.m-card span{color:rgba(255,255,255,.75);font-size:14px}
-.m-card svg{position:absolute;right:20px;top:20px;width:22px;height:22px;color:var(--on-dark-accent)}
-.m-badge{position:absolute;left:-22px;bottom:16%;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--pill);background:var(--surface);box-shadow:var(--shadow);font-size:13px;font-weight:700;animation:float 6s ease-in-out infinite}
-.m-badge svg{width:18px;height:18px;color:var(--green)}
-.m-badge.two{left:auto;right:-14px;bottom:auto;top:8%;animation-delay:1.5s}
-.m-badge.two svg{color:var(--brand-text)}
+.arch-frame img,.studio-photo img{object-fit:cover}
 
 /* Hero — arch (tall photo in an arch, floating chips) */
 .hero-sun{position:absolute;z-index:0;width:min(720px,70vw);aspect-ratio:1;right:-6%;top:50%;margin-top:calc(min(720px,70vw) / -2);border-radius:50%;background:radial-gradient(circle,rgba(var(--brand-rgb),.28),rgba(var(--accent-rgb),.12) 45%,transparent 68%);animation:pulse 7s ease-in-out infinite}
@@ -683,7 +663,6 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
   .menu-button{display:grid}
   .search-icon{display:none}
   .hero-grid{grid-template-columns:1fr;gap:40px;padding:48px 0 64px}
-  .mosaic{height:420px;min-height:0}
   .arch{width:min(380px,86%)}
   .studio{min-height:340px}
   .studio-word{font-size:40vw;top:auto;bottom:10%;transform:none}
@@ -721,10 +700,6 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
   .hero-search label:first-child{border-right:0;border-bottom:1px solid var(--line)}
   .hero-search .button{width:100%}
   .hero-stats{gap:16px 26px}
-  .quick{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .mosaic{height:360px;gap:10px}
-  .m-badge{left:8px}.m-badge.two{right:8px}
-  .m-card{padding:16px}.m-card b{font-size:34px}
   .float-chip{font-size:12px;padding:8px 12px}
   .float-chip.c1{left:-2%}.float-chip.c2{right:-2%}
   .marquee a{font-size:20px;padding:0 16px}
