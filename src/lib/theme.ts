@@ -14,6 +14,6 @@ export const PHOTOS={
 } satisfies Record<string,HeroPhoto>;
 
 export const THEME:{id:ThemeId;name:string;color:string;hero:{layout:HeroLayout;photos:HeroPhoto[]}}={
-  id:"ember",name:"Asphalt & Ember",color:"#f6f3ee",
-  hero:{layout:"arch",photos:[PHOTOS.sunset]}
+  id:"racing",name:"Racing Red",color:"#0b0b0d",
+  hero:{layout:"studio",photos:[PHOTOS.studio]}
 };
