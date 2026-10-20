@@ -1,34 +1,5 @@
 /* The four BikeHub themes. Only the one matching <html data-theme> applies (set in src/lib/theme.ts). */
 
-/* ───────── Classic — yellow, blue & white marketplace ───────── */
-[data-theme="classic"]{
-  --bg:#f5f8fc;--bg-2:#eaf1f9;--surface:#fff;--ink:#0b1b30;--body:#33445a;--muted:#5b6b80;--line:#e2e8f0;--line-2:#cbd5e1;--ink-rgb:11,27,48;
-  --brand:#0761b4;--brand-hover:#05508f;--brand-ink:#fff;--brand-rgb:7,97,180;--brand-soft:#e8f1fb;--brand-text:#0761b4;--brand-line:#bcd5ef;
-  --accent:#ffd31a;--accent-rgb:255,211,26;--heat:linear-gradient(100deg,#ffd31a,#f5b800);
-  --dark:#031c38;--dark-2:#0a2c55;--dark-3:#123a6b;--dark-rgb:3,28,56;--on-dark-accent:#ffd31a;
-  --hero-bg:#fff;--hero-bg-rgb:255,255,255;
-  --header-bg:rgba(255,255,255,.9);--header-bg-scrolled:rgba(255,255,255,.97);--header-solid:#fff;--header-fg:#031c38;--header-fg-muted:#475569;--header-line:#e2e8f0;--header-accent:#0761b4;
-  --marquee-bg:#ffd31a;--marquee-fg:rgba(3,28,56,.6);--marquee-hover:#031c38;--marquee-dot:#031c38;
-  --mono-service:linear-gradient(135deg,#05508f,#0b7ad6);--mono-repair:linear-gradient(135deg,#031c38,#123a6b);--mono-gear:linear-gradient(135deg,#f5b800,#ffd31a);
-  --display-weight:800;--display-transform:none;--display-style:normal;--display-tracking:-.035em;--display-leading:1.04;--hero-size:4.9rem;
-  --radius:18px;--radius-sm:12px;--radius-lg:28px;
-}
-[data-theme="classic"] .eyebrow{padding:6px 14px 6px 10px;border-radius:999px;background:var(--brand-soft);letter-spacing:.06em;font-size:12px}
-[data-theme="classic"] .eyebrow::before{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.35)}
-[data-theme="classic"] .promo .eyebrow,[data-theme="classic"] .cta-band .eyebrow,[data-theme="classic"] .auth-art .eyebrow{background:rgba(255,255,255,.1)}
-[data-theme="classic"] .hero h1 span{display:table;color:var(--ink);background:linear-gradient(transparent 60%,var(--accent) 60%,var(--accent) 92%,transparent 92%);padding:0 .06em}
-[data-theme="classic"] .page-hero h1,[data-theme="classic"] .section-head h2{letter-spacing:-.03em}
-[data-theme="classic"] .listing-cover.mono.gear_shop{color:var(--dark)}
-[data-theme="classic"] .trust-strip{background:linear-gradient(100deg,#04264a,#0761b4)}
-[data-theme="classic"] .page-hero{background:linear-gradient(180deg,#fff,var(--bg))}
-[data-theme="classic"] .page-hero::before{left:auto;right:-120px;top:-180px;background:radial-gradient(circle,rgba(var(--accent-rgb),.35),transparent 65%)}
-[data-theme="classic"] .page-hero-media{top:24px;bottom:24px;right:max(24px,calc((100vw - 1240px) / 2));width:38%;border-radius:var(--radius-lg);-webkit-mask-image:none;mask-image:none;box-shadow:var(--shadow)}
-[data-theme="classic"] .page-hero-media::after{content:"";position:absolute;left:-10px;bottom:-10px;width:70px;height:70px;border-radius:18px;background:var(--accent)}
-[data-theme="classic"] .button.dark{background:var(--dark)}
-[data-theme="classic"] .cta-band .button:not(.ghost),[data-theme="classic"] .footer-cta .button{background:var(--accent);color:var(--dark)}
-[data-theme="classic"] .cta-band .button:not(.ghost):hover,[data-theme="classic"] .footer-cta .button:hover{background:#f5c400;box-shadow:0 10px 30px rgba(var(--accent-rgb),.35)}
-[data-theme="classic"] .listing-card,[data-theme="classic"] .post-card{box-shadow:var(--shadow-sm)}
-
 /* ───────── Asphalt & Ember — warm sand, ember orange, condensed italics ───────── */
 [data-theme="ember"] .hero h1 span,[data-theme="ember"] .footer-cta h2 span,[data-theme="ember"] .trust-signoff span,[data-theme="ember"] .logo b{background:var(--heat);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.08em}
 [data-theme="ember"] .site-footer .logo b,[data-theme="ember"] .footer-cta h2 span,[data-theme="ember"] .trust-signoff span{background:linear-gradient(100deg,#ffb020,#ff5a1f);-webkit-background-clip:text;background-clip:text}
@@ -63,6 +34,6 @@
 [data-theme="racing"] .page-hero-media{-webkit-mask-image:none;mask-image:none;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%)}
 [data-theme="racing"] .page-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-conic-gradient(var(--dark) 0 25%,#fff 0 50%) 0 0/6px 6px}
 [data-theme="racing"] .page-hero::before{display:none}
-[data-theme="racing"] .category-icon,[data-theme="racing"] .quick span,[data-theme="racing"] .panel-icon,[data-theme="racing"] .trust-icon{border-radius:4px}
+[data-theme="racing"] .category-icon,[data-theme="racing"] .panel-icon,[data-theme="racing"] .trust-icon{border-radius:4px}
 [data-theme="racing"] .dash-nav nav em{color:var(--dark)}
-@media(max-width:900px){[data-theme="classic"] .page-hero-media{display:none}[data-theme="racing"] .page-hero-media{clip-path:none}}
+@media(max-width:900px){[data-theme="racing"] .page-hero-media{clip-path:none}}
