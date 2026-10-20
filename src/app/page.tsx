@@ -6,6 +6,7 @@ import {CentreCard,PostCard,ServiceIcon} from "@/components/ui";
 import {getCentres,getListingCounts} from "@/lib/supabase-data";
 import {CITIES} from "@/lib/listings";
 import {COMMUNITY_TOPICS} from "@/lib/community";
+import {THEME} from "@/lib/theme";
 
 const popular=["Service centre","Tyre change","Performance tuning","Riding gear fitting","Riding routes","Upcoming rides"];
 const popularHref=(x:string)=>/route|ride/i.test(x)?"/routes":`/services?q=${encodeURIComponent(x)}`;
@@ -23,9 +24,13 @@ export default async function Home(){
   const [{items:liveCentres},counts]=await Promise.all([getCentres({},4),getListingCounts()]);
   const countFor=(name:string)=>!counts?null:name==="Service & Repair"?`${(counts.service_centre+counts.repair_shop).toLocaleString("en-IN")} listings`:name==="Gear & Accessories"?`${counts.gear_shop.toLocaleString("en-IN")} shops`:name==="Riding Routes"?`${routes.length} routes`:name==="Expert Advice"?`${posts.length} guides`:null;
   const totalListings=counts?counts.service_centre+counts.repair_shop+counts.gear_shop:null;
+  const hero=THEME.hero;
   const stats=[[totalListings,"Listings"],[CITIES.length,"Cities"],[routes.length,"Routes"],[posts.length,"Guides"]] as const;
   return <main>
-    <section className="hero"><Image className="hero-bg" src="/images/bikehub-hero-v2.jpg" alt="" fill priority sizes="100vw"/><div className="hero-glow" aria-hidden="true"/><div className="speed-lines" aria-hidden="true"/>
+    <section className={`hero hero-${hero.layout}`}>{hero.layout==="full"&&<Image className={hero.flip?"hero-bg flip":"hero-bg"} src={hero.photos[0].src} alt="" fill priority sizes="100vw"/>}
+      {hero.layout==="diagonal"&&<div className="hero-panel" aria-hidden="true"><Image src={hero.photos[0].src} alt="" fill priority sizes="(max-width:900px) 100vw, 60vw"/><span className="hero-stripe"/></div>}
+      {hero.layout==="split"&&<div className="hero-collage" aria-hidden="true">{hero.photos.slice(0,3).map((p,i)=><div key={p.src} className={`collage-${i+1}`}><Image src={p.src} alt="" fill priority={i===0} sizes={i===0?"(max-width:900px) 100vw, 40vw":"20vw"}/></div>)}</div>}
+      <div className="hero-glow" aria-hidden="true"/><div className="speed-lines" aria-hidden="true"/>
       <div className="container hero-content">
         <span className="eyebrow">For riders. By riders.</span>
         <h1>Ride more.<span>Worry less.</span></h1>
@@ -37,6 +42,7 @@ export default async function Home(){
       </div>
       <div className="container hero-notes" aria-hidden="true"><span><Compass/> Explore</span><span><Users/> Connect</span><span><Wrench/> Maintain</span><span><Bike/> Ride better</span></div>
       <span className="scroll-cue" aria-hidden="true"/>
+      <p className="hero-credit">Photo{hero.photos.length>1?"s":""}: {hero.photos.map((p,i)=><span key={p.href}>{i>0&&", "}<a href={p.href} target="_blank" rel="noreferrer">{p.credit}</a></span>)} / Unsplash</p>
     </section>
 
     <nav className="marquee" aria-label="Browse by city"><div className="marquee-track">{[0,1].map(copy=><div key={copy} className="marquee-set" aria-hidden={copy===1||undefined}>{CITIES.map(c=><Link key={c} href={`/services?location=${encodeURIComponent(c)}`} tabIndex={copy===1?-1:undefined}>{c}</Link>)}</div>)}</div></nav>

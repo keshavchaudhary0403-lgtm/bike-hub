@@ -139,6 +139,40 @@ p{margin:0 0 1em}
 .scroll-cue::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:var(--ember);animation:cue 1.8s var(--ease) infinite}
 @keyframes cue{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(12px)}}
 
+/* Hero layouts (chosen per theme in src/lib/theme.ts) */
+.hero-bg{object-position:center 55%}
+.hero-full::after{background:linear-gradient(90deg,rgba(var(--asphalt-rgb),.95) 0%,rgba(var(--asphalt-rgb),.78) 36%,rgba(var(--asphalt-rgb),.12) 68%,rgba(var(--asphalt-rgb),0) 100%),linear-gradient(0deg,rgba(var(--asphalt-rgb),.85),transparent 30%)}
+.hero-bg.flip{animation-name:hero-zoom-flip}
+@keyframes hero-zoom-flip{from{transform:scale(-1.14,1.14)}to{transform:scale(-1.04,1.04)}}
+.hero-credit{position:absolute;right:16px;bottom:10px;z-index:3;margin:0;font-size:11px;color:rgba(255,255,255,.45)}
+.hero-credit a{text-decoration:underline;text-underline-offset:2px}
+.hero-credit a:hover{color:#fff}
+/* split: text left, floating photo collage right */
+.hero-split::after,.hero-diagonal::after{display:none}
+.hero-split .hero-notes,.hero-diagonal .hero-notes{display:none}
+.hero-split .hero-content>*{max-width:min(600px,calc(100% - min(44vw,560px) - 48px))}
+.hero-collage{position:absolute;z-index:1;right:max(24px,calc((100vw - 1240px)/2));top:50%;width:min(44vw,560px);height:min(80%,640px);transform:translateY(-50%)}
+.hero-collage>div{position:absolute;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.45);animation:rise 1s var(--ease) both}
+.hero-collage img{object-fit:cover}
+.collage-1{inset:0 0 0 16%;border-radius:30px}
+.collage-2{left:0;bottom:7%;width:40%;aspect-ratio:3/4;border-radius:22px;border:5px solid var(--asphalt);animation:rise 1s var(--ease) .25s both,float 7s ease-in-out 1.3s infinite!important}
+.collage-3{right:-3%;top:-4%;width:32%;aspect-ratio:1;border-radius:50%;border:5px solid var(--asphalt);animation:rise 1s var(--ease) .4s both,float 8s ease-in-out 1.5s infinite reverse!important}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(1deg)}}
+/* diagonal: photo panel cut on a slant with a racing stripe */
+.hero-diagonal .hero-content>*{max-width:min(640px,54%)}
+.hero-panel{position:absolute;z-index:0;top:0;bottom:0;right:0;width:62%}
+.hero-panel img{object-fit:cover;object-position:65% center;clip-path:polygon(24% 0,100% 0,100% 100%,0 100%);animation:hero-zoom 18s ease-out both}
+.hero-stripe{position:absolute;inset:0;background:var(--ember);clip-path:polygon(18.5% 0,22.5% 0,-1.5% 100%,-5.5% 100%);box-shadow:0 0 40px var(--ember)}
+.hero-stripe::after{content:"";position:absolute;inset:0;background:#fff;clip-path:polygon(16.6% 0,17.4% 0,-6.6% 100%,-7.4% 100%)}
+@media(max-width:900px){
+  .hero-split .hero-content>*,.hero-diagonal .hero-content>*{max-width:none}
+  .hero-collage{position:relative;right:auto;top:auto;transform:none;order:2;width:auto;height:340px;margin:0 16px 56px}
+  .hero-split .hero-content{order:1;padding-bottom:40px}
+  .hero-panel{position:relative;width:100%;height:280px}
+  .hero-panel img{clip-path:polygon(0 0,100% 0,100% 82%,0 100%)}
+  .hero-stripe{display:none}
+}
+
 /* Road divider + city marquee */
 .road{height:6px;background:var(--asphalt) repeating-linear-gradient(90deg,var(--amber) 0 48px,transparent 48px 96px) center/96px 2px no-repeat;background-repeat:repeat-x;animation:road 1.2s linear infinite}
 .marquee{position:relative;overflow:hidden;background:var(--asphalt);color:#fff;border-top:1px solid var(--asphalt-line);border-bottom:1px solid var(--asphalt-line);padding:16px 0}
