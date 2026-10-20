@@ -35,35 +35,6 @@
 [data-theme="ember"] .page-hero .speed-lines{display:block}
 [data-theme="ember"] .hero-arch{background:radial-gradient(ellipse at 80% 40%,#fbe7d6,var(--hero-bg) 60%)}
 
-/* ───────── Adventure Trail — forest, sand, burnt orange, editorial serif, topo lines ───────── */
-[data-theme="trail"]{
-  --bg:#f4f1ea;--bg-2:#e9e4d6;--surface:#fffdf8;--ink:#17201a;--body:#38403a;--muted:#66685c;--line:#ddd5c3;--line-2:#cbbfa6;--ink-rgb:23,32,26;
-  --brand:#d9692a;--brand-hover:#bf5719;--brand-ink:#fff;--brand-rgb:217,105,42;--brand-soft:#fbeee2;--brand-text:#a94c14;--brand-line:#f1c7a5;
-  --accent:#e2c99a;--accent-rgb:226,201,154;--heat:linear-gradient(100deg,#d9692a,#a94c14);
-  --dark:#1c2b22;--dark-2:#24382c;--dark-3:#2f4536;--dark-rgb:28,43,34;--on-dark-accent:#e2c99a;
-  --hero-bg:#f4f1ea;--hero-bg-rgb:244,241,234;
-  --header-bg:rgba(28,43,34,.96);--header-bg-scrolled:rgba(28,43,34,.98);--header-solid:#1c2b22;--header-fg:#f4f1ea;--header-fg-muted:rgba(244,241,234,.72);--header-line:transparent;--header-accent:#e2c99a;
-  --marquee-bg:#e9e4d6;--marquee-fg:rgba(23,32,26,.5);--marquee-hover:#17201a;--marquee-dot:#d9692a;
-  --mono-service:linear-gradient(135deg,#a94c14,#d9692a);--mono-repair:linear-gradient(135deg,#1c2b22,#2f4536);--mono-gear:linear-gradient(135deg,#6f5530,#b89a66);
-  --display-weight:700;--display-transform:none;--display-style:normal;--display-tracking:-.02em;--display-leading:1;--hero-size:5.2rem;
-  --radius:10px;--radius-sm:8px;--radius-lg:16px;--pill:10px;
-}
-[data-theme="trail"] .hero h1 span,[data-theme="trail"] .footer-cta h2 span,[data-theme="trail"] .trust-signoff span{font-style:italic;font-weight:600}
-[data-theme="trail"] .hero-rotate{font-style:italic;font-weight:600}
-[data-theme="trail"] .speed-lines::before,[data-theme="trail"] .speed-lines::after{display:none}
-[data-theme="trail"] .speed-lines,[data-theme="trail"] .page-hero .speed-lines{display:block;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='280' viewBox='0 0 560 280' fill='none' stroke='%2317201a' stroke-opacity='.07' stroke-width='1.2'%3E%3Cpath d='M0 40c70-30 140 30 210 0s140-40 210 0 100 20 140 0'/%3E%3Cpath d='M0 80c80-34 150 34 230 4s140-42 200-6 90 22 130 2'/%3E%3Cpath d='M0 120c60-26 130 26 200 0s150-36 220 2 100 16 140-2'/%3E%3Cpath d='M0 160c90-30 160 30 240 2s140-34 200 0 80 18 120 0'/%3E%3Cpath d='M0 200c70-24 140 24 210 0s140-30 210 4 100 14 140-4'/%3E%3Cpath d='M0 240c80-28 150 28 230 2s140-36 200 0 90 18 130 0'/%3E%3C/svg%3E") 0 0/560px 280px repeat;animation:topo 70s linear infinite}
-[data-theme="trail"] .hero-explorer .speed-lines{-webkit-mask-image:linear-gradient(180deg,#000 40%,transparent 62%);mask-image:linear-gradient(180deg,#000 40%,transparent 62%)}
-@keyframes topo{to{background-position:560px 0}}
-[data-theme="trail"] .road{background:var(--dark) repeating-linear-gradient(90deg,var(--accent) 0 30px,transparent 30px 60px) center/60px 2px repeat-x}
-[data-theme="trail"] .eyebrow::before{width:18px;height:18px;border-radius:50%;background:none;border:2px solid currentColor;box-shadow:inset 0 0 0 3px var(--hero-bg),inset 0 0 0 8px currentColor}
-[data-theme="trail"] .listing-card:hover,[data-theme="trail"] .post-card:hover{box-shadow:0 0 0 2px var(--dark)}
-[data-theme="trail"] .listing-card::after{background:var(--brand)}
-[data-theme="trail"] .page-hero{border-bottom:0}
-[data-theme="trail"] .page-hero::before{display:none}
-[data-theme="trail"] .page-hero-media{width:44%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%);mask-image:linear-gradient(90deg,transparent,#000 40%)}
-[data-theme="trail"] .button{font-weight:650}
-[data-theme="trail"] .marquee a{font-style:italic}
-
 /* ───────── Racing Red — carbon, red, white, sharp corners, chequered flags ───────── */
 [data-theme="racing"]{
   --bg:#f4f4f5;--bg-2:#e9e9ec;--surface:#fff;--ink:#0b0b0d;--body:#38383d;--muted:#63636a;--line:#e2e2e6;--line-2:#cfcfd5;--ink-rgb:11,11,13;
