@@ -2,8 +2,17 @@
 // Usage: node scripts/generate-icons.mjs
 import sharp from "sharp";import {writeFileSync} from "node:fs";
 
-// Theme colours: tile background, gradient start (light), middle and end (deep), tile glow.
-const BG="#0f1114",AMBER="#ffb020",EMBER="#ff5a1f",DEEP="#e23d0b",GLOW="#22262c";
+// Logo colours per theme: tile background, gradient start (light), middle and end (deep), tile glow.
+// Usage: node scripts/generate-icons.mjs <classic|ember|trail|racing>
+const THEMES={
+  classic:["#031c38","#ffe066","#ffd31a","#f5b800","#0a2c55"],
+  ember:["#0f1114","#ffb020","#ff5a1f","#e23d0b","#22262c"],
+  trail:["#1c2b22","#ecd6ab","#d9692a","#a94c14","#2a3d31"],
+  racing:["#0b0b0d","#ff4d40","#e10600","#9e0400","#1f2024"]
+};
+const theme=process.argv[2]||"ember";
+if(!THEMES[theme]){console.error(`Unknown theme "${theme}". Use one of: ${Object.keys(THEMES).join(", ")}`);process.exit(1)}
+const [BG,AMBER,EMBER,DEEP,GLOW]=THEMES[theme];
 const spokes=[0,72,144,216,288].map(a=>`<rect x="244" y="98" width="24" height="120" rx="6" transform="rotate(${a} 256 256)"/>`).join("");
 // `bleed` fills the whole square (maskable icons); otherwise a rounded tile.
 const svg=({bleed=false,scale=1}={})=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -28,4 +37,4 @@ const header=Buffer.alloc(6);header.writeUInt16LE(0,0);header.writeUInt16LE(1,2)
 let offset=6+16*sizes.length;const dir=images.map((img,i)=>{const e=Buffer.alloc(16);e.writeUInt8(sizes[i],0);e.writeUInt8(sizes[i],1);e.writeUInt16LE(1,4);e.writeUInt16LE(32,6);e.writeUInt32LE(img.length,8);e.writeUInt32LE(offset,12);offset+=img.length;return e});
 writeFileSync("src/app/favicon.ico",Buffer.concat([header,...dir,...images]));
 writeFileSync("public/logo.svg",svg());
-console.log("Icons written");
+console.log(`Icons written for ${theme}`);

@@ -1,0 +1,97 @@
+/* The four BikeHub themes. Only the one matching <html data-theme> applies (set in src/lib/theme.ts). */
+
+/* ───────── Classic — yellow, blue & white marketplace ───────── */
+[data-theme="classic"]{
+  --bg:#f5f8fc;--bg-2:#eaf1f9;--surface:#fff;--ink:#0b1b30;--body:#33445a;--muted:#5b6b80;--line:#e2e8f0;--line-2:#cbd5e1;--ink-rgb:11,27,48;
+  --brand:#0761b4;--brand-hover:#05508f;--brand-ink:#fff;--brand-rgb:7,97,180;--brand-soft:#e8f1fb;--brand-text:#0761b4;--brand-line:#bcd5ef;
+  --accent:#ffd31a;--accent-rgb:255,211,26;--heat:linear-gradient(100deg,#ffd31a,#f5b800);
+  --dark:#031c38;--dark-2:#0a2c55;--dark-3:#123a6b;--dark-rgb:3,28,56;--on-dark-accent:#ffd31a;
+  --hero-bg:#fff;--hero-bg-rgb:255,255,255;
+  --header-bg:rgba(255,255,255,.9);--header-bg-scrolled:rgba(255,255,255,.97);--header-solid:#fff;--header-fg:#031c38;--header-fg-muted:#475569;--header-line:#e2e8f0;--header-accent:#0761b4;
+  --marquee-bg:#ffd31a;--marquee-fg:rgba(3,28,56,.6);--marquee-hover:#031c38;--marquee-dot:#031c38;
+  --mono-service:linear-gradient(135deg,#05508f,#0b7ad6);--mono-repair:linear-gradient(135deg,#031c38,#123a6b);--mono-gear:linear-gradient(135deg,#f5b800,#ffd31a);
+  --display-weight:800;--display-transform:none;--display-style:normal;--display-tracking:-.035em;--display-leading:1.04;--hero-size:4.9rem;
+  --radius:18px;--radius-sm:12px;--radius-lg:28px;
+}
+[data-theme="classic"] .eyebrow{padding:6px 14px 6px 10px;border-radius:999px;background:var(--brand-soft);letter-spacing:.06em;font-size:12px}
+[data-theme="classic"] .eyebrow::before{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.35)}
+[data-theme="classic"] .promo .eyebrow,[data-theme="classic"] .cta-band .eyebrow,[data-theme="classic"] .auth-art .eyebrow{background:rgba(255,255,255,.1)}
+[data-theme="classic"] .hero h1 span{display:table;color:var(--ink);background:linear-gradient(transparent 60%,var(--accent) 60%,var(--accent) 92%,transparent 92%);padding:0 .06em}
+[data-theme="classic"] .page-hero h1,[data-theme="classic"] .section-head h2{letter-spacing:-.03em}
+[data-theme="classic"] .listing-cover.mono.gear_shop{color:var(--dark)}
+[data-theme="classic"] .trust-strip{background:linear-gradient(100deg,#04264a,#0761b4)}
+[data-theme="classic"] .page-hero{background:linear-gradient(180deg,#fff,var(--bg))}
+[data-theme="classic"] .page-hero::before{left:auto;right:-120px;top:-180px;background:radial-gradient(circle,rgba(var(--accent-rgb),.35),transparent 65%)}
+[data-theme="classic"] .page-hero-media{top:24px;bottom:24px;right:max(24px,calc((100vw - 1240px) / 2));width:38%;border-radius:var(--radius-lg);-webkit-mask-image:none;mask-image:none;box-shadow:var(--shadow)}
+[data-theme="classic"] .page-hero-media::after{content:"";position:absolute;left:-10px;bottom:-10px;width:70px;height:70px;border-radius:18px;background:var(--accent)}
+[data-theme="classic"] .button.dark{background:var(--dark)}
+[data-theme="classic"] .cta-band .button:not(.ghost),[data-theme="classic"] .footer-cta .button{background:var(--accent);color:var(--dark)}
+[data-theme="classic"] .cta-band .button:not(.ghost):hover,[data-theme="classic"] .footer-cta .button:hover{background:#f5c400;box-shadow:0 10px 30px rgba(var(--accent-rgb),.35)}
+[data-theme="classic"] .listing-card,[data-theme="classic"] .post-card{box-shadow:var(--shadow-sm)}
+
+/* ───────── Asphalt & Ember — warm sand, ember orange, condensed italics ───────── */
+[data-theme="ember"] .hero h1 span,[data-theme="ember"] .footer-cta h2 span,[data-theme="ember"] .trust-signoff span,[data-theme="ember"] .logo b{background:var(--heat);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.08em}
+[data-theme="ember"] .site-footer .logo b,[data-theme="ember"] .footer-cta h2 span,[data-theme="ember"] .trust-signoff span{background:linear-gradient(100deg,#ffb020,#ff5a1f);-webkit-background-clip:text;background-clip:text}
+[data-theme="ember"] .page-hero .speed-lines{display:block}
+[data-theme="ember"] .hero-arch{background:radial-gradient(ellipse at 80% 40%,#fbe7d6,var(--hero-bg) 60%)}
+
+/* ───────── Adventure Trail — forest, sand, burnt orange, editorial serif, topo lines ───────── */
+[data-theme="trail"]{
+  --bg:#f4f1ea;--bg-2:#e9e4d6;--surface:#fffdf8;--ink:#17201a;--body:#38403a;--muted:#66685c;--line:#ddd5c3;--line-2:#cbbfa6;--ink-rgb:23,32,26;
+  --brand:#d9692a;--brand-hover:#bf5719;--brand-ink:#fff;--brand-rgb:217,105,42;--brand-soft:#fbeee2;--brand-text:#a94c14;--brand-line:#f1c7a5;
+  --accent:#e2c99a;--accent-rgb:226,201,154;--heat:linear-gradient(100deg,#d9692a,#a94c14);
+  --dark:#1c2b22;--dark-2:#24382c;--dark-3:#2f4536;--dark-rgb:28,43,34;--on-dark-accent:#e2c99a;
+  --hero-bg:#f4f1ea;--hero-bg-rgb:244,241,234;
+  --header-bg:rgba(28,43,34,.96);--header-bg-scrolled:rgba(28,43,34,.98);--header-solid:#1c2b22;--header-fg:#f4f1ea;--header-fg-muted:rgba(244,241,234,.72);--header-line:transparent;--header-accent:#e2c99a;
+  --marquee-bg:#e9e4d6;--marquee-fg:rgba(23,32,26,.5);--marquee-hover:#17201a;--marquee-dot:#d9692a;
+  --mono-service:linear-gradient(135deg,#a94c14,#d9692a);--mono-repair:linear-gradient(135deg,#1c2b22,#2f4536);--mono-gear:linear-gradient(135deg,#6f5530,#b89a66);
+  --display-weight:700;--display-transform:none;--display-style:normal;--display-tracking:-.02em;--display-leading:1;--hero-size:5.2rem;
+  --radius:10px;--radius-sm:8px;--radius-lg:16px;--pill:10px;
+}
+[data-theme="trail"] .hero h1 span,[data-theme="trail"] .footer-cta h2 span,[data-theme="trail"] .trust-signoff span{font-style:italic;font-weight:600}
+[data-theme="trail"] .hero-rotate{font-style:italic;font-weight:600}
+[data-theme="trail"] .speed-lines::before,[data-theme="trail"] .speed-lines::after{display:none}
+[data-theme="trail"] .speed-lines,[data-theme="trail"] .page-hero .speed-lines{display:block;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='280' viewBox='0 0 560 280' fill='none' stroke='%2317201a' stroke-opacity='.07' stroke-width='1.2'%3E%3Cpath d='M0 40c70-30 140 30 210 0s140-40 210 0 100 20 140 0'/%3E%3Cpath d='M0 80c80-34 150 34 230 4s140-42 200-6 90 22 130 2'/%3E%3Cpath d='M0 120c60-26 130 26 200 0s150-36 220 2 100 16 140-2'/%3E%3Cpath d='M0 160c90-30 160 30 240 2s140-34 200 0 80 18 120 0'/%3E%3Cpath d='M0 200c70-24 140 24 210 0s140-30 210 4 100 14 140-4'/%3E%3Cpath d='M0 240c80-28 150 28 230 2s140-36 200 0 90 18 130 0'/%3E%3C/svg%3E") 0 0/560px 280px repeat;animation:topo 70s linear infinite}
+[data-theme="trail"] .hero-explorer .speed-lines{-webkit-mask-image:linear-gradient(180deg,#000 40%,transparent 62%);mask-image:linear-gradient(180deg,#000 40%,transparent 62%)}
+@keyframes topo{to{background-position:560px 0}}
+[data-theme="trail"] .road{background:var(--dark) repeating-linear-gradient(90deg,var(--accent) 0 30px,transparent 30px 60px) center/60px 2px repeat-x}
+[data-theme="trail"] .eyebrow::before{width:18px;height:18px;border-radius:50%;background:none;border:2px solid currentColor;box-shadow:inset 0 0 0 3px var(--hero-bg),inset 0 0 0 8px currentColor}
+[data-theme="trail"] .listing-card:hover,[data-theme="trail"] .post-card:hover{box-shadow:0 0 0 2px var(--dark)}
+[data-theme="trail"] .listing-card::after{background:var(--brand)}
+[data-theme="trail"] .page-hero{border-bottom:0}
+[data-theme="trail"] .page-hero::before{display:none}
+[data-theme="trail"] .page-hero-media{width:44%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%);mask-image:linear-gradient(90deg,transparent,#000 40%)}
+[data-theme="trail"] .button{font-weight:650}
+[data-theme="trail"] .marquee a{font-style:italic}
+
+/* ───────── Racing Red — carbon, red, white, sharp corners, chequered flags ───────── */
+[data-theme="racing"]{
+  --bg:#f4f4f5;--bg-2:#e9e9ec;--surface:#fff;--ink:#0b0b0d;--body:#38383d;--muted:#63636a;--line:#e2e2e6;--line-2:#cfcfd5;--ink-rgb:11,11,13;
+  --brand:#e10600;--brand-hover:#b80500;--brand-ink:#fff;--brand-rgb:225,6,0;--brand-soft:#fdeceb;--brand-text:#c80500;--brand-line:#f6bfbd;
+  --accent:#fff;--accent-rgb:255,255,255;--heat:linear-gradient(100deg,#ff2a1f,#e10600 60%,#a00400);
+  --dark:#0b0b0d;--dark-2:#16171a;--dark-3:#25272c;--dark-rgb:11,11,13;--on-dark-accent:#ff3b30;
+  --hero-bg:#ececef;--hero-bg-rgb:236,236,239;
+  --header-bg:rgba(11,11,13,.96);--header-bg-scrolled:#0b0b0d;--header-solid:#0b0b0d;--header-fg:#fff;--header-fg-muted:rgba(255,255,255,.7);--header-line:transparent;--header-accent:#e10600;
+  --marquee-bg:#e10600;--marquee-fg:rgba(255,255,255,.72);--marquee-hover:#fff;--marquee-dot:#0b0b0d;
+  --mono-service:linear-gradient(135deg,#a00400,#e10600);--mono-repair:linear-gradient(135deg,#0b0b0d,#2b2d33);--mono-gear:linear-gradient(135deg,#2b2d33,#5d616b);
+  --display-weight:900;--display-transform:uppercase;--display-style:italic;--display-tracking:-.01em;--display-leading:.92;--hero-size:5.6rem;
+  --radius:4px;--radius-sm:3px;--radius-lg:6px;--pill:4px;
+}
+[data-theme="racing"] .logo-mark{border-radius:6px}
+[data-theme="racing"] .eyebrow::before{background:var(--brand);height:4px;width:22px;transform:skewX(-30deg)}
+[data-theme="racing"] .road{height:14px;background:repeating-conic-gradient(var(--dark) 0 25%,#fff 0 50%) 0 0/14px 14px;animation:chequer 1.2s linear infinite}
+@keyframes chequer{to{background-position:-28px 0}}
+[data-theme="racing"] .site-footer::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:repeating-conic-gradient(#fff 0 25%,var(--dark) 0 50%) 0 0/10px 10px}
+[data-theme="racing"] .hero-stats{border-top:0;gap:10px}
+[data-theme="racing"] .hero-stats div{padding:10px 16px;background:var(--dark);border-left:4px solid var(--brand);transform:skewX(-8deg)}
+[data-theme="racing"] .hero-stats div>*{transform:skewX(8deg)}
+[data-theme="racing"] .hero-stats b{color:#fff}
+[data-theme="racing"] .hero-stats small{color:rgba(255,255,255,.6)}
+[data-theme="racing"] .button{text-transform:uppercase;letter-spacing:.04em;font-size:14px}
+[data-theme="racing"] .listing-card::after{height:4px;background:var(--brand)}
+[data-theme="racing"] .page-hero-media{-webkit-mask-image:none;mask-image:none;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%)}
+[data-theme="racing"] .page-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-conic-gradient(var(--dark) 0 25%,#fff 0 50%) 0 0/6px 6px}
+[data-theme="racing"] .page-hero::before{display:none}
+[data-theme="racing"] .category-icon,[data-theme="racing"] .quick span,[data-theme="racing"] .panel-icon,[data-theme="racing"] .trust-icon{border-radius:4px}
+[data-theme="racing"] .dash-nav nav em{color:var(--dark)}
+@media(max-width:900px){[data-theme="classic"] .page-hero-media{display:none}[data-theme="racing"] .page-hero-media{clip-path:none}}

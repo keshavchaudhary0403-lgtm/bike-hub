@@ -1,16 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import {Search,MapPin,ArrowRight,ShieldCheck,Phone,Navigation,Send,MessageCircle,Trophy,Users,Milestone,Compass,Wrench,Bike} from "lucide-react";
+import {ArrowRight,ShieldCheck,Phone,Navigation,Send,MessageCircle,Trophy,Users,Milestone} from "lucide-react";
 import {services,posts,routes} from "@/lib/data";
 import {CentreCard,PostCard,ServiceIcon} from "@/components/ui";
 import {getCentres,getListingCounts} from "@/lib/supabase-data";
 import {CITIES} from "@/lib/listings";
 import {COMMUNITY_TOPICS} from "@/lib/community";
-import {THEME} from "@/lib/theme";
+import {Hero} from "@/components/hero";
 
-const popular=["Service centre","Tyre change","Performance tuning","Riding gear fitting","Riding routes","Upcoming rides"];
-const popularHref=(x:string)=>/route|ride/i.test(x)?"/routes":`/services?q=${encodeURIComponent(x)}`;
-const rotating=["service centres","repair shops","riding gear","epic routes"];
 const miniRoutes=[
   {name:"Delhi → Spiti",distance:"760 km",image:"/images/himalayan-route-generated.jpg"},
   {name:"Manali Loop",distance:"320 km",image:"/images/himalayan-route.jpg"},
@@ -24,26 +21,8 @@ export default async function Home(){
   const [{items:liveCentres},counts]=await Promise.all([getCentres({},4),getListingCounts()]);
   const countFor=(name:string)=>!counts?null:name==="Service & Repair"?`${(counts.service_centre+counts.repair_shop).toLocaleString("en-IN")} listings`:name==="Gear & Accessories"?`${counts.gear_shop.toLocaleString("en-IN")} shops`:name==="Riding Routes"?`${routes.length} routes`:name==="Expert Advice"?`${posts.length} guides`:null;
   const totalListings=counts?counts.service_centre+counts.repair_shop+counts.gear_shop:null;
-  const hero=THEME.hero;
-  const stats=[[totalListings,"Listings"],[CITIES.length,"Cities"],[routes.length,"Routes"],[posts.length,"Guides"]] as const;
   return <main>
-    <section className={`hero hero-${hero.layout}`}>{hero.layout==="full"&&<Image className={hero.flip?"hero-bg flip":"hero-bg"} src={hero.photos[0].src} alt="" fill priority sizes="100vw"/>}
-      {hero.layout==="diagonal"&&<div className="hero-panel" aria-hidden="true"><Image src={hero.photos[0].src} alt="" fill priority sizes="(max-width:900px) 100vw, 60vw"/><span className="hero-stripe"/></div>}
-      {hero.layout==="split"&&<div className="hero-collage" aria-hidden="true">{hero.photos.slice(0,3).map((p,i)=><div key={p.src} className={`collage-${i+1}`}><Image src={p.src} alt="" fill priority={i===0} sizes={i===0?"(max-width:900px) 100vw, 40vw":"20vw"}/></div>)}</div>}
-      <div className="hero-glow" aria-hidden="true"/><div className="speed-lines" aria-hidden="true"/>
-      <div className="container hero-content">
-        <span className="eyebrow">For riders. By riders.</span>
-        <h1>Ride more.<span>Worry less.</span></h1>
-        <p className="hero-rotate">Find nearby <span className="rotator" aria-hidden="true"><span>{[...rotating,rotating[0]].map((w,i)=><b key={i}>{w}</b>)}</span></span><span className="sr-only">service centres, repair shops, riding gear and routes</span></p>
-        <p className="hero-copy">India’s platform for bikers, with a community that rides with you.</p>
-        <form action="/services" className="hero-search" role="search"><label><MapPin/><input name="location" placeholder="City, e.g. Pune" aria-label="City"/></label><label><Search/><input name="q" placeholder="Search services, garages, brands or gear…" aria-label="Search BikeHub"/></label><button className="button">Search <ArrowRight/></button></form>
-        <div className="popular"><b>Popular:</b>{popular.map(x=><Link key={x} href={popularHref(x)}>{x}</Link>)}</div>
-        <div className="hero-stats">{stats.map(([n,label])=><div key={label}><b data-count={n??undefined}>{n!=null?n.toLocaleString("en-IN"):"—"}</b><small>{label}</small></div>)}</div>
-      </div>
-      <div className="container hero-notes" aria-hidden="true"><span><Compass/> Explore</span><span><Users/> Connect</span><span><Wrench/> Maintain</span><span><Bike/> Ride better</span></div>
-      <span className="scroll-cue" aria-hidden="true"/>
-      <p className="hero-credit">Photo{hero.photos.length>1?"s":""}: {hero.photos.map((p,i)=><span key={p.href}>{i>0&&", "}<a href={p.href} target="_blank" rel="noreferrer">{p.credit}</a></span>)} / Unsplash</p>
-    </section>
+    <Hero stats={{listings:totalListings,cities:CITIES.length,routes:routes.length,guides:posts.length}}/>
 
     <nav className="marquee" aria-label="Browse by city"><div className="marquee-track">{[0,1].map(copy=><div key={copy} className="marquee-set" aria-hidden={copy===1||undefined}>{CITIES.map(c=><Link key={c} href={`/services?location=${encodeURIComponent(c)}`} tabIndex={copy===1?-1:undefined}>{c}</Link>)}</div>)}</div></nav>
 

@@ -1,11 +1,19 @@
-// Per-theme settings. Each design option (branch) only changes this file, the theme block at the end of globals.css and the icon colours.
+// The active design theme. Each preview branch changes only this file and src/lib/theme-font.ts;
+// all four themes' styles live in src/app/themes.css, keyed by <html data-theme>.
+export type ThemeId="classic"|"ember"|"trail"|"racing";
+export type HeroLayout="mosaic"|"arch"|"explorer"|"studio";
 export type HeroPhoto={src:string;alt:string;credit:string;href:string};
-export type HeroLayout="full"|"split"|"diagonal";
-const unsplash=(id:string)=>`https://images.unsplash.com/${id}?auto=format&fit=crop&w=2400&q=80`;
+const unsplash=(id:string)=>`https://images.unsplash.com/${id}?auto=format&fit=crop&w=2000&q=80`;
 
-export const THEME:{name:string;hero:{layout:HeroLayout;flip?:boolean;photos:HeroPhoto[]}}={
-  name:"Asphalt & Ember",
-  hero:{layout:"full",flip:true,photos:[
-    {src:unsplash("photo-1636989098361-c5dfcf3acdde"),alt:"Rider silhouetted against a red-orange sunset",credit:"Trosh Bias",href:"https://unsplash.com/photos/a-person-riding-a-motorcycle-at-sunset-4_Y4GVX5HUQ"}
-  ]}
+export const PHOTOS={
+  sunset:{src:unsplash("photo-1741542303195-dafb546d9b1e"),alt:"Rider heading into a peach sunset, reflected in a puddle",credit:"Jefferson Sees",href:"https://unsplash.com/photos/a-motorcyclist-rides-toward-a-beautiful-sunset-nNESWk6Rrvk"},
+  himalaya:{src:unsplash("photo-1670644654521-6fbfffeaba87"),alt:"Rider on a Himalayan road beside snowy mountains",credit:"Ishan Jain",href:"https://unsplash.com/photos/a-man-riding-a-motorcycle-down-a-road-next-to-a-mountain-d9ZB6r_Q3n4"},
+  mechanic:{src:unsplash("photo-1650569663338-f6921d483868"),alt:"Mechanic working on a yellow motorcycle in a bright garage",credit:"Mick Haupt",href:"https://unsplash.com/photos/a-person-working-on-a-motorcycle-N_2XRC9bbPk"},
+  sunnyRide:{src:unsplash("photo-1760171447686-066462004862"),alt:"Two riders with their sportbikes on a sunny day",credit:"Josh Marty",href:"https://unsplash.com/photos/two-motorcyclists-with-their-sportbikes-on-a-sunny-day-DXwPmLeqgOw"},
+  studio:{src:unsplash("photo-1610643981357-8b6a16ae2521"),alt:"Rider in black leathers on a naked sportbike",credit:"Nick van der Vegt",href:"https://unsplash.com/photos/man-in-black-leather-jacket-riding-on-black-and-orange-sports-bike-wY_zWVv2yhM"}
+} satisfies Record<string,HeroPhoto>;
+
+export const THEME:{id:ThemeId;name:string;color:string;hero:{layout:HeroLayout;photos:HeroPhoto[]}}={
+  id:"ember",name:"Asphalt & Ember",color:"#f6f3ee",
+  hero:{layout:"arch",photos:[PHOTOS.sunset]}
 };
