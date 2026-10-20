@@ -179,7 +179,7 @@ p{margin:0 0 1em}
 .float-chip.c1{left:-12%;top:22%}.float-chip.c2{right:-10%;top:50%;animation-delay:1.2s}.float-chip.c3{left:-4%;bottom:12%;animation-delay:2.4s}
 
 /* Hero — explorer (landscape photo, light sky for text, route card) */
-.hero-explorer{min-height:min(880px,calc(100svh - var(--header)));display:flex}
+.hero-explorer{min-height:min(880px,calc(100svh - var(--header)));display:flex;flex-direction:column}
 .explorer-bg{z-index:-2;object-fit:cover;object-position:center 70%;animation:zoom 20s ease-out both}
 .hero-explorer::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(var(--hero-bg-rgb),.97) 0%,rgba(var(--hero-bg-rgb),.9) 32%,rgba(var(--hero-bg-rgb),.35) 58%,rgba(var(--hero-bg-rgb),0) 75%)}
 .explorer-inner{display:flex;flex-direction:column;justify-content:space-between;gap:40px;padding:56px 0 48px;flex:1}
