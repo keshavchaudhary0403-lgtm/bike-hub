@@ -30,7 +30,7 @@ export function RouteForm({route:r}:{route?:RouteRow}){
   </div>
   <aside className="editor-side">
     <div className="dash-card"><h2>Publishing</h2>
-      <label className="switch"><input type="checkbox" name="published" defaultChecked={r?r.status==="published":true}/><span>Published on the website</span></label>
+      <label className="switch"><input type="checkbox" name="published" defaultChecked={r?.status==="published"}/><span>Published on the website</span></label>
       <label className="switch"><input type="checkbox" name="is_featured" defaultChecked={r?.is_featured}/><span>Show first</span></label>
       <button className="button"><Save/> {r?"Save changes":"Create route"}</button>
       {r?.status==="published"&&<Link className="button secondary" href={`/routes/${r.slug}`} target="_blank"><ExternalLink/> View on site</Link>}</div>
@@ -53,7 +53,7 @@ export function ArticleForm({post:p}:{post?:PostRow}){
   </div>
   <aside className="editor-side">
     <div className="dash-card"><h2>Publishing</h2>
-      <label className="switch"><input type="checkbox" name="published" defaultChecked={p?p.status==="published":false}/><span>Published on the website</span></label>
+      <label className="switch"><input type="checkbox" name="published" defaultChecked={p?.status==="published"}/><span>Published on the website</span></label>
       <label className="switch"><input type="checkbox" name="is_expert_content" defaultChecked={p?.is_expert_content}/><span>Show under Expert advice</span></label>
       <button className="button"><Save/> {p?"Save changes":"Create article"}</button>
       {p?.status==="published"&&<Link className="button secondary" href={`/community/${p.slug}`} target="_blank"><ExternalLink/> View on site</Link>}</div>

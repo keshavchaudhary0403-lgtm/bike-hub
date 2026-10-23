@@ -31,3 +31,10 @@ export function DashLoading(){
   return <main className="dash" aria-busy="true"><div className="container dash-layout"><aside className="dash-nav dash-skeleton-nav" aria-hidden="true"><span/><span/><span/><span/></aside>
     <section className="dash-main"><p className="sr-only" role="status">Loading…</p><div className="dash-skeleton" aria-hidden="true"><span className="sk-title"/><div className="stat-grid">{[0,1,2,3].map(i=><span key={i} className="sk-stat"/>)}</div><span className="sk-card"/><span className="sk-card"/></div></section></div></main>;
 }
+const STATUS_TABS=[["","All"],["published","Published"],["draft","Drafts"]] as const;
+/** All / Published / Drafts filter, shared by the Routes and Articles lists so they behave the same. */
+export function StatusTabs({base,status}:{base:string;status?:string}){
+  return <nav className="topic-tabs dash-tabs" aria-label="Filter by status">{STATUS_TABS.map(([v,label])=><Link key={v} className={(status||"")===v?"active":undefined} href={v?`${base}?status=${v}`:base}>{label}</Link>)}</nav>;
+}
+/** Published / Draft pill used in content lists and editors. */
+export function PublishPill({status}:{status:string}){return <Pill value={status==="published"?"live":"hidden"} label={status==="published"?"Published":"Draft"}/>}
