@@ -64,6 +64,15 @@ Only free-licence photos, never images from other sites:
 2. Run `npm run content -- add content/drafts/<file>.json --dry`. Fix anything it reports.
 3. Run `npm run content -- add content/drafts/<file>.json`.
 
+## Updating existing content
+
+When the owner asks to improve routes or articles that already exist, research and write them the same way, then:
+
+1. Write `{"routes":[…],"articles":[…]}` with each item's existing `slug` to `content/drafts/<YYYY-MM-DD>-update-<topic>.json`.
+2. Run `npm run content -- update <file> --dry`.
+3. Published items change on the live site immediately, so show the owner a short summary of what changes (especially corrected facts) and get a clear yes before running `npm run content -- update <file>`.
+4. Live pages refresh within an hour; tell the owner that clicking **Save changes** on any route or article in Admin refreshes the whole site at once.
+
 ## 6. Report to the owner
 
 In plain language, short:
