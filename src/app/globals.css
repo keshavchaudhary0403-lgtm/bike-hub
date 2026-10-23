@@ -528,17 +528,14 @@ a.route-card .go svg{width:20px;height:20px}
 .dash-area svg{width:14px;height:14px}
 .dash-area:has(svg)::before{display:none}
 /* Workspace switch (staff only) */
-.ws-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin-bottom:8px;border-radius:var(--pill);background:rgba(255,255,255,.08)}
+.ws-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin-bottom:8px;border-radius:var(--pill);background:var(--dark-2)}
 .ws-switch a{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border-radius:var(--pill);font-size:13.5px;font-weight:700;color:rgba(255,255,255,.65);transition:background .2s,color .2s}
 .ws-switch a:hover{color:#fff}
 .ws-switch a.on{background:var(--brand);color:var(--brand-ink);box-shadow:0 6px 16px rgba(var(--brand-rgb),.3)}
 .ws-switch svg{width:15px;height:15px}
 /* Partner workspace: light sidebar */
 .dash-nav.partner{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
-.dash-nav.partner .ws-switch{background:var(--bg)}
-.dash-nav.partner .ws-switch a{color:var(--muted)}
-.dash-nav.partner .ws-switch a:hover{color:var(--ink)}
-.dash-nav.partner .ws-switch a.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+/* The Admin/Partner switch keeps its dark look here too, so switching feels like one control. */
 .dash-nav.partner .dash-area{color:var(--green)}
 .dash-nav.partner nav a{color:var(--muted)}
 .dash-nav.partner nav a:hover{background:var(--bg);color:var(--ink)}
@@ -547,11 +544,6 @@ a.route-card .go svg{width:20px;height:20px}
 .dash-nav.partner .dash-signout:hover{color:var(--danger)}
 .dash-kicker{display:inline-flex;align-items:center;margin-bottom:10px;padding:3px 10px;border-radius:var(--pill);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:var(--dark);color:var(--on-dark-accent)}
 .dash-partner .dash-kicker{background:var(--green-soft);color:#11744a}
-.ws-banner{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 16px;border-radius:calc(var(--radius) + 2px);background:var(--green-soft);border:1px solid #b5e3cb;color:var(--ink)}
-.ws-banner>svg{width:20px;height:20px;flex:none;color:var(--green)}
-.ws-banner p{margin:0;flex:1;font-size:14px}
-.ws-banner .button{flex:none;background:var(--dark);color:#fff}
-.ws-banner .button:hover{background:var(--dark-3);box-shadow:none}
 .dash-nav nav{display:grid;gap:2px}
 .dash-nav nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--radius-sm);font-weight:600;font-size:14.5px;color:rgba(255,255,255,.7);transition:background .2s,color .2s}
 .dash-nav nav a:hover{background:rgba(255,255,255,.06);color:#fff}
@@ -713,7 +705,6 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
   .dash-area{display:none}
   .dash-nav nav{grid-column:1/-1;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px;scrollbar-width:none}
   .ws-switch{grid-column:1/-1;margin:0}
-  .ws-banner{flex-wrap:wrap}
   .dash-nav nav a{flex:none}
   .dash-new{margin:0;justify-self:start}
   .dash-signout{width:auto;margin:0;border-top:0}
@@ -817,7 +808,7 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
 .map-popup .map-rating{color:var(--ink)}
 .map-popup em{font-style:normal;font-weight:700;color:var(--brand-text);margin-top:4px}
 
-/* Admin: content editors and moderation */
+/* Admin: content editors and approvals */
 .image-field{display:grid;gap:12px}
 .image-field-preview{position:relative;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:var(--bg-2)}
 .image-field-preview img{object-fit:cover}
@@ -838,3 +829,10 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
   .results-bar{flex-wrap:wrap}
   .map-canvas{height:60vh;min-height:320px}
 }
+
+/* Login: show / hide password */
+.password-field{position:relative;display:block}
+.password-field input{padding-right:52px!important}
+.password-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:var(--radius-sm);background:transparent;color:var(--muted);cursor:pointer}
+.password-toggle:hover{color:var(--ink);background:var(--bg)}
+.password-toggle svg{width:20px;height:20px}

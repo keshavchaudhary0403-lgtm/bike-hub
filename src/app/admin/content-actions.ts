@@ -80,11 +80,11 @@ export async function setStoryStatus(form:FormData){
 export async function storyToDraft(form:FormData){
   const {supabase}=await requireStaff();const id=String(form.get("id"));
   const {data:story}=await supabase.from("story_submissions").select("name,title,category,body").eq("id",id).single();
-  if(!story)fail("/admin/moderation?tab=stories","Story not found.");
+  if(!story)fail("/admin/approvals?tab=stories","Story not found.");
   const firstPara=story!.body.split(/\n\s*\n/)[0].trim();
   const {data,error}=await supabase.from("posts").insert({title:story!.title,category:story!.category,body:story!.body,author_name:story!.name,
     excerpt:firstPara.length>200?firstPara.slice(0,197).trimEnd()+"…":firstPara,status:"draft",slug:await freeSlug(supabase,"posts",slugify(story!.title))}).select("id").single();
-  if(!data)fail("/admin/moderation?tab=stories",error?.message||"Could not create the draft.");
+  if(!data)fail("/admin/approvals?tab=stories",error?.message||"Could not create the draft.");
   await supabase.from("story_submissions").update({status:"accepted"}).eq("id",id);
   revalidatePath("/admin","layout");redirect(`/admin/articles/${data!.id}?saved=1`);
 }

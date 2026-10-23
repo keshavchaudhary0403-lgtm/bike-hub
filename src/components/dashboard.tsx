@@ -1,7 +1,7 @@
-import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,ShieldCheck,Building2,Eye,ArrowLeft,Route,FileText,MessageSquareText} from "lucide-react";import {signOut} from "@/app/partner/actions";
-type NavKey="overview"|"listings"|"enquiries"|"messages"|"routes"|"articles"|"moderation"|"partner";
+import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,ShieldCheck,Building2,Route,FileText,ClipboardCheck} from "lucide-react";import {signOut} from "@/app/partner/actions";
+type NavKey="overview"|"listings"|"enquiries"|"messages"|"routes"|"articles"|"approvals"|"partner";
 type NavItem=[NavKey,string,string,typeof Store];
-const ADMIN_NAV:NavItem[]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail],["moderation","/admin/moderation","Moderation",MessageSquareText],["routes","/admin/routes","Routes",Route],["articles","/admin/articles","Articles",FileText]];
+const ADMIN_NAV:NavItem[]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail],["approvals","/admin/approvals","Approvals",ClipboardCheck],["routes","/admin/routes","Routes",Route],["articles","/admin/articles","Articles",FileText]];
 const PARTNER_NAV:NavItem[]=[["partner","/partner/dashboard","Overview",LayoutDashboard],["enquiries","/partner/dashboard#enquiries","Enquiries",Inbox],["listings","/partner/dashboard#profile","My listing",Building2]];
 
 /** Admin ↔ Partner switch, shown only to staff. */
@@ -10,7 +10,7 @@ function WorkspaceSwitch({area}:{area:"admin"|"partner"}){
 }
 
 /** App-style layout for the admin and partner workspaces. Admin is the dark workspace; partner is the light one.
- *  `canSwitch` (staff only) adds the workspace switch and, in the partner workspace, a preview banner. */
+ *  `canSwitch` (staff only) adds the workspace switch. */
 export function DashShell({area,active,title,subtitle,actions,badges,canSwitch,children}:{area:"admin"|"partner";active:NavKey;title:string;subtitle?:string;actions?:React.ReactNode;badges?:Partial<Record<NavKey,number>>;canSwitch?:boolean;children:React.ReactNode}){
   const admin=area==="admin";const nav=admin?ADMIN_NAV:PARTNER_NAV;
   return <main className={`dash dash-${area}`}><div className="container dash-layout"><aside className={`dash-nav ${area}`}>
@@ -20,7 +20,6 @@ export function DashShell({area,active,title,subtitle,actions,badges,canSwitch,c
     {admin&&<Link className="button small dash-new" href="/admin/listings/new"><Plus/> New listing</Link>}
     <form action={signOut}><button className="dash-signout"><LogOut/> Sign out</button></form></aside>
   <section className="dash-main">
-    {!admin&&canSwitch&&<div className="ws-banner" role="status"><Eye/><p><b>Partner preview.</b> This is what a shop owner sees: only listings linked to your account and their enquiries.</p><Link className="button small" href="/admin"><ArrowLeft/> Back to admin</Link></div>}
     <header className="dash-head"><div><span className="dash-kicker">{admin?"Admin":"Partner"}</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div>{actions&&<div className="dash-actions">{actions}</div>}</header>{children}</section></div></main>;
 }
 const TONES:Record<string,string>={new:"blue",pending:"amber",accepted:"amber",quoted:"amber",verified:"green",closed:"green",read:"grey",unverified:"grey",declined:"grey",rejected:"red",suspended:"red",hidden:"red",live:"green",draft:"amber",published:"green",archived:"grey"};

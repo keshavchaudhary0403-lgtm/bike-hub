@@ -1,5 +1,5 @@
 import Link from "next/link";import {Check,EyeOff,FilePlus2,Mail,Trash2,X} from "lucide-react";import {DashShell,Flash,Pill} from "@/components/dashboard";import {Stars} from "@/components/ui";import {formatDate,requireStaff} from "@/lib/admin";import {moderate,setStoryStatus,storyToDraft} from "../content-actions";
-export const metadata={title:"Moderation · Admin"};
+export const metadata={title:"Approvals · Admin"};
 type Tab="reviews"|"comments"|"stories";
 type ReviewRow={id:string;reviewer_name:string;overall_rating:number;body:string|null;service_used:string|null;status:string;created_at:string;service_centres:{name:string;slug:string;city:string}|null};
 type CommentRow={id:string;display_name:string;body:string;status:string;created_at:string;posts:{title:string;slug:string}|null};
@@ -12,7 +12,7 @@ function Decide({kind,id,status}:{kind:"review"|"comment";id:string;status:strin
   return <div className="dash-actions">{status!=="published"&&btn("approve",<><Check/> Approve</>,"")}{status!=="archived"&&btn("hide",<><EyeOff/> {status==="published"?"Hide":"Reject"}</>)}{btn("delete",<><Trash2/> Delete</>)}</div>;
 }
 
-export default async function Moderation({searchParams}:{searchParams:Promise<{tab?:string;show?:string;error?:string}>}){const {supabase}=await requireStaff();const sp=await searchParams;
+export default async function Approvals({searchParams}:{searchParams:Promise<{tab?:string;show?:string;error?:string}>}){const {supabase}=await requireStaff();const sp=await searchParams;
 const tab:Tab=sp.tab==="comments"||sp.tab==="stories"?sp.tab:"reviews";const all=sp.show==="all";
 const waiting=(table:string,status:string)=>supabase.from(table).select("id",{count:"exact",head:true}).eq("status",status).then(r=>r.count||0);
 const [nReviews,nComments,nStories]=await Promise.all([waiting("reviews","draft"),waiting("comments","draft"),waiting("story_submissions","new")]);
@@ -21,8 +21,8 @@ const table=tab==="stories"?"story_submissions":tab;
 const fields=tab==="reviews"?"id,reviewer_name,overall_rating,body,service_used,status,created_at,service_centres(name,slug,city)":tab==="comments"?"id,display_name,body,status,created_at,posts(title,slug)":"id,name,email,title,category,body,status,created_at";
 let q=supabase.from(table).select(fields).order("created_at",{ascending:false}).limit(100);if(!all)q=q.eq("status",pendingStatus);
 const {data}=await q;const rows=(data||[]) as unknown[];
-const tabHref=(t:Tab,show?:string)=>`/admin/moderation?tab=${t}${show?`&show=${show}`:""}`;
-return <DashShell area="admin" active="moderation" title="Moderation" subtitle="Everything riders send waits here until you approve it." badges={{moderation:nReviews+nComments+nStories}}>
+const tabHref=(t:Tab,show?:string)=>`/admin/approvals?tab=${t}${show?`&show=${show}`:""}`;
+return <DashShell area="admin" active="approvals" title="Approvals" subtitle="Reviews, comments and stories from riders. Nothing goes on the website until you approve it." badges={{approvals:nReviews+nComments+nStories}}>
 <Flash error={sp.error}/>
 <nav className="topic-tabs dash-tabs" aria-label="What to review">{([["reviews","Reviews",nReviews],["comments","Comments",nComments],["stories","Stories",nStories]] as const).map(([t,label,n])=><Link key={t} className={tab===t?"active":undefined} href={tabHref(t)}>{label}{n>0&&<em className="tab-count">{n}</em>}</Link>)}</nav>
 <p className="hint mod-filter">{all?<>Showing everything. <Link href={tabHref(tab)}>Show only waiting</Link></>:<>Showing items waiting for you. <Link href={tabHref(tab,"all")}>Show all, including approved and hidden</Link></>}</p>
