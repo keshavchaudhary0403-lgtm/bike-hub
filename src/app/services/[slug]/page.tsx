@@ -1,8 +1,10 @@
-import type {Metadata} from "next";import Image from "next/image";import Link from "next/link";import {notFound} from "next/navigation";import {cache} from "react";import {ArrowRight,Clock,Globe,Mail,MapPin,Navigation,Phone} from "lucide-react";import {CentreCard,EnquiryForm,ListingCover,Rating,Stars} from "@/components/ui";import {ReviewForm} from "@/components/rider-forms";import {getCentre,getNearby} from "@/lib/supabase-data";import {getReviews} from "@/lib/content";import {formatDate} from "@/lib/admin";import {directionsUrl,googleMapsUrl,typeLabel} from "@/lib/listings";
+import type {Metadata} from "next";import Image from "next/image";import Link from "next/link";import {notFound} from "next/navigation";import {cache} from "react";import {ArrowRight,Clock,Globe,Mail,MapPin,Navigation,Phone} from "lucide-react";import {CentreCard,EnquiryForm,ListingCover,Rating,Stars} from "@/components/ui";import {ReviewForm} from "@/components/rider-forms";import {getCentre,getNearby} from "@/lib/supabase-data";import {getReviews} from "@/lib/content";import {formatDate} from "@/lib/admin";import {JsonLd} from "@/components/json-ld";import {absoluteUrl} from "@/lib/seo";import {directionsUrl,googleMapsUrl,typeLabel,type ListingDetail} from "@/lib/listings";
 const load=cache(getCentre);
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const c=await load((await params).slug);return c?{title:`${c.name}, ${c.city}`,description:`${c.type} in ${c.location}. Address, phone, opening hours and directions on BikeHub.`}:{title:"Listing not found"}}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const c=await load((await params).slug);if(!c)return {title:"Listing not found"};const url=`/services/${c.slug}`;const title=`${c.name}, ${c.city}`;const description=`${c.type} in ${c.location}.${c.rating!=null?` Rated ${c.rating.toFixed(1)}/5 by riders.`:""} Address, phone, opening hours and directions on BikeHub.`;
+  return {title,description,alternates:{canonical:url},openGraph:{url,title,description,...(c.photos[0]?{images:[{url:c.photos[0],alt:c.name}]}:{})}}}
 export default async function CentrePage({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const c=await load(slug);if(!c)notFound();const [nearby,reviews]=await Promise.all([getNearby(c),c.id?getReviews(c.id):[]]);const hasMap=c.latitude!=null&&c.longitude!=null;const d=0.004;const tel=c.phone?.replace(/[^\d+]/g,"");const site=c.website&&(c.website.startsWith("http")?c.website:`https://${c.website}`);
 return <main>
+<JsonLd data={listingJsonLd(c,site)}/>
 <section className="detail-header"><div className="container"><div className="detail-logo"><ListingCover listing={c} showChip={false}/></div><div><span className={c.verification==="verified"?"chip verified":"chip"}>{c.verification==="verified"?"BikeHub verified":typeLabel(c.listingType)}</span><h1>{c.name}</h1><p>{c.type} · {c.location}</p>{c.rating!=null&&<a href="#reviews"><Rating value={c.rating} count={c.reviews}/></a>}<div className="detail-actions">{tel&&<a className="button" href={`tel:${tel}`}><Phone/> Call</a>}{hasMap&&<a className="button ghost" href={directionsUrl(c.latitude!,c.longitude!)} target="_blank" rel="noreferrer"><Navigation/> Directions</a>}<a className="button ghost" href={googleMapsUrl(c)} target="_blank" rel="noreferrer">Google Maps & reviews</a></div></div></div></section>
 <section className="section soft"><div className="container detail-layout"><div>
 {c.photos.length>0&&<div className={`gallery n${Math.min(c.photos.length,5)}`}>{c.photos.slice(0,5).map((src,i)=><a key={src} href={src} target="_blank" rel="noreferrer"><Image src={src} alt={`${c.name} photo ${i+1}`} fill sizes={i===0?"(max-width:900px) 100vw, 640px":"(max-width:900px) 50vw, 300px"} priority={i===0}/></a>)}</div>}
@@ -17,3 +19,16 @@ return <main>
 </div><aside className="panel"><h2>Send an enquiry</h2><EnquiryForm centre={c.name} slug={c.slug}/></aside></div></section>
 {nearby.length>0&&<section className="section"><div className="container"><div className="section-head"><h2>More in {c.city}</h2><Link className="link" href={`/services?location=${encodeURIComponent(c.city)}&type=${c.listingType}`}>View all <ArrowRight size={16}/></Link></div><div className="cards" data-reveal="stagger">{nearby.map(n=><CentreCard key={n.slug} centre={n}/>)}</div></div></section>}
 </main>}
+
+// Opening hours in the simple OpenStreetMap form ("Mo-Sa 10:00-20:00") are already what schema.org expects; anything more complex is left out.
+const SIMPLE_HOURS=/^(Mo|Tu|We|Th|Fr|Sa|Su)(-(Mo|Tu|We|Th|Fr|Sa|Su))?( \d{2}:\d{2}-\d{2}:\d{2})?$/;
+function listingJsonLd(c:ListingDetail,site:string|null|false|undefined){
+  const hours=(c.open||"").split(/;\s*/).filter(Boolean);
+  return {"@type":c.listingType==="gear_shop"?"Store":"MotorcycleRepair",name:c.name,url:absoluteUrl(`/services/${c.slug}`),description:c.description||`${c.type} in ${c.location}.`,
+    ...(c.photos[0]?{image:c.photos[0]}:c.brand?{image:absoluteUrl(c.brand.logo)}:{}),
+    ...(c.phone?{telephone:c.phone}:{}),...(c.email?{email:c.email}:{}),...(site?{sameAs:site}:{}),
+    address:{"@type":"PostalAddress",streetAddress:[c.address,c.locality].filter(Boolean).join(", ")||undefined,addressLocality:c.city,addressRegion:c.state||undefined,postalCode:c.postalCode||undefined,addressCountry:"IN"},
+    ...(c.latitude!=null&&c.longitude!=null?{geo:{"@type":"GeoCoordinates",latitude:c.latitude,longitude:c.longitude}}:{}),
+    ...(hours.length&&hours.every(h=>SIMPLE_HOURS.test(h))?{openingHours:hours}:{}),
+    ...(c.rating!=null&&c.reviews?{aggregateRating:{"@type":"AggregateRating",ratingValue:c.rating,reviewCount:c.reviews,bestRating:5,worstRating:1}}:{})};
+}

@@ -3,9 +3,9 @@
 import {posts as demoPosts,routes as demoRoutes} from "@/lib/data";
 import {publicClient} from "@/lib/supabase-data";
 
-export type Route={id?:string;slug:string;name:string;distance:string;duration:string;level:string;image:string;season:string;summary:string;description?:string|null;start?:string|null;end?:string|null;safety?:string|null};
+export type Route={id?:string;slug:string;name:string;distance:string;duration:string;level:string;image:string;season:string;summary:string;description?:string|null;start?:string|null;end?:string|null;safety?:string|null;sources?:Source[];updatedAt?:string|null};
 export type Source={label:string;url:string};
-export type Post={id?:string;slug:string;category:string;title:string;author:string;read:string;image:string;excerpt:string;body:string[];sources:Source[];expert:boolean;publishedAt?:string|null};
+export type Post={id?:string;slug:string;category:string;title:string;author:string;read:string;image:string;excerpt:string;body:string[];sources:Source[];expert:boolean;publishedAt?:string|null;updatedAt?:string|null};
 export type Comment={id:string;name:string;body:string;createdAt:string};
 export type Review={id:string;name:string;rating:number;body:string|null;service:string|null;createdAt:string};
 
@@ -16,15 +16,15 @@ export const paragraphs=(text:string|null|undefined)=>(text||"").split(/\n\s*\n/
 /** About 200 words a minute, never less than a minute. */
 export const readTime=(text:string)=>`${Math.max(1,Math.round(text.split(/\s+/).filter(Boolean).length/200))} min`;
 
-type RouteRow={id:string;slug:string;name:string;summary:string|null;description:string|null;start_location:string|null;end_location:string|null;distance_km:number|null;duration_text:string|null;difficulty:string|null;best_season:string|null;safety_notes:string|null;hero_image_url:string|null};
-const ROUTE_FIELDS="id,slug,name,summary,description,start_location,end_location,distance_km,duration_text,difficulty,best_season,safety_notes,hero_image_url";
+type RouteRow={id:string;slug:string;name:string;summary:string|null;description:string|null;start_location:string|null;end_location:string|null;distance_km:number|null;duration_text:string|null;difficulty:string|null;best_season:string|null;safety_notes:string|null;hero_image_url:string|null;sources:Source[]|null;updated_at:string|null};
+const ROUTE_FIELDS="id,slug,name,summary,description,start_location,end_location,distance_km,duration_text,difficulty,best_season,safety_notes,hero_image_url,sources,updated_at";
 const toRoute=(r:RouteRow):Route=>({id:r.id,slug:r.slug,name:r.name,distance:r.distance_km?`${r.distance_km.toLocaleString("en-IN")} km`:"",duration:r.duration_text||"",level:r.difficulty||"",
-  image:r.hero_image_url||FALLBACK_IMAGE,season:r.best_season||"",summary:r.summary||"",description:r.description,start:r.start_location,end:r.end_location,safety:r.safety_notes});
+  image:r.hero_image_url||FALLBACK_IMAGE,season:r.best_season||"",summary:r.summary||"",description:r.description,start:r.start_location,end:r.end_location,safety:r.safety_notes,sources:Array.isArray(r.sources)?r.sources:[],updatedAt:r.updated_at});
 
-type PostRow={id:string;slug:string;title:string;category:string;excerpt:string|null;body:string;hero_image_url:string|null;author_name:string|null;sources:Source[]|null;is_expert_content:boolean;published_at:string|null};
-const POST_FIELDS="id,slug,title,category,excerpt,body,hero_image_url,author_name,sources,is_expert_content,published_at";
+type PostRow={id:string;slug:string;title:string;category:string;excerpt:string|null;body:string;hero_image_url:string|null;author_name:string|null;sources:Source[]|null;is_expert_content:boolean;published_at:string|null;updated_at:string|null};
+const POST_FIELDS="id,slug,title,category,excerpt,body,hero_image_url,author_name,sources,is_expert_content,published_at,updated_at";
 const toPost=(p:PostRow):Post=>({id:p.id,slug:p.slug,category:p.category,title:p.title,author:p.author_name||"Team BikeHub",read:readTime(p.body),image:p.hero_image_url||FALLBACK_IMAGE,
-  excerpt:p.excerpt||"",body:paragraphs(p.body),sources:Array.isArray(p.sources)?p.sources:[],expert:p.is_expert_content,publishedAt:p.published_at});
+  excerpt:p.excerpt||"",body:paragraphs(p.body),sources:Array.isArray(p.sources)?p.sources:[],expert:p.is_expert_content,publishedAt:p.published_at,updatedAt:p.updated_at});
 const demoPost=(p:(typeof demoPosts)[number]):Post=>({...p,read:readTime(p.body.join(" ")),expert:p.category!=="Ride story"});
 
 export async function getRoutes():Promise<Route[]>{

@@ -839,3 +839,8 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
 .dash-skeleton .sk-stat{height:96px}
 .dash-skeleton .sk-card{height:160px}
 @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* Article and route bullet lists */
+.article ul{margin:0 0 1.2em;padding-left:1.3em;font-size:17.5px;line-height:1.8;color:var(--body)}
+.article li{margin-bottom:.35em}
+.article li::marker{color:var(--brand)}

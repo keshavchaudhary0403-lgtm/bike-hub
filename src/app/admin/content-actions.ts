@@ -13,6 +13,10 @@ async function freeSlug(supabase:Staff,table:"routes"|"posts",base:string){
   for(let i=2;;i++)if(!taken.has(`${base}-${i}`))return `${base}-${i}`;
 }
 
+/** "Label | https://…" per line. */
+function parseSources(raw:string){
+  return raw.split("\n").map(l=>l.trim()).filter(Boolean).slice(0,20).map(l=>{const [label,url]=l.includes("|")?l.split("|").map(x=>x.trim()):[l,l];return {label:label||url,url}}).filter(s=>/^https?:\/\/\S+$/.test(s.url));
+}
 export async function saveRoute(form:FormData){
   const {supabase}=await requireStaff();
   const id=String(form.get("id")||"");const back=id?`/admin/routes/${id}`:"/admin/routes/new";
@@ -21,7 +25,7 @@ export async function saveRoute(form:FormData){
   if(distance_km!==null&&!(distance_km>0&&distance_km<20000))fail(back,"Distance must be a number of kilometres.");
   const row={name:name!,summary:text(form,"summary",300),description:text(form,"description",20000),start_location:text(form,"start_location",120),end_location:text(form,"end_location",120),
     distance_km,duration_text:text(form,"duration_text",60),difficulty:text(form,"difficulty",40),best_season:text(form,"best_season",80),safety_notes:text(form,"safety_notes",5000),
-    hero_image_url:text(form,"hero_image_url",500),status:form.get("published")==="on"?"published":"draft",is_featured:form.get("is_featured")==="on",updated_at:new Date().toISOString()};
+    hero_image_url:text(form,"hero_image_url",500),sources:parseSources(String(form.get("sources")||"")),status:form.get("published")==="on"?"published":"draft",is_featured:form.get("is_featured")==="on",updated_at:new Date().toISOString()};
   const {data,error}=id?await supabase.from("routes").update(row).eq("id",id).select("id").single()
     :await supabase.from("routes").insert({...row,slug:await freeSlug(supabase,"routes",slugify(name!))}).select("id").single();
   if(!data)fail(back,error?.message||"Could not save the route.");
@@ -34,10 +38,6 @@ export async function deleteRoute(form:FormData){
   refresh();redirect("/admin/routes");
 }
 
-/** "Label | https://…" per line. */
-function parseSources(raw:string){
-  return raw.split("\n").map(l=>l.trim()).filter(Boolean).slice(0,20).map(l=>{const [label,url]=l.includes("|")?l.split("|").map(x=>x.trim()):[l,l];return {label:label||url,url}}).filter(s=>/^https?:\/\/\S+$/.test(s.url));
-}
 export async function savePost(form:FormData){
   const {supabase}=await requireStaff();
   const id=String(form.get("id")||"");const back=id?`/admin/articles/${id}`:"/admin/articles/new";

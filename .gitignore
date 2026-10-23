@@ -23,3 +23,6 @@ npm-debug.log*
 
 # typescript
 *.tsbuildinfo
+
+# AI content drafts (saved to Supabase; the files are working copies)
+/content/drafts/

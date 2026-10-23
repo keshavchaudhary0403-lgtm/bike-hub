@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run content -- list)",
+      "Bash(npm run content -- add *)"
+    ]
+  }
+}

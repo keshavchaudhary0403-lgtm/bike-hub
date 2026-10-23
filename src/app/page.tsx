@@ -8,6 +8,8 @@ import {getPosts,getRoutes,getSiteCounts} from "@/lib/content";
 import {CITIES} from "@/lib/listings";
 import {COMMUNITY_TOPICS} from "@/lib/community";
 import {Hero} from "@/components/hero";
+import {JsonLd} from "@/components/json-ld";
+import {PUBLISHER,SITE_NAME,SITE_URL} from "@/lib/seo";
 
 export const revalidate=3600;
 
@@ -18,6 +20,8 @@ export default async function Home(){
   const countFor=(name:string)=>!counts?null:name==="Service & Repair"?n(counts.serviceCentres+counts.repairShops,"listing","listings"):name==="Gear & Accessories"?n(counts.gearShops,"shop","shops"):name==="Riding Routes"?n(counts.routes,"route","routes"):name==="Expert Advice"?n(counts.expertGuides,"guide","guides"):null;
   const totalListings=counts?.listings??null;
   return <main>
+    <JsonLd data={{"@graph":[{...PUBLISHER,"@id":`${SITE_URL}/#org`},{"@type":"WebSite",name:SITE_NAME,url:SITE_URL,publisher:{"@id":`${SITE_URL}/#org`},
+      potentialAction:{"@type":"SearchAction",target:{"@type":"EntryPoint",urlTemplate:`${SITE_URL}/services?q={search_term_string}`},"query-input":"required name=search_term_string"}}]}}/>
     <Hero stats={{listings:totalListings,cities:CITIES.length,routes:counts?.routes??routes.length,guides:counts?.guides??posts.length}}/>
 
     <nav className="marquee" aria-label="Browse by city"><div className="marquee-track">{[0,1].map(copy=><div key={copy} className="marquee-set" aria-hidden={copy===1||undefined}>{CITIES.map(c=><Link key={c} href={`/services?location=${encodeURIComponent(c)}`} tabIndex={copy===1?-1:undefined}>{c}</Link>)}</div>)}</div></nav>

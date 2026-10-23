@@ -1,6 +1,6 @@
 import Link from "next/link";import {ExternalLink,Save,Trash2} from "lucide-react";import {POST_CATEGORIES,ROUTE_LEVELS} from "@/lib/community";import {deletePost,deleteRoute,savePost,saveRoute} from "@/app/admin/content-actions";import {ContentImageField} from "@/components/content-image-field";
 
-export type RouteRow={id:string;slug:string;name:string;summary:string|null;description:string|null;start_location:string|null;end_location:string|null;distance_km:number|null;duration_text:string|null;difficulty:string|null;best_season:string|null;safety_notes:string|null;hero_image_url:string|null;status:string;is_featured:boolean};
+export type RouteRow={id:string;slug:string;name:string;summary:string|null;description:string|null;start_location:string|null;end_location:string|null;distance_km:number|null;duration_text:string|null;difficulty:string|null;best_season:string|null;safety_notes:string|null;hero_image_url:string|null;sources:{label:string;url:string}[]|null;status:string;is_featured:boolean};
 export type PostRow={id:string;slug:string;title:string;category:string;excerpt:string|null;body:string;author_name:string|null;hero_image_url:string|null;sources:{label:string;url:string}[]|null;is_expert_content:boolean;status:string;published_at:string|null};
 
 /** Delete behind a second click, so it can't happen by accident. */
@@ -19,6 +19,7 @@ export function RouteForm({route:r}:{route?:RouteRow}){
       <label className="span-2">Short summary <span className="optional">Shown under the title</span><input name="summary" maxLength={300} defaultValue={r?.summary||""}/></label>
       <label className="span-2">About the route <span className="optional">Leave a blank line between paragraphs</span><textarea name="description" rows={8} maxLength={20000} defaultValue={r?.description||""} placeholder="The roads, highlights, where to stay, what makes it special"/></label>
       <label className="span-2">Before you go <span className="optional">Safety, permits, fuel and spares</span><textarea name="safety_notes" rows={5} maxLength={5000} defaultValue={r?.safety_notes||""}/></label>
+      <label className="span-2">Sources <span className="optional">Where the facts were checked. One per line: Name | https://link</span><textarea name="sources" rows={3} defaultValue={(r?.sources||[]).map(x=>`${x.label} | ${x.url}`).join("\n")}/></label>
     </fieldset>
     <fieldset className="dash-card" aria-label="Facts"><h2 className="span-2">Quick facts</h2>
       <label>Distance (km)<input name="distance_km" inputMode="numeric" defaultValue={r?.distance_km??""} placeholder="760"/></label>
