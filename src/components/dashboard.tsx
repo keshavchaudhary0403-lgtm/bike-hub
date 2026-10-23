@@ -9,7 +9,7 @@ function WorkspaceSwitch({area}:{area:"admin"|"partner"}){
   return <nav className="ws-switch" aria-label="Switch workspace"><Link href="/admin" className={area==="admin"?"on":undefined} aria-current={area==="admin"?"page":undefined}><ShieldCheck/> Admin</Link><Link href="/partner/dashboard" className={area==="partner"?"on":undefined} aria-current={area==="partner"?"page":undefined}><Store/> Partner</Link></nav>;
 }
 
-/** App-style layout for the admin and partner workspaces. Admin is the dark workspace; partner is the light one.
+/** App-style layout for the admin and partner workspaces, both with the same dark sidebar.
  *  `canSwitch` (staff only) adds the workspace switch. */
 export function DashShell({area,active,title,subtitle,actions,badges,canSwitch,children}:{area:"admin"|"partner";active:NavKey;title:string;subtitle?:string;actions?:React.ReactNode;badges?:Partial<Record<NavKey,number>>;canSwitch?:boolean;children:React.ReactNode}){
   const admin=area==="admin";const nav=admin?ADMIN_NAV:PARTNER_NAV;

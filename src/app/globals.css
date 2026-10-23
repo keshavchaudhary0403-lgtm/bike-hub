@@ -533,24 +533,16 @@ a.route-card .go svg{width:20px;height:20px}
 .ws-switch a:hover{color:#fff}
 .ws-switch a.on{background:var(--brand);color:var(--brand-ink);box-shadow:0 6px 16px rgba(var(--brand-rgb),.3)}
 .ws-switch svg{width:15px;height:15px}
-/* Partner workspace: light sidebar */
-.dash-nav.partner{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
-/* The Admin/Partner switch keeps its dark look here too, so switching feels like one control. */
-.dash-nav.partner .dash-area{color:var(--green)}
-.dash-nav.partner nav a{color:var(--muted)}
-.dash-nav.partner nav a:hover{background:var(--bg);color:var(--ink)}
-.dash-nav.partner nav a.active{background:var(--green-soft);color:#11744a;box-shadow:inset 3px 0 0 var(--green)}
-.dash-nav.partner .dash-signout{color:var(--muted);border-top-color:var(--line)}
-.dash-nav.partner .dash-signout:hover{color:var(--danger)}
+/* Admin and partner share the same dark sidebar, so switching workspaces feels seamless. */
 .dash-kicker{display:inline-flex;align-items:center;margin-bottom:10px;padding:3px 10px;border-radius:var(--pill);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:var(--dark);color:var(--on-dark-accent)}
 .dash-partner .dash-kicker{background:var(--green-soft);color:#11744a}
-.dash-nav nav{display:grid;gap:2px}
-.dash-nav nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--radius-sm);font-weight:600;font-size:14.5px;color:rgba(255,255,255,.7);transition:background .2s,color .2s}
-.dash-nav nav a:hover{background:rgba(255,255,255,.06);color:#fff}
-.dash-nav nav a.active{background:var(--brand);color:var(--brand-ink);box-shadow:0 8px 20px rgba(var(--brand-rgb),.3)}
-.dash-nav nav a svg{width:18px;height:18px;flex:none}
-.dash-nav nav em{margin-left:auto;min-width:22px;padding:1px 7px;border-radius:var(--pill);background:var(--accent);color:var(--dark);font-style:normal;font-size:12px;font-weight:800;text-align:center}
-.dash-nav nav a.active em{background:#fff;color:var(--dark)}
+.dash-nav nav:not(.ws-switch){display:grid;gap:2px}
+.dash-nav nav:not(.ws-switch) a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--radius-sm);font-weight:600;font-size:14.5px;color:rgba(255,255,255,.7);transition:background .2s,color .2s}
+.dash-nav nav:not(.ws-switch) a:hover{background:rgba(255,255,255,.06);color:#fff}
+.dash-nav nav:not(.ws-switch) a.active{background:var(--brand);color:var(--brand-ink);box-shadow:0 8px 20px rgba(var(--brand-rgb),.3)}
+.dash-nav nav:not(.ws-switch) a svg{width:18px;height:18px;flex:none}
+.dash-nav nav:not(.ws-switch) em{margin-left:auto;min-width:22px;padding:1px 7px;border-radius:var(--pill);background:var(--accent);color:var(--dark);font-style:normal;font-size:12px;font-weight:800;text-align:center}
+.dash-nav nav:not(.ws-switch) a.active em{background:#fff;color:var(--dark)}
 .dash-new{margin:10px 4px 0}
 .dash-new.button{background:#fff;color:var(--dark)}
 .dash-new.button:hover{background:var(--accent);color:var(--dark);box-shadow:none}
@@ -703,9 +695,9 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
   .dash-layout{grid-template-columns:1fr}
   .dash-nav{position:static;display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:8px}
   .dash-area{display:none}
-  .dash-nav nav{grid-column:1/-1;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px;scrollbar-width:none}
+  .dash-nav nav:not(.ws-switch){grid-column:1/-1;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px;scrollbar-width:none}
   .ws-switch{grid-column:1/-1;margin:0}
-  .dash-nav nav a{flex:none}
+  .dash-nav nav:not(.ws-switch) a{flex:none}
   .dash-new{margin:0;justify-self:start}
   .dash-signout{width:auto;margin:0;border-top:0}
   .dash-two{grid-template-columns:1fr}
