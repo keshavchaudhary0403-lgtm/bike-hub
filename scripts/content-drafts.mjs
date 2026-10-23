@@ -1,8 +1,11 @@
 // Adds AI-researched routes and articles to Supabase as DRAFTS for an admin to review in
-// Admin → Routes / Articles. It can only insert drafts: it never publishes, edits or deletes.
-// Usage: npm run content -- list                 (titles already on the site, to avoid duplicates)
-//        npm run content -- add <file.json>      (add the drafts in a JSON file)
-//        npm run content -- add <file.json> --dry (validate only, no writes)
+// Admin → Routes / Articles. `add` can only insert drafts: it never publishes, edits or deletes.
+// `update` rewrites the text of existing routes/articles (matched by slug) after the owner has
+// approved it; it never changes publish status, slug or cover photo, and never deletes.
+// Usage: npm run content -- list                    (titles already on the site, to avoid duplicates)
+//        npm run content -- add <file.json>         (add the drafts in a JSON file)
+//        npm run content -- update <file.json>      (update existing items, matched by "slug")
+//        add/update with --dry                      (validate only, no writes)
 // File format: {"routes":[{...}],"articles":[{...}]}; see .claude/skills/daily-content/SKILL.md.
 import {readFileSync} from "node:fs";
 import {createClient} from "@supabase/supabase-js";
@@ -90,6 +93,28 @@ async function add(path){
   }
 }
 
+/** Rewrites the text fields of existing items. Validated like new drafts; status, slug and cover photo stay as they are. */
+async function update(path){
+  const input=JSON.parse(readFileSync(path,"utf8"));const routes=input.routes||[],articles=input.articles||[];
+  let bad=0;
+  for(const r of routes){const e=[...(r.slug?[]:["slug missing"]),...validateRoute(r)];if(e.length){bad++;console.error(`✗ route "${r.slug||r.name}": ${e.join("; ")}`)}}
+  for(const a of articles){const e=[...(a.slug?[]:["slug missing"]),...validateArticle(a)];if(e.length){bad++;console.error(`✗ article "${a.slug||a.title}": ${e.join("; ")}`)}}
+  if(bad){console.error(`\n${bad} item(s) need fixing. Nothing was saved.`);process.exit(1)}
+  const now=new Date().toISOString();
+  const jobs=[...routes.map(r=>["routes",r.slug,{name:r.name,summary:r.summary,description:r.description,start_location:r.start_location||null,end_location:r.end_location||null,distance_km:r.distance_km??null,
+      duration_text:r.duration_text||null,difficulty:r.difficulty||null,best_season:r.best_season||null,safety_notes:r.safety_notes,sources:r.sources,updated_at:now}]),
+    ...articles.map(a=>["posts",a.slug,{title:a.title,category:a.category,excerpt:a.excerpt,body:a.body,sources:a.sources,is_expert_content:Boolean(a.is_expert_content),updated_at:now,...(a.author_name?{author_name:a.author_name}:{})}])];
+  for(const [table,slug,row] of jobs){
+    const {data:before,error:e1}=await supabase.from(table).select("id,status").eq("slug",slug).maybeSingle();
+    if(e1||!before){console.error(`✗ ${table} "${slug}": not found`);process.exitCode=1;continue}
+    if(dry){console.log(`✓ ${table} "${slug}" (${before.status}) would be updated`);continue}
+    const {error}=await supabase.from(table).update(row).eq("id",before.id);
+    if(error){console.error(`✗ ${table} "${slug}": ${error.message}`);process.exitCode=1;continue}
+    console.log(`✓ updated ${table==="routes"?"route":"article"} "${slug}" (${before.status}) → /admin/${table==="routes"?"routes":"articles"}/${before.id}`);
+  }
+}
+
 if(command==="list")await list();
 else if(command==="add"&&file)await add(file);
-else{console.error("Usage: npm run content -- list | add <file.json> [--dry]");process.exit(1)}
+else if(command==="update"&&file)await update(file);
+else{console.error("Usage: npm run content -- list | add <file.json> [--dry] | update <file.json> [--dry]");process.exit(1)}
