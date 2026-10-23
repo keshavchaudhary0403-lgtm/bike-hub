@@ -1,19 +1,21 @@
+// Homepage categories. Live totals come from getSiteCounts().
 export const services=[
- {icon:"Wrench",name:"Service & Repair",description:"Authorised & specialist care",count:"184 centres"},
- {icon:"Gauge",name:"Performance Tuning",description:"Diagnostics and setup",count:"48 specialists"},
- {icon:"CircleDot",name:"Tyres & Wheels",description:"Premium fitment",count:"92 specialists"},
- {icon:"Zap",name:"Parts & Upgrades",description:"Genuine and compatible",count:"126 providers"},
- {icon:"Shield",name:"Gear & Accessories",description:"Fitting and customisation",count:"74 experts"},
- {icon:"Route",name:"Riding Routes",description:"Curated by riders",count:"320 routes"},
- {icon:"Users",name:"Rides & Events",description:"Local and pan-India",count:"42 upcoming"},
- {icon:"BookOpen",name:"Expert Advice",description:"From professionals",count:"210 guides"}
+ {icon:"Wrench",name:"Service & Repair",description:"Authorised & specialist care"},
+ {icon:"Gauge",name:"Performance Tuning",description:"Diagnostics and setup"},
+ {icon:"CircleDot",name:"Tyres & Wheels",description:"Premium fitment"},
+ {icon:"Zap",name:"Parts & Upgrades",description:"Genuine and compatible"},
+ {icon:"Shield",name:"Gear & Accessories",description:"Fitting and customisation"},
+ {icon:"Route",name:"Riding Routes",description:"Curated by riders"},
+ {icon:"Users",name:"Rides & Events",description:"Local and pan-India"},
+ {icon:"BookOpen",name:"Expert Advice",description:"From professionals"}
 ];
 export const centres=[
- {slug:"apex-motorrad-noida",name:"Apex Motorrad Noida",type:"Premium motorcycle service",location:"Sector 62, Noida",distance:"1.2 km",rating:4.8,reviews:310,image:"/images/service-centre-1.jpg",tags:["Service","Diagnostics","Genuine parts"],open:"Open until 8:30 PM"},
- {slug:"motohub-performance",name:"Motohub Performance",type:"Performance & customisation",location:"Sector 18, Noida",distance:"2.4 km",rating:4.7,reviews:184,image:"/images/service-centre-2.jpg",tags:["Tuning","Exhausts","Suspension"],open:"Open until 7:00 PM"},
- {slug:"the-bike-garage",name:"The Bike Garage",type:"Multi-brand premium service",location:"Sector 63, Noida",distance:"1.8 km",rating:4.6,reviews:220,image:"/images/service-centre-3.jpg",tags:["Service","Tyres","Electrical"],open:"Open until 9:00 PM"},
- {slug:"midnight-detail-lab",name:"Midnight Detail Lab",type:"Premium detailing studio",location:"Sector 61, Noida",distance:"2.4 km",rating:4.7,reviews:412,image:"/images/service-centre-4.jpg",tags:["Ceramic","PPF","Restoration"],open:"Open until 8:00 PM"}
+ {slug:"apex-motorrad-noida",name:"Apex Motorrad Noida",type:"Premium motorcycle service",location:"Sector 62, Noida",distance:"1.2 km",image:"/images/service-centre-1.jpg",tags:["Service","Diagnostics","Genuine parts"],open:"Open until 8:30 PM"},
+ {slug:"motohub-performance",name:"Motohub Performance",type:"Performance & customisation",location:"Sector 18, Noida",distance:"2.4 km",image:"/images/service-centre-2.jpg",tags:["Tuning","Exhausts","Suspension"],open:"Open until 7:00 PM"},
+ {slug:"the-bike-garage",name:"The Bike Garage",type:"Multi-brand premium service",location:"Sector 63, Noida",distance:"1.8 km",image:"/images/service-centre-3.jpg",tags:["Service","Tyres","Electrical"],open:"Open until 9:00 PM"},
+ {slug:"midnight-detail-lab",name:"Midnight Detail Lab",type:"Premium detailing studio",location:"Sector 61, Noida",distance:"2.4 km",image:"/images/service-centre-4.jpg",tags:["Ceramic","PPF","Restoration"],open:"Open until 8:00 PM"}
 ];
+// Launch routes and articles: a fallback for when Supabase is not configured. Live content is edited in Admin.
 export const routes=[
  {slug:"delhi-to-spiti",name:"Delhi to Spiti",distance:"760 km",duration:"5–7 days",level:"Advanced",image:"/images/himalayan-route-generated.jpg",season:"May to October",summary:"High-altitude valleys, precise preparation and unforgettable Himalayan roads."},
  {slug:"manali-loop",name:"Manali Loop",distance:"320 km",duration:"2–3 days",level:"Intermediate",image:"/images/himalayan-route.jpg",season:"June to September",summary:"A compact mountain circuit with dramatic passes and trusted rider stops."},

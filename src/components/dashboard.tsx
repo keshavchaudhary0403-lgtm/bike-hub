@@ -1,7 +1,7 @@
-import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,ShieldCheck,Building2,Eye,ArrowLeft} from "lucide-react";import {signOut} from "@/app/partner/actions";
-type NavKey="overview"|"listings"|"enquiries"|"messages"|"partner";
+import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,ShieldCheck,Building2,Eye,ArrowLeft,Route,FileText,MessageSquareText} from "lucide-react";import {signOut} from "@/app/partner/actions";
+type NavKey="overview"|"listings"|"enquiries"|"messages"|"routes"|"articles"|"moderation"|"partner";
 type NavItem=[NavKey,string,string,typeof Store];
-const ADMIN_NAV:NavItem[]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail]];
+const ADMIN_NAV:NavItem[]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail],["moderation","/admin/moderation","Moderation",MessageSquareText],["routes","/admin/routes","Routes",Route],["articles","/admin/articles","Articles",FileText]];
 const PARTNER_NAV:NavItem[]=[["partner","/partner/dashboard","Overview",LayoutDashboard],["enquiries","/partner/dashboard#enquiries","Enquiries",Inbox],["listings","/partner/dashboard#profile","My listing",Building2]];
 
 /** Admin ↔ Partner switch, shown only to staff. */
@@ -23,7 +23,7 @@ export function DashShell({area,active,title,subtitle,actions,badges,canSwitch,c
     {!admin&&canSwitch&&<div className="ws-banner" role="status"><Eye/><p><b>Partner preview.</b> This is what a shop owner sees: only listings linked to your account and their enquiries.</p><Link className="button small" href="/admin"><ArrowLeft/> Back to admin</Link></div>}
     <header className="dash-head"><div><span className="dash-kicker">{admin?"Admin":"Partner"}</span><h1>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div>{actions&&<div className="dash-actions">{actions}</div>}</header>{children}</section></div></main>;
 }
-const TONES:Record<string,string>={new:"blue",pending:"amber",accepted:"amber",quoted:"amber",verified:"green",closed:"green",read:"grey",unverified:"grey",declined:"grey",rejected:"red",suspended:"red",hidden:"red",live:"green"};
+const TONES:Record<string,string>={new:"blue",pending:"amber",accepted:"amber",quoted:"amber",verified:"green",closed:"green",read:"grey",unverified:"grey",declined:"grey",rejected:"red",suspended:"red",hidden:"red",live:"green",draft:"amber",published:"green",archived:"grey"};
 export function Pill({value,label}:{value:string;label?:string}){return <span className={`pill-status ${TONES[value]||"grey"}`}>{label||value}</span>}
 export function Stat({label,value,href,tone}:{label:string;value:number|string;href?:string;tone?:string}){const body=<><span>{label}</span><b>{typeof value==="number"?value.toLocaleString("en-IN"):value}</b></>;return href?<Link className={`stat ${tone||""}`} href={href}>{body}</Link>:<div className={`stat ${tone||""}`}>{body}</div>}
 export function Flash({saved,error}:{saved?:string;error?:string}){if(error)return <p className="flash error" role="alert">{error}</p>;if(saved)return <p className="flash ok" role="status">Changes saved.</p>;return null}

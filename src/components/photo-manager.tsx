@@ -2,7 +2,7 @@
 import Image from "next/image";import {useRef,useState} from "react";import {ImagePlus,LoaderCircle,Star,Trash2} from "lucide-react";import {createClient} from "@/lib/supabase-browser";import {photoUrl} from "@/lib/listings";import {saveListingPhotos} from "@/app/partner/actions";
 export const MAX_PHOTOS=8;
 /** Phone photos are often 5–10 MB: scale to 1600px JPEG before upload. */
-async function shrink(file:File):Promise<Blob>{
+export async function shrink(file:File):Promise<Blob>{
   const bmp=await createImageBitmap(file);const scale=Math.min(1,1600/Math.max(bmp.width,bmp.height));
   const c=document.createElement("canvas");c.width=Math.round(bmp.width*scale);c.height=Math.round(bmp.height*scale);c.getContext("2d")!.drawImage(bmp,0,0,c.width,c.height);bmp.close();
   return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("encode")),"image/jpeg",0.85));

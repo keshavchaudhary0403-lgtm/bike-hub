@@ -1,0 +1,3 @@
+import type {Metadata} from "next";import {PageHero} from "@/components/page-hero";import {StoryForm} from "@/components/rider-forms";
+export const metadata:Metadata={title:"Share your story",description:"Send BikeHub a ride story, maintenance tip or riding advice for the community."};
+export default function ShareStory(){return <main><PageHero eyebrow="Community" title="Share your story" intro="A ride you loved, a lesson learned or a tip other riders should know. Our team reads every story and emails you before it’s published." image="/images/rider-community-generated.jpg"/><section className="section"><div className="container narrow"><StoryForm/></div></section></main>}
