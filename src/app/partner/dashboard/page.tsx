@@ -2,9 +2,11 @@ import Link from "next/link";import {redirect} from "next/navigation";import {Ex
 type Enquiry={id:string;name:string;phone:string;email:string|null;service_need:string;status:string;created_at:string;service_centres:{name:string}|null};
 export const metadata={title:"Partner dashboard"};
 export default async function PartnerDashboard({searchParams}:{searchParams:Promise<{saved?:string;error?:string}>}){const {supabase,user,profile}=await getSessionProfile();if(!supabase||!user)redirect("/partner/login");const sp=await searchParams;
-const {data:centres}=await supabase.from("service_centres").select("id,slug,name,city,locality,listing_type,brands,phone,email,website,opening_hours_text,description,photos,verification_status,is_active").eq("owner_id",user.id);
 // Only enquiries for this account's own listings: staff can read every enquiry, but the partner view should show what a partner sees.
-const ids=(centres||[]).map(c=>c.id);const {data:enquiries}=ids.length?await supabase.from("enquiries").select("id,name,phone,email,service_need,status,created_at,service_centres(name)").in("centre_id",ids).order("created_at",{ascending:false}).limit(50):{data:[]};
+// Both queries run together; the inner join filters enquiries by listing owner.
+const [{data:centres},{data:enquiries}]=await Promise.all([
+  supabase.from("service_centres").select("id,slug,name,city,locality,listing_type,brands,phone,email,website,opening_hours_text,description,photos,verification_status,is_active").eq("owner_id",user.id),
+  supabase.from("enquiries").select("id,name,phone,email,service_need,status,created_at,service_centres!inner(name,owner_id)").eq("service_centres.owner_id",user.id).order("created_at",{ascending:false}).limit(50)]);
 const list=(enquiries||[]) as unknown as Enquiry[];const isStaff=profile?.role==="admin"||profile?.role==="moderator";const mine=centres||[];
 return <DashShell area="partner" active="partner" title={`Welcome, ${profile?.display_name||user.email}`} subtitle={mine.length?`Managing ${mine.length} ${mine.length===1?"listing":"listings"}`:"Your partner workspace"} canSwitch={isStaff}>
 <Flash saved={sp.saved} error={sp.error}/>

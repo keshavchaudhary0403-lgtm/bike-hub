@@ -26,3 +26,8 @@ const TONES:Record<string,string>={new:"blue",pending:"amber",accepted:"amber",q
 export function Pill({value,label}:{value:string;label?:string}){return <span className={`pill-status ${TONES[value]||"grey"}`}>{label||value}</span>}
 export function Stat({label,value,href,tone}:{label:string;value:number|string;href?:string;tone?:string}){const body=<><span>{label}</span><b>{typeof value==="number"?value.toLocaleString("en-IN"):value}</b></>;return href?<Link className={`stat ${tone||""}`} href={href}>{body}</Link>:<div className={`stat ${tone||""}`}>{body}</div>}
 export function Flash({saved,error}:{saved?:string;error?:string}){if(error)return <p className="flash error" role="alert">{error}</p>;if(saved)return <p className="flash ok" role="status">Changes saved.</p>;return null}
+/** Shown the moment a dashboard link is clicked, while the page's data loads. */
+export function DashLoading(){
+  return <main className="dash" aria-busy="true"><div className="container dash-layout"><aside className="dash-nav dash-skeleton-nav" aria-hidden="true"><span/><span/><span/><span/></aside>
+    <section className="dash-main"><p className="sr-only" role="status">Loading…</p><div className="dash-skeleton" aria-hidden="true"><span className="sk-title"/><div className="stat-grid">{[0,1,2,3].map(i=><span key={i} className="sk-stat"/>)}</div><span className="sk-card"/><span className="sk-card"/></div></section></div></main>;
+}
