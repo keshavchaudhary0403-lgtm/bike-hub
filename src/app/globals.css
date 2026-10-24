@@ -909,3 +909,20 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
 .refine>summary::-webkit-details-marker{display:none}
 .refine[open]>summary{margin-bottom:10px}
 .refine .filterbar{margin:0 0 8px}
+.footprint{display:grid;gap:16px}
+.editor-grid td{text-align:center;vertical-align:middle}
+.editor-grid td.ticked{background:var(--brand-soft)}
+.editor-grid .row-brands{display:grid;gap:3px;margin-top:8px;font-size:12px;font-weight:700;color:var(--muted)}
+.editor-grid .row-brands input{min-height:34px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;font:inherit;font-weight:500;color:var(--ink);background:var(--surface)}
+.tick{display:inline-grid;place-items:center;cursor:pointer}
+.tick input{position:absolute;opacity:0;width:1px;height:1px}
+.tick span{display:grid;place-items:center;width:34px;height:34px;border:2px solid var(--line);border-radius:8px;background:var(--surface);color:var(--brand-ink)}
+.tick input:checked+span{background:var(--brand);border-color:var(--brand)}
+.tick input:focus-visible+span{outline:3px solid var(--brand);outline-offset:2px}
+.needs-visit{display:block;margin-top:4px;font-size:11px;font-weight:700;color:var(--brand-text)}
+.skills{display:flex;flex-wrap:wrap;gap:8px 18px;border:0;padding:0;margin:0}
+.skills legend{font-weight:750;margin-bottom:8px}
+.visit-box,.evidence{display:grid;gap:10px;padding:16px;border:1px dashed var(--line);border-radius:var(--radius-sm)}
+.visit-box h3,.evidence h3{font-size:17px}
+.field-label{display:grid;gap:6px;font-weight:650;font-size:14px}
+.field-label textarea{min-height:80px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font:inherit}
