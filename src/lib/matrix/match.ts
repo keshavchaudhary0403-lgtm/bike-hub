@@ -2,7 +2,8 @@
 // and how the search widens when nothing matches. Pure functions: no database access here.
 import {LEVEL_INFO,RADIUS_KM,STATUS_RANK,meetsMinimum,levelLine,regionOf,serviceLine,type BikeLevel,type CellStatus,type ServiceLevel,type Skill} from "./config";
 
-export type Cell={level:BikeLevel;service:ServiceLevel;brands:string[];status:CellStatus};
+/** `source` "osm" = taken from an authorised dealer's OpenStreetMap brand tag, not said by the shop. */
+export type Cell={level:BikeLevel;service:ServiceLevel;brands:string[];status:CellStatus;source?:string};
 export type Reports={sameModel:number;sameModelAvg:number|null;sameLevel:number;sameLevelAvg:number|null};
 export type Shop={id:string;name:string;city:string;lat:number|null;lng:number|null;listingType:string;
   officialBrands:string[];brandExclusive:boolean;skills:string[];cells:Cell[];rating:number|null;ratingCount:number;reports?:Reports};
@@ -103,7 +104,8 @@ export function widenedNote(w:Widened,q:MatchQuery){
 export function matchLines(m:Match,q:MatchQuery):string[]{
   const lines:string[]=[];
   if(m.official&&q.warranty)lines.push("✓ Keeps your warranty safe");
-  if(m.cell){
+  if(m.cell?.source==="osm"&&m.cell.status==="claimed")lines.push(`Sells and services ${m.cell.brands.join(" & ")||"its brand’s"} bikes (not yet checked by BikeHub)`);
+  else if(m.cell){
     if(q.level)lines.push(levelLine(m.cell.level,m.cell.status));
     if(q.service)lines.push(serviceLine(m.cell.service,m.cell.status));
   }

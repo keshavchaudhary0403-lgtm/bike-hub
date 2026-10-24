@@ -6,11 +6,20 @@ export const LISTING_TYPES:{value:ListingType;label:string;plural:string}[]=[
  {value:"gear_shop",label:"Gear & accessories",plural:"Gear & accessory shops"}
 ];
 export const CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad","Mumbai","Pune","Bengaluru","Hyderabad","Chennai","Kolkata","Ahmedabad","Jaipur","Chandigarh","Lucknow","Kochi","Indore","Dehradun"];
+/** City centres, for "near me" (nearest city) and distances when the rider only picks a city. */
+export const CITY_COORDS:Record<string,{lat:number;lng:number}>={"New Delhi":{lat:28.6139,lng:77.209},Noida:{lat:28.5355,lng:77.391},Gurugram:{lat:28.4595,lng:77.0266},Ghaziabad:{lat:28.6692,lng:77.4538},Faridabad:{lat:28.4089,lng:77.3178},
+ Mumbai:{lat:19.076,lng:72.8777},Pune:{lat:18.5204,lng:73.8567},Bengaluru:{lat:12.9716,lng:77.5946},Hyderabad:{lat:17.385,lng:78.4867},Chennai:{lat:13.0827,lng:80.2707},Kolkata:{lat:22.5726,lng:88.3639},
+ Ahmedabad:{lat:23.0225,lng:72.5714},Jaipur:{lat:26.9124,lng:75.7873},Chandigarh:{lat:30.7333,lng:76.7794},Lucknow:{lat:26.8467,lng:80.9462},Kochi:{lat:9.9312,lng:76.2673},Indore:{lat:22.7196,lng:75.8577},Dehradun:{lat:30.3165,lng:78.0322}};
+/** The listed city closest to a point, if it is within 60 km. */
+export function nearestCity(o:{lat:number;lng:number}){
+ let best:string|null=null;let d=1e9;
+ for(const [city,c] of Object.entries(CITY_COORDS)){const x=Math.hypot(c.lat-o.lat,(c.lng-o.lng)*Math.cos(o.lat*Math.PI/180))*111;if(x<d){d=x;best=city}}
+ return d<60?best:null;
+}
 const CITY_ALIASES:Record<string,string>={delhi:"New Delhi","new delhi":"New Delhi",gurgaon:"Gurugram",bangalore:"Bengaluru",bombay:"Mumbai",calcutta:"Kolkata",madras:"Chennai",cochin:"Kochi"};
 
-export type Brand={name:string;logo:string};
-export type Listing={slug:string;name:string;type:string;listingType:ListingType;location:string;image:string;tags:string[];brand?:Brand|null;photo?:string|null;rating?:number;reviews?:number;phone?:string|null;open?:string|null};
-export type ListingDetail=Listing&{id?:string;description?:string|null;address?:string|null;locality?:string|null;city:string;state?:string|null;postalCode?:string|null;latitude?:number|null;longitude?:number|null;website?:string|null;email?:string|null;brands:string[];photos:string[];source:string;verification:string;sourceId?:string|null};
+export type Listing={slug:string;name:string;type:string;listingType:ListingType;location:string;image:string;tags:string[];official?:string|null;photo?:string|null;distance?:string|null;rating?:number;reviews?:number;phone?:string|null;open?:string|null};
+export type ListingDetail=Listing&{id?:string;officialBrands:string[];skills:string[];description?:string|null;address?:string|null;locality?:string|null;city:string;state?:string|null;postalCode?:string|null;latitude?:number|null;longitude?:number|null;website?:string|null;email?:string|null;brands:string[];photos:string[];source:string;verification:string;sourceId?:string|null};
 
 const IMAGES:Record<ListingType,string[]>={
  service_centre:["/images/service-centre-1.jpg","/images/service-centre-2.jpg","/images/service-centre-3.jpg","/images/service-centre-4.jpg"],
@@ -40,27 +49,6 @@ export const photoUrl=(path:string)=>`${process.env.NEXT_PUBLIC_SUPABASE_URL}/st
 export const googleMapsUrl=(l:{name:string;city:string;latitude?:number|null;longitude?:number|null})=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${l.name}, ${l.city}`)}`;
 export const directionsUrl=(lat:number,lon:number)=>`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
 
-// Official brand logos (from Wikimedia Commons via Wikidata), served from /public/brands.
-// Logos are trademarks of their owners and are used only to identify the brand a shop deals in.
-const BRANDS:[RegExp,Brand][]=[
- [/royal\s*enfield/i,{name:"Royal Enfield",logo:"/brands/royal-enfield.png"}],
- [/harley/i,{name:"Harley-Davidson",logo:"/brands/harley-davidson.png"}],
- [/\bhero\b/i,{name:"Hero",logo:"/brands/hero.png"}],
- [/\bhonda\b/i,{name:"Honda",logo:"/brands/honda.png"}],
- [/\bbajaj\b/i,{name:"Bajaj",logo:"/brands/bajaj.png"}],
- [/\bktm\b/i,{name:"KTM",logo:"/brands/ktm.png"}],
- [/\bsuzuki\b/i,{name:"Suzuki",logo:"/brands/suzuki.png"}],
- [/\byamaha\b/i,{name:"Yamaha",logo:"/brands/yamaha.png"}],
- [/\btriumph\b/i,{name:"Triumph",logo:"/brands/triumph.jpg"}],
- [/\bbmw\b/i,{name:"BMW Motorrad",logo:"/brands/bmw.png"}],
- [/\bkawasaki\b/i,{name:"Kawasaki",logo:"/brands/kawasaki.png"}],
- [/\bducati\b/i,{name:"Ducati",logo:"/brands/ducati.png"}],
- [/\bvespa\b/i,{name:"Vespa",logo:"/brands/vespa.png"}],
- [/\bola\s*electric\b/i,{name:"Ola Electric",logo:"/brands/ola-electric.png"}]
-];
-/** Finds the brand a shop deals in from its OSM brand tags, falling back to its name. */
-export function detectBrand(brands:string[],name:string):Brand|null{
- for(const text of [...brands,name])for(const [re,brand] of BRANDS)if(re.test(text))return brand;
- return null;
-}
+/** "Official Honda service" for an authorised dealer. Text only: BikeHub does not show brand logos. */
+export const officialLabel=(brands:string[]|null|undefined)=>brands?.length?`Official ${brands.join(" & ")} service`:null;
 export function initials(name:string){return name.replace(/[^\p{L}\p{N}\s]/gu,"").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"BH"}

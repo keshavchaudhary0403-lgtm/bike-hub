@@ -1,9 +1,10 @@
 import {createClient,type SupabaseClient} from "@supabase/supabase-js";
 import {centres} from "@/lib/data";
-import {detectBrand,inferType,listingImage,matchCity,photoUrl,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
+import {inferType,listingImage,matchCity,officialLabel,photoUrl,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
+import {distanceKm,formatKm,type Origin} from "@/lib/matrix/match";
 
 export const PAGE_SIZE=24;
-const CARD_FIELDS="slug,name,listing_type,centre_type,locality,city,phone,opening_hours_text,brands,photos,rating_avg,rating_count";
+export const CARD_FIELDS="slug,name,listing_type,centre_type,locality,city,phone,opening_hours_text,brands,official_brands,photos,rating_avg,rating_count";
 
 /** Anonymous client: sees only what RLS makes public. */
 export function publicClient(){
@@ -12,11 +13,11 @@ export function publicClient(){
   return url&&key?createClient(url,key,{auth:{persistSession:false}}):null;
 }
 
-type Row={slug:string;name:string;listing_type:ListingType;centre_type:string|null;locality:string|null;city:string;phone:string|null;opening_hours_text:string|null;brands:string[]|null;photos?:string[]|null;rating_avg?:number|null;rating_count?:number|null};
-function toListing(r:Row):Listing{
+export type CardRow={slug:string;name:string;listing_type:ListingType;centre_type:string|null;locality:string|null;city:string;phone:string|null;opening_hours_text:string|null;brands:string[]|null;official_brands?:string[]|null;photos?:string[]|null;rating_avg?:number|null;rating_count?:number|null};
+export function toListing(r:CardRow):Listing{
   const brands=(r.brands||[]).slice(0,3);
   return {slug:r.slug,name:r.name,listingType:r.listing_type,type:r.centre_type||typeLabel(r.listing_type),location:[r.locality,r.city].filter(Boolean).join(", "),
-    image:listingImage(r.listing_type,r.slug),tags:brands.length?brands:[typeLabel(r.listing_type)],brand:detectBrand(r.brands||[],r.name),photo:r.photos?.[0]?photoUrl(r.photos[0]):null,phone:r.phone,open:r.opening_hours_text,rating:r.rating_count?Number(r.rating_avg):undefined,reviews:r.rating_count||0};
+    image:listingImage(r.listing_type,r.slug),tags:brands.length?brands:[typeLabel(r.listing_type)],official:officialLabel(r.official_brands),photo:r.photos?.[0]?photoUrl(r.photos[0]):null,phone:r.phone,open:r.opening_hours_text,rating:r.rating_count?Number(r.rating_avg):undefined,reviews:r.rating_count||0};
 }
 const demoListings=():Listing[]=>centres.map(c=>({...c,listingType:"service_centre" as const}));
 
@@ -34,6 +35,7 @@ function searchListings(supabase:SupabaseClient,columns:string,filters:CentreFil
   else if(filters.status==="phone")query=query.not("phone","is",null);
   else if(filters.status==="hours")query=query.not("opening_hours_text","is",null);
   else if(filters.status==="reviewed")query=query.gt("rating_count",0);
+  else if(filters.status==="official")query=query.neq("official_brands","{}");
   if(city)query=query.eq("city",city);
   else if(filters.location?.trim())query=query.ilike("search_text",`%${escapeLike(filters.location.trim().toLowerCase())}%`);
   // Category phrases ("Riding gear fitting") are handled by the type filter; anything else is a text search.
@@ -43,15 +45,28 @@ function searchListings(supabase:SupabaseClient,columns:string,filters:CentreFil
   return query;
 }
 
-/** Searches active listings, one page at a time. */
-export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE):Promise<{items:Listing[];total:number;live:boolean}>{
+/** Searches active listings, one page at a time. With an origin (the rider's location) they come nearest first;
+ *  otherwise featured first, then the most reviewed, then by name. */
+export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE,origin?:Origin|null):Promise<{items:Listing[];total:number;live:boolean}>{
   const supabase=publicClient();
   if(!supabase){const items=filterDemo(demoListings(),filters);return {items,total:items.length,live:false}}
   const page=Math.max(1,Number(filters.page)||1);
   const from=(page-1)*limit;
-  const {data,count,error}=await searchListings(supabase,CARD_FIELDS,filters,true).order("is_featured",{ascending:false}).order("phone",{ascending:true,nullsFirst:false}).order("name").range(from,from+limit-1);
+  if(origin){
+    // Sort every match by distance here (a few hundred rows at most), then load the cards for this page only.
+    const {data,error}=await searchListings(supabase,"slug,latitude,longitude",filters).limit(3000);
+    if(error){console.error("getCentres",error.message);return {items:[],total:0,live:true}}
+    const rows=(data as unknown as {slug:string;latitude:number|null;longitude:number|null}[]).map(r=>({slug:r.slug,d:r.latitude!=null&&r.longitude!=null?distanceKm(origin,{lat:Number(r.latitude),lng:Number(r.longitude)}):null}))
+      .sort((a,b)=>(a.d??1e9)-(b.d??1e9));
+    const pageRows=rows.slice(from,from+limit);
+    if(!pageRows.length)return {items:[],total:rows.length,live:true};
+    const {data:cards}=await supabase.from("service_centres").select(CARD_FIELDS).in("slug",pageRows.map(r=>r.slug));
+    const bySlug=new Map(((cards||[]) as unknown as CardRow[]).map(c=>[c.slug,c]));
+    return {items:pageRows.flatMap(r=>{const c=bySlug.get(r.slug);return c?[{...toListing(c),distance:r.d!=null?formatKm(r.d):null}]:[]}),total:rows.length,live:true};
+  }
+  const {data,count,error}=await searchListings(supabase,CARD_FIELDS,filters,true).order("is_featured",{ascending:false}).order("rating_count",{ascending:false}).order("name").range(from,from+limit-1);
   if(error){console.error("getCentres",error.message);return {items:[],total:0,live:true}}
-  return {items:(data as unknown as Row[]).map(toListing),total:count||0,live:true};
+  return {items:(data as unknown as CardRow[]).map(toListing),total:count||0,live:true};
 }
 
 /** Every matching listing that has coordinates, for the map view (no paging). */
@@ -65,18 +80,22 @@ export async function getMapPoints(filters:CentreFilters={}):Promise<MapPoint[]>
 
 export async function getCentre(slug:string):Promise<ListingDetail|null>{
   const supabase=publicClient();
-  if(!supabase){const c=centres.find(x=>x.slug===slug);return c?{...c,listingType:"service_centre",city:c.location.split(",").pop()!.trim(),brands:[],photos:[],source:"demo",verification:"unverified"}:null}
+  if(!supabase){const c=centres.find(x=>x.slug===slug);return c?{...c,listingType:"service_centre",city:c.location.split(",").pop()!.trim(),brands:[],officialBrands:[],skills:[],photos:[],source:"demo",verification:"unverified"}:null}
   const {data:r,error}=await supabase.from("service_centres").select("*").eq("slug",slug).eq("is_active",true).maybeSingle();
   if(error||!r)return null;
-  return {...toListing(r as Row),id:r.id,description:r.description,address:r.address_line,locality:r.locality,city:r.city,state:r.state,postalCode:r.postal_code,
+  return {...toListing(r as CardRow),id:r.id,description:r.description,address:r.address_line,locality:r.locality,city:r.city,state:r.state,postalCode:r.postal_code,
     latitude:r.latitude==null?null:Number(r.latitude),longitude:r.longitude==null?null:Number(r.longitude),website:r.website,email:r.email,
-    brands:r.brands||[],photos:(r.photos||[]).map(photoUrl),source:r.source,sourceId:r.source_id,verification:r.verification_status};
+    brands:r.brands||[],officialBrands:r.official_brands||[],skills:r.skills||[],photos:(r.photos||[]).map(photoUrl),source:r.source,sourceId:r.source_id,verification:r.verification_status};
 }
 
 export async function getNearby(c:ListingDetail,limit=4){
   const supabase=publicClient();if(!supabase)return [];
-  const {data}=await supabase.from("service_centres").select(CARD_FIELDS).eq("is_active",true).eq("city",c.city).eq("listing_type",c.listingType).neq("slug",c.slug).order("phone",{ascending:true,nullsFirst:false}).limit(limit);
-  return ((data||[]) as Row[]).map(toListing);
+  if(c.latitude!=null&&c.longitude!=null){
+    const {items}=await getCentres({location:c.city,type:c.listingType},limit+1,{lat:c.latitude,lng:c.longitude});
+    return items.filter(i=>i.slug!==c.slug).slice(0,limit);
+  }
+  const {data}=await supabase.from("service_centres").select(CARD_FIELDS).eq("is_active",true).eq("city",c.city).eq("listing_type",c.listingType).neq("slug",c.slug).order("rating_count",{ascending:false}).order("name").limit(limit);
+  return ((data||[]) as CardRow[]).map(toListing);
 }
 
 const escapeLike=(s:string)=>s.replace(/[%_\\]/g,m=>"\\"+m);

@@ -1,14 +1,3 @@
-// Homepage categories. Live totals come from getSiteCounts().
-export const services=[
- {icon:"Wrench",name:"Service & Repair",description:"Authorised & specialist care"},
- {icon:"Gauge",name:"Performance Tuning",description:"Diagnostics and setup"},
- {icon:"CircleDot",name:"Tyres & Wheels",description:"Premium fitment"},
- {icon:"Zap",name:"Parts & Upgrades",description:"Genuine and compatible"},
- {icon:"Shield",name:"Gear & Accessories",description:"Fitting and customisation"},
- {icon:"Route",name:"Riding Routes",description:"Curated by riders"},
- {icon:"Users",name:"Rides & Events",description:"Local and pan-India"},
- {icon:"BookOpen",name:"Expert Advice",description:"From professionals"}
-];
 export const centres=[
  {slug:"apex-motorrad-noida",name:"Apex Motorrad Noida",type:"Premium motorcycle service",location:"Sector 62, Noida",distance:"1.2 km",image:"/images/service-centre-1.jpg",tags:["Service","Diagnostics","Genuine parts"],open:"Open until 8:30 PM"},
  {slug:"motohub-performance",name:"Motohub Performance",type:"Performance & customisation",location:"Sector 18, Noida",distance:"2.4 km",image:"/images/service-centre-2.jpg",tags:["Tuning","Exhausts","Suspension"],open:"Open until 7:00 PM"},

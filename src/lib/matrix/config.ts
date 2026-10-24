@@ -37,7 +37,7 @@ export const SERVICE_INFO:Record<ServiceLevel,{name:string;line:string;covers:st
 /** How each status is shown to riders. */
 export const STATUS_INFO:Record<CellStatus,{name:string;short:string;explain:string}>={
   proven:{name:"Proven",short:"✓ Proven",explain:"Checked by BikeHub and backed by at least 3 rider reviews for this kind of bike and job."},
-  visited:{name:"Checked by BikeHub",short:"✓ Checked by BikeHub",explain:"A BikeHub team member visited and saw the tools, equipment and skills for this."},
+  visited:{name:"Checked by BikeHub",short:"✓ Checked",explain:"A BikeHub team member visited and saw the tools, equipment and skills for this."},
   claimed:{name:"Shop says",short:"Shop says",explain:"The shop told us it does this. BikeHub has not checked it yet."}
 };
 export const STATUS_RANK:Record<CellStatus,number>={claimed:1,visited:2,proven:3};
@@ -101,3 +101,9 @@ export function levelLine(level:BikeLevel,status:CellStatus){
 export function serviceLine(service:ServiceLevel,status:CellStatus){
   return status==="claimed"?`Shop says: ${SERVICE_INFO[service].line.toLowerCase()} (not yet verified)`:`✓ ${SERVICE_INFO[service].line}`;
 }
+
+/** Friendly URL words for the browse filters, so codes never appear in addresses riders share. */
+export const LEVEL_SLUGS:Record<BikeLevel,string>={L1:"performance",L2:"midweight",L3:"big",L4:"superbike",CLASSIC:"classic",EV:"electric"};
+export const SERVICE_SLUGS:Record<ServiceLevel,string>={S1:"routine",S2:"repairs",S3:"electronics",S4:"major",S5:"performance"};
+export const levelFromSlug=(s?:string|null)=>(Object.entries(LEVEL_SLUGS).find(([,v])=>v===s)?.[0] as BikeLevel|undefined)??null;
+export const serviceFromSlug=(s?:string|null)=>(Object.entries(SERVICE_SLUGS).find(([,v])=>v===s)?.[0] as ServiceLevel|undefined)??null;

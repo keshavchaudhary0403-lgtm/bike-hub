@@ -1,5 +1,8 @@
 "use client";
-import {useActionState} from "react";import {CheckCircle2,LoaderCircle,Send,Star} from "lucide-react";
+import {useActionState,useState} from "react";
+import {BIKE_BRANDS,modelsOf} from "@/data/bike-models";
+import {BIKE_LEVELS,LEVEL_INFO,SERVICE_INFO,SERVICE_LEVELS} from "@/lib/matrix/config";
+import {useRiderBike} from "@/lib/matrix/rider-bike";import {CheckCircle2,LoaderCircle,Send,Star} from "lucide-react";
 import {submitComment,submitReview,submitStory,type FormState} from "@/lib/rider-actions";
 import {POST_CATEGORIES} from "@/lib/community";
 
@@ -14,9 +17,26 @@ export function ReviewForm({centreId,centreName}:{centreId:string;centreName:str
   return <form action={action} className="form"><input type="hidden" name="centre_id" value={centreId}/><Trap/>
     <fieldset className="star-input"><legend>Your rating of {centreName}</legend>{[5,4,3,2,1].map(n=><label key={n} title={`${n} star${n>1?"s":""}`}><input type="radio" name="rating" value={n} required/><Star aria-hidden="true"/><span className="sr-only">{n} star{n>1?"s":""}</span></label>)}</fieldset>
     <label>Your name<input name="name" required minLength={2} maxLength={80} autoComplete="name"/></label>
+    <ReviewBike/>
+    <label><span>What kind of job? <span className="optional">(optional)</span></span><select name="service_level" defaultValue=""><option value="">Not sure</option>{SERVICE_LEVELS.map(x=><option key={x} value={x}>{SERVICE_INFO[x].name}</option>)}</select></label>
     <label><span>What did you get done? <span className="optional">(optional)</span></span><input name="service" maxLength={120} placeholder="e.g. 10,000 km service, chain set"/></label>
     <label><span>Your review <span className="optional">(optional)</span></span><textarea name="body" maxLength={2000} placeholder="Work quality, price vs. estimate, time taken, how you were treated"/></label>
     {state.error&&<p className="form-error" role="alert">{state.error}</p>}<Submit pending={pending} label="Post review"/><small>No account needed. Reviews are checked before they appear.</small></form>;
+}
+
+/** Which bike the review is about: helps other riders with the same bike. Pre-filled with the bike remembered on this device. */
+function ReviewBike(){
+  const saved=useRiderBike();
+  // Until the rider changes them, the selects show the bike remembered on this device.
+  const [picked,setPicked]=useState<{brand:string;model:string}|null>(null);
+  const brand=picked?.brand??saved?.brand??"";const model=picked?.model??(saved?.brand===brand?saved?.modelId??"":"");
+  const setBrand=(b:string)=>setPicked({brand:b,model:""});const setModel=(m:string)=>setPicked({brand,model:m});
+  const models=brand?modelsOf(brand):[];
+  return <div className="form-row">
+    <label><span>Your bike’s brand <span className="optional">(optional)</span></span><select value={brand} onChange={e=>setBrand(e.target.value)}><option value="">Choose brand</option>{BIKE_BRANDS.map(b=><option key={b}>{b}</option>)}</select></label>
+    {brand?<label>Model<select name="bike_model" value={model} onChange={e=>setModel(e.target.value)}><option value="">Not listed / not sure</option>{models.map(m=><option key={m.id} value={m.id}>{m.model}</option>)}</select></label>
+      :<label><span>Or bike type <span className="optional">(optional)</span></span><select name="bike_level" defaultValue=""><option value="">Not sure</option>{BIKE_LEVELS.map(l=><option key={l} value={l}>{LEVEL_INFO[l].name}</option>)}</select></label>}
+  </div>;
 }
 
 export function CommentForm({postId}:{postId:string}){

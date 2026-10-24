@@ -226,3 +226,10 @@ describe("search understands rider language",()=>{
   it("sends gear searches to gear shops",()=>{expect(parseQuery("helmet").gear).toBe(true)});
   it("leaves shop names alone",()=>{expect(parseQuery("Varshaa Motors")).toMatchObject({need:null,model:null,leftover:"varshaa motors"})});
 });
+
+describe("dealer cells from OpenStreetMap",()=>{
+  it("don't claim the shop said anything",()=>{
+    const m={shop:shop({officialBrands:["Honda"]}),cell:{...cell("L1","S1","claimed",["Honda"]),source:"osm"},distance:null,kind:"match",official:true} as Match;
+    expect(matchLines(m,{level:"L1",service:"S1"})).toEqual(["Sells and services Honda bikes (not yet checked by BikeHub)"]);
+  });
+});
