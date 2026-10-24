@@ -15,10 +15,12 @@ export const revalidate=3600;
 export default async function Home(){
   const [{items:liveCentres},counts,routes,posts]=await Promise.all([getCentres({},4),getSiteCounts(),getRoutes(),getPosts()]);
   const totalListings=counts?.listings??null;
+  // "Guides" means the expert guides listed on /experts, counted from the same data.
+  const guides=counts?.expertGuides??posts.filter(p=>p.expert).length;
   return <main>
     <JsonLd data={{"@graph":[{...PUBLISHER,"@id":`${SITE_URL}/#org`},{"@type":"WebSite",name:SITE_NAME,url:SITE_URL,publisher:{"@id":`${SITE_URL}/#org`},
       potentialAction:{"@type":"SearchAction",target:{"@type":"EntryPoint",urlTemplate:`${SITE_URL}/services?q={search_term_string}`},"query-input":"required name=search_term_string"}}]}}/>
-    <Hero stats={{listings:totalListings,cities:CITIES.length,routes:counts?.routes??routes.length,guides:counts?.guides??posts.length}}/>
+    <Hero stats={{listings:totalListings,cities:CITIES.length,routes:counts?.routes??routes.length,guides}}/>
 
     <nav className="marquee" aria-label="Browse by city"><div className="marquee-track">{[0,1].map(copy=><div key={copy} className="marquee-set" aria-hidden={copy===1||undefined}>{CITIES.map(c=><Link key={c} href={`/services?location=${encodeURIComponent(c)}`} tabIndex={copy===1?-1:undefined}>{c}</Link>)}</div>)}</div></nav>
 
@@ -39,7 +41,7 @@ export default async function Home(){
       <div className="section-head" data-reveal><div><span className="eyebrow">Community</span><h2>Latest from riders</h2><p>Ride stories, maintenance and safety advice.</p></div><nav className="topic-tabs" aria-label="Community topics"><Link className="active" href="/community">All posts</Link>{COMMUNITY_TOPICS.map(t=><Link key={t.value} href={`/community?topic=${t.value}`}>{t.label}</Link>)}</nav></div>
       <div className="community-layout" data-reveal="stagger"><div className="post-grid three">{posts.slice(0,3).map(p=><PostCard key={p.slug} post={p}/>)}</div>
         <aside className="join-card"><h3><MessageCircle/> Join the conversation</h3><p>Read rider stories, share what you’ve learned and comment on guides. Free, no account needed.</p><div className="join-actions"><Link className="button" href="/community/share"><PenLine/> Share your story</Link><Link className="button ghost" href="/community">Read stories <ArrowRight/></Link></div>
-          <div className="join-stats"><span><b>{totalListings?totalListings.toLocaleString("en-IN"):"—"}</b><small>Listings</small></span><span><b>{CITIES.length}</b><small>Cities</small></span><span><b>{(counts?.guides??posts.length).toLocaleString("en-IN")}</b><small>Guides</small></span></div></aside></div>
+          <div className="join-stats"><span><b>{totalListings?totalListings.toLocaleString("en-IN"):"—"}</b><small>Listings</small></span><span><b>{CITIES.length}</b><small>Cities</small></span><span><b>{guides.toLocaleString("en-IN")}</b><small>Guides</small></span></div></aside></div>
     </div></section>
 
     <section className="section soft" style={{paddingTop:0}}><div className="container"><div className="cta-band" data-reveal>
