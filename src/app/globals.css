@@ -1069,3 +1069,19 @@ button.choice:hover small,.choice.on small{color:rgba(255,255,255,.7)}
 @container (max-width:860px){.handles-row{grid-template-columns:1fr;gap:10px}}
 @container (min-width:861px){.handles-jobs{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:640px){.handles-jobs{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-cells-save{grid-template-columns:1fr}}
+/* Admin: compact editable table, job names once across the top. */
+.admin-matrix{width:100%;min-width:820px;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.admin-matrix th,.admin-matrix td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle;text-align:left}
+.admin-matrix thead th{background:var(--bg);font-size:12px;font-weight:700;color:var(--body);line-height:1.25}
+.admin-matrix thead th svg{display:block;width:16px;height:16px;margin-bottom:4px;color:var(--brand-text)}
+.admin-matrix tbody tr:last-child>*{border-bottom:0}
+.admin-matrix tbody th{width:250px}
+.admin-matrix tbody th b{display:block;font-size:13.5px}
+.admin-matrix tbody th small{display:block;color:var(--muted);font-weight:500;font-size:11.5px;line-height:1.3;margin:2px 0 6px}
+.admin-matrix .brand-in{width:100%;min-height:30px;padding:3px 10px;border:1px solid var(--line);border-radius:var(--pill);font:inherit;font-size:12px;background:var(--surface)}
+.status-pick{width:100%;min-height:34px;padding:4px 8px;border:1px solid var(--line);border-radius:var(--pill);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;background:var(--surface);color:var(--muted)}
+.status-pick.st-claimed{background:var(--brand-soft);border-color:rgba(var(--brand-rgb),.35);color:var(--brand-text)}
+.status-pick.st-visited,.status-pick.st-proven{background:var(--green-soft);border-color:rgba(23,138,85,.35);color:var(--green)}
+.status-pick.st-proven{background:var(--green);color:#fff}
+.admin-matrix .hidden-note{display:block;margin-top:4px;font-size:10.5px;font-weight:700;color:var(--brand-text);text-align:center}
+.admin-cells{display:grid;gap:12px}
