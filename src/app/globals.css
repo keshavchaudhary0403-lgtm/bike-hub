@@ -1085,3 +1085,8 @@ button.choice:hover small,.choice.on small{color:rgba(255,255,255,.7)}
 .status-pick.st-proven{background:var(--green);color:#fff}
 .admin-matrix .hidden-note{display:block;margin-top:4px;font-size:10.5px;font-weight:700;color:var(--brand-text);text-align:center}
 .admin-cells{display:grid;gap:12px}
+/* Admin table: job headings stay pinned under the site header while scrolling down the bike types.
+   (A sideways-scroll wrapper would stop them sticking, so it is only used on narrow screens.) */
+.admin-matrix thead th{position:sticky;top:var(--header);z-index:3;box-shadow:inset 0 -1px 0 var(--line)}
+@media(min-width:1000px){.admin-cells .cap-scroll{overflow:visible}}
+.admin-matrix thead th:first-child{width:250px}
