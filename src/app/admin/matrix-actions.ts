@@ -2,7 +2,7 @@
 // Field audits and review-driven status changes for capability cells. Staff only.
 import {revalidatePath} from "next/cache";import {requireStaff} from "@/lib/admin";
 import {applyOverrides,grantCells,ITEMS,type Answers,type Override} from "@/lib/matrix/audit";
-import {isBikeLevel,isServiceLevel} from "@/lib/matrix/config";
+import {isBikeLevel,isServiceLevel,isStatus} from "@/lib/matrix/config";
 import {recomputeCell} from "@/lib/matrix/recompute";
 
 export type AuditInput={shopId:string;visitedAt:string;answers:Answers;photos:Record<string,string[]>;overrides:Override[];notes:string};
@@ -47,4 +47,33 @@ export async function setRequestStatus(form:FormData){
   if(!["new","scheduled","done","declined"].includes(status))return;
   await supabase.from("audit_requests").update({status}).eq("id",String(form.get("id")));
   revalidatePath("/admin","layout");revalidatePath("/partner/dashboard");
+}
+
+export type AdminCell={level:string;service:string;status:string|null;brands:string[]};
+/** Direct edit of a shop's grid from Admin → Listings. Blank status removes the cell. Every change needs a reason and is logged. */
+export async function adminSaveCells(shopId:string,cells:AdminCell[],note:string):Promise<{error?:string;changed?:number}>{
+  const {supabase}=await requireStaff();
+  if(!/^[0-9a-f-]{36}$/i.test(shopId))return {error:"Unknown listing."};
+  const reason=String(note||"").trim().slice(0,500);
+  if(reason.length<5)return {error:"Add a short reason for the change (at least 5 characters)."};
+  const {data:shop}=await supabase.from("service_centres").select("slug").eq("id",shopId).maybeSingle();if(!shop)return {error:"Listing not found."};
+  const {data:existing}=await supabase.from("shop_capabilities").select("bike_level,service_level,status,brands").eq("shop_id",shopId);
+  const key=(l:string,s:string)=>`${l}|${s}`;const current=new Map((existing||[]).map(c=>[key(c.bike_level,c.service_level),c]));
+  const clean=(b:unknown)=>Array.isArray(b)?[...new Set(b.map(x=>String(x).trim()).filter(Boolean))].slice(0,12):[];
+  let changed=0;
+  for(const c of cells||[]){
+    if(!isBikeLevel(c.level)||!isServiceLevel(c.service))continue;
+    const was=current.get(key(c.level,c.service));const brands=clean(c.brands);
+    if(!c.status){
+      if(was){await supabase.from("shop_capabilities").delete().eq("shop_id",shopId).eq("bike_level",c.level).eq("service_level",c.service);changed++}
+      continue;
+    }
+    if(!isStatus(c.status))continue;
+    if(was&&was.status===c.status&&(was.brands||[]).join("|")===brands.join("|"))continue;
+    const {error}=await supabase.from("shop_capabilities").upsert({shop_id:shopId,bike_level:c.level,service_level:c.service,status:c.status,brands,source:"admin",note:`Admin edit: ${reason}`},{onConflict:"shop_id,bike_level,service_level"});
+    if(error)return {error:`Could not save: ${error.message}`};
+    changed++;
+  }
+  revalidatePath(`/services/${shop.slug}`);revalidatePath("/services");revalidatePath("/admin","layout");revalidatePath("/partner/dashboard");
+  return {changed};
 }

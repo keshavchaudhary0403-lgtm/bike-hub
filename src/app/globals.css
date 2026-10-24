@@ -1037,3 +1037,7 @@ button.choice:hover small,.choice.on small{color:rgba(255,255,255,.7)}
 }
 .finder-skip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin-top:-4px}
 .finder-links .link:disabled{opacity:.45;cursor:default}
+.admin-cells{display:grid;gap:12px}
+.cell-select{width:100%;min-width:110px;min-height:38px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font:inherit;font-size:13px;font-weight:650}
+.editor-grid td.st-visited,.editor-grid td.st-proven{background:var(--green-soft)}
+.editor-grid td.st-claimed{background:var(--bg)}
