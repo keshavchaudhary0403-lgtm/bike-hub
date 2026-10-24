@@ -2,8 +2,8 @@
 // "What does your bike need?" → (details) → "Which bike do you ride?" → (warranty) → location → results.
 // Every step has a "Not sure" way forward, and the rider's bike is remembered on this device.
 import Link from "next/link";import {useEffect,useMemo,useRef,useState} from "react";import {useRouter} from "next/navigation";
-import {ArrowLeft,ArrowRight,Bike,Check,CircleDot,Gauge,HardHat,LocateFixed,LoaderCircle,Luggage,MapPin,Search,ShieldAlert,Sparkles,TriangleAlert,Wrench} from "lucide-react";
-const TILE_ICONS:Record<string,typeof Wrench>={Wrench,TriangleAlert,CircleDot,ShieldAlert,Gauge,Luggage,HardHat,Sparkles};
+import {ArrowLeft,ArrowRight,Bike,CircleDot,CircleHelp,Cog,Disc,Droplet,Droplets,Gauge,Hammer,HardHat,History,LocateFixed,LoaderCircle,Luggage,MapPin,Power,Search,ShieldAlert,ShieldCheck,ShieldOff,Sparkles,TriangleAlert,Truck,Volume2,Waves,Wrench} from "lucide-react";
+const TILE_ICONS:Record<string,typeof Wrench>={Wrench,TriangleAlert,CircleDot,ShieldAlert,Gauge,Luggage,HardHat,Sparkles,CircleHelp,Cog,Disc,Droplet,Droplets,Hammer,History,Power,ShieldCheck,ShieldOff,Truck,Volume2,Waves,Bike};
 import {BIKE_BRANDS,BIKE_MODELS,SIZE_BUCKETS,bikeModel,bikeName,levelForSize,normalize,type BikeModel,type SizeBucket} from "@/data/bike-models";
 import {CUSTOM_OPTIONS,INTENTS,RIDE_OPTIONS,SERVICE_OPTIONS,SYMPTOMS,intentStep,isIntent,type Choice,type IntentId} from "@/lib/matrix/intents";
 import {CITY_KEY,bikeToParams,saveBike,saveCity,useRiderBike,useStored,type RiderBike} from "@/lib/matrix/rider-bike";
@@ -12,9 +12,10 @@ import {CITIES,nearestCity} from "@/lib/listings";
 type Step="intent"|"option"|"symptom"|"ride"|"bike"|"warranty"|"location";
 export type FinderStart={need?:string;opt?:string;sym?:string;ride?:string;step?:string;next?:string};
 
-/** Big, keyboard-friendly choice buttons. */
+/** Big, keyboard-friendly choice tiles in the theme's icon-tile style. */
 function Choices({items,onPick,selected}:{items:Choice[];onPick:(id:string)=>void;selected?:string|null}){
-  return <div className="choice-grid" role="list">{items.map(c=><button type="button" role="listitem" key={c.id} className={`choice${c.id==="unsure"?" unsure":""}${selected===c.id?" on":""}`} onClick={()=>onPick(c.id)}>{c.label}{c.hint&&<small>{c.hint}</small>}</button>)}</div>;
+  return <div className="choice-grid" role="list">{items.map(c=>{const Icon=c.icon?TILE_ICONS[c.icon]:null;
+    return <button type="button" role="listitem" key={c.id} className={`choice${c.id==="unsure"?" unsure":""}${selected===c.id?" on":""}`} onClick={()=>onPick(c.id)}>{Icon&&<span className="tile-icon" aria-hidden="true"><Icon/></span>}<span className="tile-text"><b>{c.label}</b>{c.hint&&<small>{c.hint}</small>}</span></button>})}</div>;
 }
 
 export function IntentTiles({onPick,linkBase}:{onPick?:(id:IntentId)=>void;linkBase?:string}){
@@ -31,20 +32,21 @@ export function BikePicker({onDone}:{onDone:(b:RiderBike|null)=>void}){
   const [query,setQuery]=useState("");const [brand,setBrand]=useState<string|null>(null);const [unknown,setUnknown]=useState(false);
   const results=useMemo(()=>{
     const q=normalize(query);const list=BIKE_MODELS.filter(m=>(!brand||m.brand===brand)&&(!q||normalize(`${m.brand} ${m.model}`).includes(q)||m.aliases.some(a=>a.includes(q))));
-    return list.sort((a,b)=>Number(b.current)-Number(a.current)).slice(0,brand&&!q?40:12);
+    return list.sort((a,b)=>Number(b.current)-Number(a.current)).slice(0,8);
   },[query,brand]);
   const pickModel=(m:BikeModel)=>onDone({modelId:m.id,brand:m.brand,size:null,level:m.level,name:bikeName(m)});
   const pickSize=(size:SizeBucket)=>brand&&onDone({modelId:null,brand,size,level:levelForSize(brand,size),name:`${brand} (${SIZE_BUCKETS.find(s=>s.id===size)!.label.toLowerCase()})`});
   if(unknown)return <div className="bike-picker">
     <p className="finder-sub">No problem. Pick the brand and roughly how big it is.</p>
-    <label className="field">Brand<select value={brand||""} onChange={e=>setBrand(e.target.value||null)}><option value="">Choose brand</option>{BIKE_BRANDS.map(b=><option key={b}>{b}</option>)}</select></label>
-    {brand&&<><p className="finder-sub">How big is it?</p><Choices items={SIZE_BUCKETS.map(s=>({id:s.id,label:s.label}))} onPick={id=>pickSize(id as SizeBucket)}/></>}
+    <label className="field-label">Brand<select className="field" value={brand||""} onChange={e=>setBrand(e.target.value||null)}><option value="">Choose brand</option>{BIKE_BRANDS.map(b=><option key={b}>{b}</option>)}</select></label>
+    {brand&&<><p className="finder-sub">How big is it?</p><Choices items={SIZE_BUCKETS.map(s=>({id:s.id,label:s.label,icon:s.id==="electric"?"Power":s.id==="old"?"History":"Gauge"}))} onPick={id=>pickSize(id as SizeBucket)}/></>}
     <div className="finder-links"><button type="button" className="link" onClick={()=>setUnknown(false)}>Back to model list</button><button type="button" className="link" onClick={()=>onDone(brand?{modelId:null,brand,size:null,level:null,name:brand}:null)}>Not sure, skip this</button></div>
   </div>;
   return <div className="bike-picker">
     <label className="field search-field"><Search aria-hidden="true"/><span className="sr-only">Search your bike</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Type your bike, e.g. Duke 390 or Classic 350" autoComplete="off"/></label>
     <div className="brand-chips" role="group" aria-label="Filter by brand"><button type="button" className={!brand?"on":undefined} aria-pressed={!brand} onClick={()=>setBrand(null)}>All brands</button>{BIKE_BRANDS.filter(b=>BIKE_MODELS.some(m=>m.brand===b&&m.current)).map(b=><button type="button" key={b} className={brand===b?"on":undefined} aria-pressed={brand===b} onClick={()=>setBrand(brand===b?null:b)}>{b}</button>)}</div>
-    {(query||brand)&&<ul className="model-list" aria-live="polite">{results.length?results.map(m=><li key={m.id}><button type="button" onClick={()=>pickModel(m)}><b>{m.brand} {m.model}</b>{!m.current&&<small>{m.years||"older model"}</small>}</button></li>):<li className="muted">No match. Try fewer letters, or choose “I don’t know my model”.</li>}</ul>}
+    {(query||brand)?<ul className="model-list" aria-live="polite">{results.length?results.map(m=><li key={m.id}><button type="button" onClick={()=>pickModel(m)}><span className="tile-icon" aria-hidden="true"><Bike/></span><span className="tile-text"><b>{m.model}</b><small>{m.brand}{!m.current?` · ${m.years||"older model"}`:""}</small></span></button></li>):<li className="muted">No match. Try fewer letters, or choose “I don’t know my model”.</li>}</ul>
+      :<p className="finder-sub">Start typing, or tap your bike’s brand.</p>}
     <div className="finder-links"><button type="button" className="link" onClick={()=>setUnknown(true)}>I don’t know my model</button><button type="button" className="link" onClick={()=>onDone(null)}>Not sure, skip this</button></div>
   </div>;
 }
@@ -93,26 +95,31 @@ export function Finder({start}:{start:FinderStart}){
 
   // Steps shown to the rider: the tile (unless they arrived from one), its follow-up question if any, bike, location.
   const total=changeOnly?1:(first==="intent"?1:0)+(intent&&intentStep(intent)?1:0)+2;
-  const index=changeOnly?1:Math.min(history.filter(s=>s!=="warranty"&&s!=="ride").length,total);
+  // Warranty, and "Can you ride it?" after the "After a fall" symptom, are sub-questions that don't count as steps.
+  const index=changeOnly?1:Math.min(history.filter(s=>s!=="warranty"&&!(s==="ride"&&history.includes("symptom"))).length,total);
   const title:Record<Step,string>={intent:"What does your bike need?",option:intent==="custom"?"What would you like done?":"What kind of service?",symptom:"What’s happening?",ride:"Can you ride it?",bike:"Which bike do you ride?",warranty:"Is it still under warranty?",location:"Where are you?"};
-  return <section className="finder panel" aria-labelledby="finder-title">
-    <div className="finder-top">{(history.length>1||step!=="intent")&&<button type="button" className="link back" onClick={back}><ArrowLeft/> Back</button>}<span className="finder-progress">Step {index} of {total}</span></div>
+  // What the rider has told us so far, shown above the question so they keep their place.
+  const picked=[INTENTS.find(i=>i.id===intent)?.label,[...SERVICE_OPTIONS,...CUSTOM_OPTIONS].find(o=>o.id===opt)?.label,SYMPTOMS.find(o=>o.id===sym)?.label,ride?RIDE_OPTIONS.find(o=>o.id===ride)?.label:null,step==="warranty"||step==="location"?bike?.name:null].filter((x):x is string=>!!x&&x!=="Not sure");
+  return <section className="finder" aria-labelledby="finder-title">
+    <div className="finder-top">{(history.length>1||step!=="intent")?<button type="button" className="link back" onClick={back}><ArrowLeft/> Back</button>:<span/>}
+      <div className="finder-progress" aria-label={`Step ${index} of ${total}`}><span>Step {index} of {total}</span><span className="bar" aria-hidden="true">{Array.from({length:total},(_,i)=><i key={i} className={i<index?"on":undefined}/>)}</span></div></div>
+    {picked.length>0&&<p className="finder-picked">{picked.map(x=><span key={x} className="chip">{x}</span>)}</p>}
     <h2 id="finder-title" ref={heading} tabIndex={-1}>{title[step]}</h2>
     {step==="intent"&&<IntentTiles onPick={id=>{setIntent(id);setOpt(null);setSym(null);setRide(null);go(intentStep(id)??"bike")}}/>}
     {step==="option"&&<Choices items={intent==="custom"?CUSTOM_OPTIONS:SERVICE_OPTIONS} selected={opt} onPick={id=>{setOpt(id==="unsure"?null:id);go("bike")}}/>}
     {step==="symptom"&&<Choices items={SYMPTOMS} selected={sym} onPick={id=>{setSym(id);go(id==="fall"?"ride":"bike")}}/>}
     {step==="ride"&&<Choices items={RIDE_OPTIONS} selected={ride} onPick={id=>{setRide(id);go("bike")}}/>}
-    {step==="bike"&&(remembered&&!picking?<div className="bike-remembered"><p><Bike aria-hidden="true"/> Your bike: <b>{remembered.name}</b></p><div className="finder-actions"><button type="button" className="button" onClick={()=>afterBike(remembered)}>Yes, that’s my bike <ArrowRight/></button><button type="button" className="button secondary" onClick={()=>setPicking(true)}>Change bike</button></div></div>
+    {step==="bike"&&(remembered&&!picking?<div className="bike-remembered"><p className="choice on"><span className="tile-icon" aria-hidden="true"><Bike/></span><span className="tile-text"><small>Your bike</small><b>{remembered.name}</b></span></p><div className="finder-actions"><button type="button" className="button" onClick={()=>afterBike(remembered)}>Yes, that’s my bike <ArrowRight/></button><button type="button" className="button secondary" onClick={()=>setPicking(true)}>Change bike</button></div></div>
       :<BikePicker onDone={afterBike}/>)}
-    {step==="warranty"&&<><p className="finder-sub">Bikes under warranty are usually best serviced at an official service centre, so we show those first.</p><Choices items={[{id:"yes",label:"Yes, under warranty"},{id:"no",label:"No"},{id:"unsure",label:"Not sure"}]} selected={warranty} onPick={id=>{setWarranty(id);finishOrLocate(bike,id)}}/></>}
+    {step==="warranty"&&<><p className="finder-sub">Bikes under warranty are usually best serviced at an official service centre, so we show those first.</p><Choices items={[{id:"yes",label:"Yes, under warranty",icon:"ShieldCheck"},{id:"no",label:"No",icon:"ShieldOff"},{id:"unsure",label:"Not sure",icon:"CircleHelp"}]} selected={warranty} onPick={id=>{setWarranty(id);finishOrLocate(bike,id)}}/></>}
     {step==="location"&&<div className="finder-location">
-      <button type="button" className="button" onClick={locate} disabled={locating}>{locating?<><LoaderCircle className="spin"/> Finding you…</>:<><LocateFixed/> Use my location</>}</button>
-      {locError&&<p className="form-error" role="alert">{locError}</p>}
-      <p className="finder-or"><span>or choose a city</span></p>
-      <form className="form" onSubmit={e=>{e.preventDefault();results({city:city||undefined,area:area.trim()||undefined})}}>
-        <label>City<select value={city} onChange={e=>setCity(e.target.value)}><option value="">All cities</option>{CITIES.map(c=><option key={c}>{c}</option>)}</select></label>
-        <label><span>Area <span className="optional">(optional)</span></span><input value={area} onChange={e=>setArea(e.target.value)} maxLength={60} placeholder="e.g. Sector 62, Koramangala"/></label>
-        <button className="button secondary"><MapPin/> Show shops <Check/></button>
-      </form></div>}
+      <button type="button" className="choice locate" onClick={locate} disabled={locating}><span className="tile-icon" aria-hidden="true">{locating?<LoaderCircle className="spin"/>:<LocateFixed/>}</span><span className="tile-text"><b>{locating?"Finding you…":"Use my location"}</b><small>Nearest shops first</small></span></button>
+      <form className="choice city-form" onSubmit={e=>{e.preventDefault();results({city:city||undefined,area:area.trim()||undefined})}}>
+        <span className="tile-icon" aria-hidden="true"><MapPin/></span>
+        <div className="city-fields"><label className="field-label">City<select className="field" value={city} onChange={e=>setCity(e.target.value)}><option value="">All cities</option>{CITIES.map(c=><option key={c}>{c}</option>)}</select></label>
+          <label className="field-label"><span>Area <span className="optional">(optional)</span></span><input className="field" value={area} onChange={e=>setArea(e.target.value)} maxLength={60} placeholder="e.g. Sector 62"/></label>
+          <button className="button">Show shops <ArrowRight/></button></div>
+      </form>
+      {locError&&<p className="form-error" role="alert">{locError}</p>}</div>}
   </section>;
 }

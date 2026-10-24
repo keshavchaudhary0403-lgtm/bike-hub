@@ -4,7 +4,8 @@ import {SERVICE_INFO,type BikeLevel,type ServiceLevel,type Skill} from "./config
 import type {Fuel} from "@/data/bike-models";
 
 export type IntentId="service"|"problem"|"tyres"|"accident"|"perform"|"trip"|"gear"|"custom";
-export type Choice={id:string;label:string;hint?:string};
+/** `icon` is a lucide icon name shown in the theme's icon tile. */
+export type Choice={id:string;label:string;hint?:string;icon?:string};
 /** `icon` is a lucide icon name, drawn in the theme's icon tile. */
 export const INTENTS:{id:IntentId;icon:string;label:string;hint:string}[]=[
   {id:"service",icon:"Wrench",label:"Service & wash",hint:"Periodic service, oil, chain, washing"},
@@ -18,12 +19,12 @@ export const INTENTS:{id:IntentId;icon:string;label:string;hint:string}[]=[
 ];
 export const isIntent=(v:unknown):v is IntentId=>INTENTS.some(i=>i.id===v);
 
-export const SERVICE_OPTIONS:Choice[]=[{id:"full",label:"Full service"},{id:"wash",label:"Just a wash"},{id:"oil",label:"Oil & chain"},{id:"unsure",label:"Not sure"}];
-export const CUSTOM_OPTIONS:Choice[]=[{id:"fabrication",label:"Custom parts & fabrication"},{id:"restore",label:"Restore a classic bike"},{id:"detailing",label:"Detailing & paint"},{id:"unsure",label:"Not sure"}];
-export const RIDE_OPTIONS:Choice[]=[{id:"yes",label:"Yes, I can ride it"},{id:"no",label:"No, it needs picking up"},{id:"unsure",label:"Not sure"}];
+export const SERVICE_OPTIONS:Choice[]=[{id:"full",label:"Full service",icon:"Wrench"},{id:"wash",label:"Just a wash",icon:"Droplets"},{id:"oil",label:"Oil & chain",icon:"Cog"},{id:"unsure",label:"Not sure",icon:"CircleHelp"}];
+export const CUSTOM_OPTIONS:Choice[]=[{id:"fabrication",label:"Custom parts & fabrication",icon:"Hammer"},{id:"restore",label:"Restore a classic bike",icon:"History"},{id:"detailing",label:"Detailing & paint",icon:"Sparkles"},{id:"unsure",label:"Not sure",icon:"CircleHelp"}];
+export const RIDE_OPTIONS:Choice[]=[{id:"yes",label:"Yes, I can ride it",icon:"Bike"},{id:"no",label:"No, it needs picking up",icon:"Truck"},{id:"unsure",label:"Not sure",icon:"CircleHelp"}];
 export const SYMPTOMS:Choice[]=[
-  {id:"noise",label:"Strange noise"},{id:"wont_start",label:"Won’t start"},{id:"warning_light",label:"Warning light on"},{id:"brakes",label:"Brakes feel off"},
-  {id:"oil_leak",label:"Leaking oil"},{id:"wobble",label:"Pulling or wobbling"},{id:"fall",label:"After a fall"},{id:"unsure",label:"Not sure"}
+  {id:"noise",label:"Strange noise",icon:"Volume2"},{id:"wont_start",label:"Won’t start",icon:"Power"},{id:"warning_light",label:"Warning light on",icon:"TriangleAlert"},{id:"brakes",label:"Brakes feel off",icon:"Disc"},
+  {id:"oil_leak",label:"Leaking oil",icon:"Droplet"},{id:"wobble",label:"Pulling or wobbling",icon:"Waves"},{id:"fall",label:"After a fall",icon:"ShieldAlert"},{id:"unsure",label:"Not sure",icon:"CircleHelp"}
 ];
 
 /** What the rider chose, as kept in the results URL. */

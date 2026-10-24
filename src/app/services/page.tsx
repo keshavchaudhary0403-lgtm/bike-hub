@@ -41,7 +41,7 @@ function MatrixResults({p,ctx,view}:{p:Params;ctx:RiderContext;view:Awaited<Retu
   const where=ctx.originLabel?` ${ctx.originLabel.startsWith("near")?ctx.originLabel:`in ${ctx.originLabel}`}`:"";
   const changeNeed=ctx.need?`/find?need=${ctx.need.intent}`:"/find";
   const mapParams=new URLSearchParams({...(ctx.city?{location:ctx.city}:{}),view:"map"});
-  return <main><PageHero overlap eyebrow="Matches for your bike" title={<>{what}{forBike}</>} intro={<>{where?`Shops${where}.`:"Shops across India."} <Link className="link" href={changeNeed}>Change what you need</Link></>}/>
+  return <main><PageHero overlap compact eyebrow="Matches for your bike" title={<>{what}{forBike}</>} intro={<>{where?`Shops${where}.`:"Shops across India."} <Link className="link" href={changeNeed}>Change what you need</Link></>}/>
   <section className="section" style={{paddingTop:0}}><div className="container">
     <details className="refine"><summary className="button secondary small">Refine results</summary><FilterBar p={p} ctx={ctx} isMap={false}/></details>
     <Suspense><BikeBar label={ctx.bikeLabel}/></Suspense>
