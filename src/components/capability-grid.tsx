@@ -1,31 +1,37 @@
 "use client";
-// "What they can handle": kinds of bike down the side, kinds of job across the top.
-// The rider's own row is highlighted. It is a real table, so screen readers get row and column names,
-// and a one-line summary above it gives the same information in words.
-import {BIKE_LEVELS,LEVEL_INFO,SERVICE_INFO,SERVICE_LEVELS,STATUS_INFO,meetsMinimum,type BikeLevel,type CellStatus} from "@/lib/matrix/config";
+// "What they can handle": one card per kind of bike, with the five kinds of job as status chips.
+// The rider's own bike type is highlighted and listed first. The chips carry their status in words,
+// so screen readers and colour-blind riders get the same information.
+import {Cog,Cpu,Gauge,Hammer,Wrench} from "lucide-react";
+import {BIKE_LEVELS,LEVEL_INFO,SERVICE_INFO,SERVICE_LEVELS,STATUS_INFO,meetsMinimum,type BikeLevel,type CellStatus,type ServiceLevel} from "@/lib/matrix/config";
 import {useRiderBike} from "@/lib/matrix/rider-bike";
 
 export type GridCell={level:BikeLevel;service:string;status:CellStatus;brands:string[]};
+export const JOB_ICONS:Record<ServiceLevel,typeof Wrench>={S1:Wrench,S2:Hammer,S3:Cpu,S4:Cog,S5:Gauge};
+/** Two or three example bikes, enough to recognise the kind of bike. */
+export const shortExamples=(l:BikeLevel)=>LEVEL_INFO[l].examples.split(",").slice(0,3).map(x=>x.trim()).join(", ");
+const STATUS_SHORT:Record<CellStatus,string>={proven:"Proven",visited:"Checked",claimed:"Shop says"};
 
-/** Only cells riders may see: verified ones, and claims where a claim is enough. */
-const visible=(cells:GridCell[])=>cells.filter(c=>meetsMinimum(c.level,c.service as never,c.status));
+/** Brands shared by every cell of a row ("Kawasaki only"), or null when the row covers all brands or mixes. */
+function rowBrands(cells:GridCell[]){
+  const sets=cells.map(c=>c.brands.join(", "));
+  return sets.length&&sets.every(s=>s&&s===sets[0])?sets[0]:null;
+}
 
 /** `all` (staff only) also shows claims still waiting for a BikeHub visit. */
 export function CapabilityGrid({cells,shopName,all}:{cells:GridCell[];shopName:string;all?:boolean}){
   const mine=useRiderBike()?.level??null;
-  const shown=all?cells:visible(cells);
-  const at=(l:BikeLevel,s:string)=>shown.find(c=>c.level===l&&c.service===s);
-  const rows=BIKE_LEVELS.filter(l=>shown.some(c=>c.level===l)||l===mine);
+  const shown=all?cells:cells.filter(c=>meetsMinimum(c.level,c.service as ServiceLevel,c.status));
   if(!shown.length)return <p className="muted">BikeHub hasn’t checked what bikes {shopName} can handle yet, and the shop hasn’t told us. Call ahead to ask about your bike.</p>;
-  const summary=BIKE_LEVELS.filter(l=>shown.some(c=>c.level===l)).map(l=>`${LEVEL_INFO[l].name}: ${SERVICE_LEVELS.filter(s=>at(l,s)).map(s=>`${SERVICE_INFO[s].name.toLowerCase()} (${STATUS_INFO[at(l,s)!.status].name.toLowerCase()})`).join(", ")}`).join(". ");
-  return <div className="cap-grid-wrap">
-    <p className="sr-only">In short: {summary}.</p>
-    <div className="cap-scroll" role="region" aria-label="What they can handle" tabIndex={0}><table className="cap-grid">
-      <caption className="sr-only">Kinds of bike {shopName} can handle, by kind of job</caption>
-      <thead><tr><th scope="col">Your bike type</th>{SERVICE_LEVELS.map(s=><th scope="col" key={s} title={SERVICE_INFO[s].covers}>{SERVICE_INFO[s].name}</th>)}</tr></thead>
-      <tbody>{rows.map(l=><tr key={l} className={l===mine?"mine":undefined}><th scope="row"><b>{LEVEL_INFO[l].name}{l===mine&&<em className="your-row"> · your bike</em>}</b><small>{LEVEL_INFO[l].examples}</small></th>
-        {SERVICE_LEVELS.map(s=>{const c=at(l,s);return <td key={s} className={c?`st-${c.status}`:"st-none"}>{c?<><span>{STATUS_INFO[c.status].short}</span>{all&&!meetsMinimum(c.level,c.service as never,c.status)&&<small>waiting for a visit</small>}{c.brands.length>0&&<small>{c.brands.join(", ")} only</small>}</>:<span className="sr-only">Not listed</span>}</td>})}</tr>)}</tbody>
-    </table></div>
-    <ul className="cap-legend">{(["proven","visited","claimed"] as CellStatus[]).map(s=><li key={s}><span className={`dot st-${s}`} aria-hidden="true"/><b>{STATUS_INFO[s].name}</b> {STATUS_INFO[s].explain}</li>)}<li><span className="dot st-none" aria-hidden="true"/><b>Blank</b> Not checked or not offered. Call ahead to ask.</li></ul>
+  const rows=BIKE_LEVELS.filter(l=>shown.some(c=>c.level===l)||l===mine).sort((a,b)=>Number(b===mine)-Number(a===mine));
+  return <div className="handles">
+    <ul className="handles-rows">{rows.map(l=>{const rowCells=shown.filter(c=>c.level===l);const brands=rowBrands(rowCells);
+      return <li key={l} className={`handles-row${l===mine?" mine":""}`}>
+        <div className="handles-bike"><b>{LEVEL_INFO[l].name}</b>{l===mine&&<span className="chip">Your bike</span>}{brands&&<span className="chip brand">{brands} only</span>}<small>{shortExamples(l)}</small></div>
+        <ul className="handles-jobs" aria-label={`${LEVEL_INFO[l].name}: jobs`}>{SERVICE_LEVELS.map(s=>{const c=rowCells.find(x=>x.service===s);const Icon=JOB_ICONS[s];
+          const waiting=c&&!meetsMinimum(l,s,c.status);
+          return <li key={s} className={`job ${c?`st-${c.status}`:"st-none"}`} title={SERVICE_INFO[s].covers}><Icon aria-hidden="true"/><span><b>{SERVICE_INFO[s].name}</b><small>{c?`${STATUS_SHORT[c.status]}${waiting?" · hidden until checked":""}${!brands&&c.brands.length?` · ${c.brands.join(", ")}`:""}`:"Not listed"}</small></span></li>})}</ul>
+      </li>})}</ul>
+    <ul className="handles-legend">{(["proven","visited","claimed"] as CellStatus[]).map(s=><li key={s} title={STATUS_INFO[s].explain}><span className={`dot st-${s}`} aria-hidden="true"/>{STATUS_INFO[s].name}</li>)}<li><span className="dot st-none" aria-hidden="true"/>Not listed: call ahead</li></ul>
   </div>;
 }
