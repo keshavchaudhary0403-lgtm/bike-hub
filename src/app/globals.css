@@ -674,6 +674,7 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
   .menu-button{display:grid}
   .search-icon{display:none}
   .hero-grid{grid-template-columns:1fr;gap:40px;padding:48px 0 64px}
+  .arch,.studio{order:-1}
   .arch{width:min(380px,86%)}
   .studio{min-height:340px}
   .studio-word{font-size:40vw;top:auto;bottom:10%;transform:none}
@@ -712,6 +713,9 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
   .hero-search label:first-child{border-right:0;border-bottom:1px solid var(--line)}
   .hero-search .button{width:100%}
   .hero-stats{gap:16px 26px}
+  .hero-grid{gap:32px;padding:32px 0 56px}
+  .arch{width:min(300px,76%)}
+  .studio{min-height:260px}
   .float-chip{font-size:12px;padding:8px 12px}
   .float-chip.c1{left:-2%}.float-chip.c2{right:-2%}
   .marquee a{font-size:20px;padding:0 16px}
