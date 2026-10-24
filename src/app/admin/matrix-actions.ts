@@ -77,3 +77,14 @@ export async function adminSaveCells(shopId:string,cells:AdminCell[],note:string
   revalidatePath(`/services/${shop.slug}`);revalidatePath("/services");revalidatePath("/admin","layout");revalidatePath("/partner/dashboard");
   return {changed};
 }
+
+/** Admin → Audits: confirm or correct a bike's type. Confirmed bikes leave the double-check list. Admins only (database rule). */
+export async function reviewBike(id:string,level:string):Promise<{error?:string}>{
+  const {supabase}=await requireStaff();
+  if(!isBikeLevel(level))return {error:"Choose a bike type."};
+  const {data,error}=await supabase.from("bike_models").update({bike_level:level,needs_review:false}).eq("id",String(id).slice(0,80)).select("id").maybeSingle();
+  if(error)return {error:`Could not save: ${error.message}`};
+  if(!data)return {error:"Only admins can change bike types."}; // the database rule lets admins (not moderators) edit bikes
+  revalidatePath("/admin/audits");revalidatePath("/services");
+  return {};
+}

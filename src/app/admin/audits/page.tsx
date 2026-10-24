@@ -1,5 +1,5 @@
 import Link from "next/link";import {AlertTriangle,ClipboardCheck,Search} from "lucide-react";import {DashShell,Flash,Pill} from "@/components/dashboard";import {escapeLike,formatDate,requireStaff} from "@/lib/admin";
-import {setRequestStatus} from "../matrix-actions";import {cellLabel,isBikeLevel,isServiceLevel} from "@/lib/matrix/config";import {BIKE_MODELS,bikeName} from "@/data/bike-models";import {LEVEL_INFO} from "@/lib/matrix/config";
+import {setRequestStatus} from "../matrix-actions";import {cellLabel,isBikeLevel,isServiceLevel} from "@/lib/matrix/config";import {BIKE_MODELS,bikeName} from "@/data/bike-models";import {BikeReviewList,type ReviewBike} from "@/components/bike-review";
 export const metadata={title:"Audits · Admin"};
 type Req={id:string;cells:[string,string][];note:string|null;status:string;created_at:string;service_centres:{id:string;name:string;city:string;phone:string|null}|null};
 type Audit={id:string;visited_at:string;auditor_name:string|null;result_cells:unknown[];service_centres:{id:string;name:string;city:string;slug:string}|null};
@@ -16,7 +16,8 @@ const [{data:reqs},{data:audits},{data:alerts},{data:found}]=await Promise.all([
   supabase.from("capability_log").select("id,bike_level,service_level,note,created_at,service_centres(id,name,city)").eq("source","reports").eq("to_status","claimed").gte("created_at",since).order("created_at",{ascending:false}).limit(30),
   q?supabase.from("service_centres").select("id,name,city,locality,listing_type").ilike("search_text",`%${escapeLike(q.toLowerCase())}%`).neq("listing_type","gear_shop").order("name").limit(20):Promise.resolve({data:null})]);
 const requests=(reqs||[]) as unknown as Req[];const recent=(audits||[]) as unknown as Audit[];const downgrades=(alerts||[]) as unknown as Alert[];
-const review=BIKE_MODELS.filter(m=>m.needsReview);
+const {data:pending}=await supabase.from("bike_models").select("id,bike_level").eq("needs_review",true);
+const review:ReviewBike[]=(pending||[]).flatMap(r=>{const m=BIKE_MODELS.find(x=>x.id===r.id);return m&&isBikeLevel(r.bike_level)?[{id:m.id,name:bikeName(m),detail:[m.cc?`${m.cc}cc`:"electric",m.years].filter(Boolean).join(" · "),level:r.bike_level}]:[]}).sort((a,b)=>a.name.localeCompare(b.name));
 return <DashShell area="admin" active="audits" title="Audits" subtitle="Shop visits that mark what a workshop can handle as “Checked by BikeHub”." badges={{audits:requests.length+downgrades.length}}>
 <Flash saved={sp.saved} error={sp.error}/>
 <div className="dash-card"><h2><ClipboardCheck size={18}/> Start an audit</h2><form className="inline-form" action="/admin/audits"><input name="q" defaultValue={q} placeholder="Shop name, area or city" aria-label="Find a shop"/><button className="button secondary small"><Search/> Find</button></form>
@@ -30,6 +31,7 @@ return <DashShell area="admin" active="audits" title="Audits" subtitle="Shop vis
   {r.status==="new"&&<form action={setRequestStatus}><input type="hidden" name="id" value={r.id}/><input type="hidden" name="status" value="scheduled"/><button className="button secondary small">Mark scheduled</button></form>}
   <form action={setRequestStatus}><input type="hidden" name="id" value={r.id}/><input type="hidden" name="status" value="declined"/><button className="button secondary small">Decline</button></form></div></div></li>)}</ul>:<p className="dash-empty">No visit requests waiting.</p>}</div>
 <div className="dash-card"><h2>Recent audits</h2>{recent.length?<ul className="feed">{recent.map(a=><li key={a.id}><div><b>{a.service_centres?.name||"Unknown"}</b> <span className="muted">{a.service_centres?.city}</span><p>{(a.result_cells||[]).length} cells checked{a.auditor_name?` · by ${a.auditor_name}`:""}</p></div><div className="feed-meta"><small>{formatDate(a.visited_at)}</small>{a.service_centres&&<Link className="link" href={`/services/${a.service_centres.slug}#handles`} target="_blank">View listing</Link>}</div></li>)}</ul>:<p className="dash-empty">No audits yet.</p>}</div>
-<details className="dash-card"><summary><h2 style={{display:"inline"}}>Bike classifications to double-check ({review.length})</h2></summary><p className="hint">These bikes were sorted into a bike type with less certainty. Check them and edit src/data/bike-models.ts if any are wrong.</p>
-<ul className="feed">{review.map(m=><li key={m.id}><div><b>{bikeName(m)}</b> <span className="muted">{m.cc?`${m.cc}cc`:"electric"}{m.years?` · ${m.years}`:""}</span></div><span>{LEVEL_INFO[m.level].name}</span></li>)}</ul></details>
+<div className="dash-card" id="bike-types"><div className="dash-card-head"><h2>Bike types to double-check</h2>{review.length>0&&<span className="muted">{review.length} left</span>}</div>
+<p className="hint">We were less sure about these. Pick the right type if it’s wrong, or tap “Looks right”. Riders get the change straight away.</p>
+<BikeReviewList bikes={review}/></div>
 </DashShell>}

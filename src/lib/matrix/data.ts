@@ -16,14 +16,15 @@ export type RiderContext={need:Need|null;service:ServiceLevel|null;skill:Skill|n
 const num=(v?:string)=>{const n=Number(v);return v&&Number.isFinite(n)?n:null};
 
 /** Reads the request from the URL. Explicit choices (tiles, bike picker, filters) win over words typed in the search box. */
-export function readContext(p:Params):RiderContext{
+/** `levels` are admin-corrected bike types (getBikeLevels); they win over the code list. */
+export function readContext(p:Params,levels:Map<string,BikeLevel>=new Map()):RiderContext{
   const parsed=parseQuery(p.q);
   const need:Need|null=isIntent(p.need)?{intent:p.need,option:p.opt,symptom:p.sym,ride:p.ride,service:isServiceLevel(p.svc)?p.svc:null}:parsed.need;
   const model=bikeModel(p.bike)??(p.brand?null:parsed.model);
   const brand=model?.brand??p.brand??parsed.brand??null;
   const size=SIZE_BUCKETS.some(b=>b.id===p.size)?p.size as SizeBucket:null;
   const browseLevel=levelFromSlug(p.class);
-  let level:BikeLevel|null=browseLevel??model?.level??(brand&&size?levelForSize(brand,size):null);
+  let level:BikeLevel|null=browseLevel??(model?levels.get(model.id)??model.level:null)??(brand&&size?levelForSize(brand,size):null);
   const resolved=need?resolveNeed(need,{fuel:model?.fuel??null,level}):null;
   if(resolved?.level)level=resolved.level;
   const service=serviceFromSlug(p.job)??resolved?.service??null;

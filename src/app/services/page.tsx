@@ -1,5 +1,5 @@
 import type {Metadata} from "next";import Link from "next/link";import {Suspense} from "react";import {CentreCard} from "@/components/ui";import {PageHero} from "@/components/page-hero";import {ArrowRight,Info,List,Map as MapIcon} from "lucide-react";import {ListingsMap} from "@/components/listings-map";import {BikeBar} from "@/components/bike-bar";import {getCentres,getMapPoints,PAGE_SIZE} from "@/lib/supabase-data";import {CITIES,LISTING_TYPES,matchCity} from "@/lib/listings";
-import {getMatrixView,isMatrixRequest,readContext,type CardView,type Params,type RiderContext} from "@/lib/matrix/data";
+import {getBikeLevels} from "@/lib/matrix/bike-levels";import {getMatrixView,isMatrixRequest,readContext,type CardView,type Params,type RiderContext} from "@/lib/matrix/data";
 import {BIKE_LEVELS,LEVEL_INFO,LEVEL_SLUGS,SERVICE_INFO,SERVICE_LEVELS,SERVICE_SLUGS} from "@/lib/matrix/config";
 export const metadata:Metadata={title:"Service centres, repair shops & riding gear",description:"Find motorcycle service centres, repair workshops and riding-gear shops across India's major cities."};
 
@@ -19,7 +19,7 @@ function FilterBar({p,ctx,isMap}:{p:Params;ctx:RiderContext;isMap:boolean}){
     {isMap&&<input type="hidden" name="view" value="map"/>}<button className="button dark">Search</button></form>;
 }
 
-export default async function Services({searchParams}:{searchParams:Promise<Params>}){const p=await searchParams;const ctx=readContext(p);
+export default async function Services({searchParams}:{searchParams:Promise<Params>}){const p=await searchParams;const ctx=readContext(p,await getBikeLevels());
 if(isMatrixRequest(ctx)&&p.view!=="map"){const view=await getMatrixView(ctx);return <MatrixResults p={p} ctx={ctx} view={view}/>}
 const isMap=p.view==="map";
 // Gear words ("helmet near me") go to gear shops; a typed city becomes the location.

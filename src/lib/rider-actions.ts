@@ -3,6 +3,7 @@
 import {publicClient} from "@/lib/supabase-data";
 import {POST_CATEGORIES} from "@/lib/community";
 import {bikeModel} from "@/data/bike-models";
+import {getBikeLevels} from "@/lib/matrix/bike-levels";
 import {isBikeLevel,isServiceLevel} from "@/lib/matrix/config";
 export type FormState={ok:boolean;error?:string};
 const UUID=/^[0-9a-f-]{36}$/i;
@@ -19,7 +20,7 @@ export async function submitReview(_prev:FormState,form:FormData):Promise<FormSt
   if(reviewer_name.length<2)return {ok:false,error:"Please enter your name."};
   const supabase=publicClient();if(!supabase)return {ok:false,error:"Reviews are not available yet. Please try again later."};
   // Which bike and what kind of job: approved reviews count towards a shop's "Proven" cells.
-  const model=bikeModel(field(form,"bike_model",80));const level=model?.level??(isBikeLevel(form.get("bike_level"))?String(form.get("bike_level")):null);
+  const model=bikeModel(field(form,"bike_model",80));const level=(model?(await getBikeLevels()).get(model.id)??model.level:null)??(isBikeLevel(form.get("bike_level"))?String(form.get("bike_level")):null);
   const service_level=isServiceLevel(form.get("service_level"))?String(form.get("service_level")):null;
   const {error}=await supabase.from("reviews").insert({centre_id,reviewer_name,overall_rating,body:body||null,service_used:service_used||null,status:"draft",bike_model_id:model?.id??null,bike_level:level,service_level});
   return error?{ok:false,error:"We couldn’t save your review. Please try again."}:{ok:true};

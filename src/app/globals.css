@@ -1090,3 +1090,15 @@ button.choice:hover small,.choice.on small{color:rgba(255,255,255,.7)}
 .admin-matrix thead th{position:sticky;top:var(--header);z-index:3;box-shadow:inset 0 -1px 0 var(--line)}
 @media(min-width:1000px){.admin-cells .cap-scroll{overflow:visible}}
 .admin-matrix thead th:first-child{width:250px}
+/* Admin → Audits: bike types to double-check. */
+.bike-review-list{list-style:none;margin:0;padding:0;display:grid}
+.bike-review-list li{display:grid;grid-template-columns:36px minmax(0,1fr) 270px auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.bike-review-list li:last-child{border-bottom:0}
+.bike-review-list .tile-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand-text)}
+.bike-review-list .tile-icon svg{width:18px;height:18px}
+.bike-review-name{display:grid;min-width:0}
+.bike-review-name b{font-size:14.5px}
+.bike-review-name small{color:var(--muted);font-size:12.5px}
+.type-pick{color:var(--ink);background:var(--bg)}
+.type-pick.changed{background:var(--brand-soft);border-color:rgba(var(--brand-rgb),.35);color:var(--brand-text)}
+@media(max-width:640px){.bike-review-list li{grid-template-columns:36px minmax(0,1fr)}.bike-review-list .type-pick,.bike-review-list .button{grid-column:2}}

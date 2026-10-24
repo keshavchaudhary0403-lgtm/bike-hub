@@ -174,5 +174,8 @@ insert into public.bike_models (id,brand,model,variant,bike_level,cc,fuel,brand_
   ('yezdi-classic-old','Yezdi','Classic (old)',null,'CLASSIC',250,'carb',array[]::text[],false,'1978–1996',false),
   ('hero-honda-cbz-old','Hero Honda','CBZ (old)',null,'CLASSIC',156,'carb',array[]::text[],false,'1999–2005',true),
   ('suzuki-shogun','Suzuki','Shogun',null,'CLASSIC',108,'carb',array[]::text[],false,'1994–1999',true)
-on conflict (id) do update set brand=excluded.brand,model=excluded.model,variant=excluded.variant,bike_level=excluded.bike_level,cc=excluded.cc,fuel=excluded.fuel,
-  brand_tools_required=excluded.brand_tools_required,is_current_in_india=excluded.is_current_in_india,years=excluded.years,needs_review=excluded.needs_review;
+-- A type confirmed by an admin (needs_review = false in the database) is never overwritten.
+on conflict (id) do update set brand=excluded.brand,model=excluded.model,variant=excluded.variant,cc=excluded.cc,fuel=excluded.fuel,
+  brand_tools_required=excluded.brand_tools_required,is_current_in_india=excluded.is_current_in_india,years=excluded.years,
+  bike_level=case when public.bike_models.needs_review then excluded.bike_level else public.bike_models.bike_level end,
+  needs_review=public.bike_models.needs_review and excluded.needs_review;
