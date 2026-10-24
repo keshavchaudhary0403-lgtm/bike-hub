@@ -41,13 +41,13 @@ function MatrixResults({p,ctx,view}:{p:Params;ctx:RiderContext;view:Awaited<Retu
   const where=ctx.originLabel?` ${ctx.originLabel.startsWith("near")?ctx.originLabel:`in ${ctx.originLabel}`}`:"";
   const changeNeed=ctx.need?`/find?need=${ctx.need.intent}`:"/find";
   const mapParams=new URLSearchParams({...(ctx.city?{location:ctx.city}:{}),view:"map"});
-  return <main><PageHero overlap compact eyebrow="Matches for your bike" title={<>{what}{forBike}</>} intro={<>{where?`Shops${where}.`:"Shops across India."} <Link className="link" href={changeNeed}>Change what you need</Link></>}/>
+  return <main><PageHero overlap compact eyebrow={ctx.bikeLabel?"Matches for your bike":"Shops that can help"} title={<>{what}{forBike}</>} intro={<>{where?`Shops${where}.`:"Shops across India."} <Link className="link" href={changeNeed}>Change what you need</Link></>}/>
   <section className="section" style={{paddingTop:0}}><div className="container">
     <details className="refine"><summary className="button secondary small">Refine results</summary><FilterBar p={p} ctx={ctx} isMap={false}/></details>
     <Suspense><BikeBar label={ctx.bikeLabel}/></Suspense>
     {!view?<div className="panel empty-state"><h2>Matches aren’t available right now</h2><p className="muted">Please try again in a moment, or <Link className="link" href="/services">browse all listings</Link>.</p></div>:<>
       {view.note&&<p className="widen-note" role="status"><Info aria-hidden="true"/>{view.note}</p>}
-      {view.best.length>0&&<><div className="section-head compact"><h2>{view.widened==="official"?`Official ${ctx.brand} service centres`:view.widened==="unverified"?"Shops that say they can help":"Best matches for your bike"}</h2>{view.total>0&&<p className="muted">{view.total} {view.total===1?"shop":"shops"}</p>}</div><Cards items={view.best}/></>}
+      {view.best.length>0&&<><div className="section-head compact"><h2>{view.widened==="official"?`Official ${ctx.brand} service centres`:view.widened==="unverified"?"Shops that say they can help":ctx.bikeLabel?"Best matches for your bike":"Best matches"}</h2>{view.total>0&&<p className="muted">{view.total} {view.total===1?"shop":"shops"}</p>}</div><Cards items={view.best}/></>}
       {view.rest.length>0&&<details className="see-all"><summary className="button secondary">See all {view.total} matches</summary><Cards items={view.rest}/></details>}
       {ctx.touringKit&&<p className="finder-cta"><Link className="link" href={`/services?type=gear_shop${ctx.city?`&location=${encodeURIComponent(ctx.city)}`:""}`}>Touring kit: luggage, crash guards and riding gear shops <ArrowRight size={15}/></Link></p>}
       {view.unchecked.length>0&&<><div className="section-head compact"><div><h2>Nearby, not yet checked</h2><p className="muted">These workshops are close by, but BikeHub hasn’t checked what bikes they handle yet. Call to ask about your bike.</p></div></div><Cards items={view.unchecked}/></>}

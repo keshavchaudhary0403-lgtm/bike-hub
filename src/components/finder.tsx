@@ -40,14 +40,14 @@ export function BikePicker({onDone}:{onDone:(b:RiderBike|null)=>void}){
     <p className="finder-sub">No problem. Pick the brand and roughly how big it is.</p>
     <label className="field-label">Brand<select className="field" value={brand||""} onChange={e=>setBrand(e.target.value||null)}><option value="">Choose brand</option>{BIKE_BRANDS.map(b=><option key={b}>{b}</option>)}</select></label>
     {brand&&<><p className="finder-sub">How big is it?</p><Choices items={SIZE_BUCKETS.map(s=>({id:s.id,label:s.label,icon:s.id==="electric"?"Power":s.id==="old"?"History":"Gauge"}))} onPick={id=>pickSize(id as SizeBucket)}/></>}
-    <div className="finder-links"><button type="button" className="link" onClick={()=>setUnknown(false)}>Back to model list</button><button type="button" className="link" onClick={()=>onDone(brand?{modelId:null,brand,size:null,level:null,name:brand}:null)}>Not sure, skip this</button></div>
+    <div className="finder-links"><button type="button" className="link" onClick={()=>setUnknown(false)}>Back to model list</button><button type="button" className="link" onClick={()=>brand&&onDone({modelId:null,brand,size:null,level:null,name:brand})} disabled={!brand}>Not sure of the size, just use the brand</button></div>
   </div>;
   return <div className="bike-picker">
     <label className="field search-field"><Search aria-hidden="true"/><span className="sr-only">Search your bike</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Type your bike, e.g. Duke 390 or Classic 350" autoComplete="off"/></label>
     <div className="brand-chips" role="group" aria-label="Filter by brand"><button type="button" className={!brand?"on":undefined} aria-pressed={!brand} onClick={()=>setBrand(null)}>All brands</button>{BIKE_BRANDS.filter(b=>BIKE_MODELS.some(m=>m.brand===b&&m.current)).map(b=><button type="button" key={b} className={brand===b?"on":undefined} aria-pressed={brand===b} onClick={()=>setBrand(brand===b?null:b)}>{b}</button>)}</div>
     {(query||brand)?<ul className="model-list" aria-live="polite">{results.length?results.map(m=><li key={m.id}><button type="button" onClick={()=>pickModel(m)}><span className="tile-icon" aria-hidden="true"><Bike/></span><span className="tile-text"><b>{m.model}</b><small>{m.brand}{!m.current?` · ${m.years||"older model"}`:""}</small></span></button></li>):<li className="muted">No match. Try fewer letters, or choose “I don’t know my model”.</li>}</ul>
       :<p className="finder-sub">Start typing, or tap your bike’s brand.</p>}
-    <div className="finder-links"><button type="button" className="link" onClick={()=>setUnknown(true)}>I don’t know my model</button><button type="button" className="link" onClick={()=>onDone(null)}>Not sure, skip this</button></div>
+    <div className="finder-links"><button type="button" className="link" onClick={()=>setUnknown(true)}>I don’t know my model</button></div>
   </div>;
 }
 
@@ -65,10 +65,12 @@ export function Finder({start}:{start:FinderStart}){
   const go=(s:Step)=>setHistory(h=>[...h,s]);const back=()=>history.length>1?setHistory(h=>h.slice(0,-1)):router.back();
 
   const afterBike=(b:RiderBike|null)=>{
-    setBike(b);saveBike(b);setPicking(false);
+    setBike(b);if(b)saveBike(b);setPicking(false);
     const m=bikeModel(b?.modelId);
     if(m?.current&&m.level!=="CLASSIC")go("warranty");else finishOrLocate(b,null);
   };
+  /** The bike is optional: skipping searches every kind of bike, and keeps any bike remembered on this phone. */
+  const skipBike=()=>{setBike(null);setPicking(false);finishOrLocate(null,null)};
   function finishOrLocate(b:RiderBike|null,w:string|null){
     if(changeOnly){
       const url=new URL(start.next!,window.location.origin);if(url.origin!==window.location.origin||!url.pathname.startsWith("/services"))return router.push("/services");
@@ -109,6 +111,7 @@ export function Finder({start}:{start:FinderStart}){
     {step==="option"&&<Choices items={intent==="custom"?CUSTOM_OPTIONS:SERVICE_OPTIONS} selected={opt} onPick={id=>{setOpt(id==="unsure"?null:id);go("bike")}}/>}
     {step==="symptom"&&<Choices items={SYMPTOMS} selected={sym} onPick={id=>{setSym(id);go(id==="fall"?"ride":"bike")}}/>}
     {step==="ride"&&<Choices items={RIDE_OPTIONS} selected={ride} onPick={id=>{setRide(id);go("bike")}}/>}
+    {step==="bike"&&<div className="finder-skip"><p className="finder-sub">Optional. It helps us show shops that can handle your bike.</p><button type="button" className="button secondary small" onClick={skipBike}>Skip, show shops for any bike <ArrowRight/></button></div>}
     {step==="bike"&&(remembered&&!picking?<div className="bike-remembered"><p className="choice on"><span className="tile-icon" aria-hidden="true"><Bike/></span><span className="tile-text"><small>Your bike</small><b>{remembered.name}</b></span></p><div className="finder-actions"><button type="button" className="button" onClick={()=>afterBike(remembered)}>Yes, that’s my bike <ArrowRight/></button><button type="button" className="button secondary" onClick={()=>setPicking(true)}>Change bike</button></div></div>
       :<BikePicker onDone={afterBike}/>)}
     {step==="warranty"&&<><p className="finder-sub">Bikes under warranty are usually best serviced at an official service centre, so we show those first.</p><Choices items={[{id:"yes",label:"Yes, under warranty",icon:"ShieldCheck"},{id:"no",label:"No",icon:"ShieldOff"},{id:"unsure",label:"Not sure",icon:"CircleHelp"}]} selected={warranty} onPick={id=>{setWarranty(id);finishOrLocate(bike,id)}}/></>}
