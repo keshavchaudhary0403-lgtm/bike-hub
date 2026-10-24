@@ -102,12 +102,16 @@ const supabase=dry?null:(()=>{
   return createClient(url,key,{auth:{persistSession:false}});
 })();
 
-// Partner-claimed and admin-edited listings are never overwritten by the import.
+// Partner-claimed, admin-edited and merged-away listings are never overwritten by the import.
 const claimed=new Set();
 if(supabase){
   const {data,error}=await supabase.from("service_centres").select("source_id").eq("source","osm").or("owner_id.not.is.null,manually_edited.eq.true");
   if(error){console.error(error.message);process.exit(1)}
   data.forEach(r=>claimed.add(r.source_id));
+  // OSM duplicates merged into another listing stay merged.
+  const {data:merged,error:mergedError}=await supabase.from("service_centres").select("merged_source_ids").neq("merged_source_ids","{}");
+  if(mergedError){console.error(mergedError.message);process.exit(1)}
+  merged.forEach(r=>r.merged_source_ids.forEach(id=>claimed.add(id)));
 }
 
 const seen=new Set();const totals={service_centre:0,repair_shop:0,gear_shop:0};
