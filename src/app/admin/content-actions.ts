@@ -1,5 +1,5 @@
 "use server";
-import {revalidatePath} from "next/cache";import {redirect} from "next/navigation";import {requireStaff} from "@/lib/admin";import {POST_CATEGORIES} from "@/lib/community";
+import {revalidatePath} from "next/cache";import {redirect} from "next/navigation";import {requireStaff} from "@/lib/admin";import {POST_CATEGORIES} from "@/lib/community";import {recomputeCell} from "@/lib/matrix/recompute";
 const slugify=(s:string)=>s.normalize("NFKD").replace(/[^\w\s-]/g,"").trim().toLowerCase().replace(/[\s_-]+/g,"-").slice(0,70)||"item";
 const text=(form:FormData,k:string,max=300)=>String(form.get(k)||"").trim().slice(0,max)||null;
 const fail=(back:string,message:string):never=>redirect(`${back}?error=${encodeURIComponent(message)}`);
@@ -66,8 +66,11 @@ export async function deletePost(form:FormData){
 export async function moderate(form:FormData){
   const {supabase}=await requireStaff();
   const table=form.get("kind")==="comment"?"comments":"reviews";const id=String(form.get("id"));const action=String(form.get("action"));
+  // A review about a bike type and job can move that shop's cell to or from "Proven".
+  const {data:review}=table==="reviews"?await supabase.from("reviews").select("centre_id,bike_level,service_level").eq("id",id).maybeSingle():{data:null};
   if(action==="delete")await supabase.from(table).delete().eq("id",id);
   else if(action==="approve"||action==="hide")await supabase.from(table).update({status:action==="approve"?"published":"archived"}).eq("id",id);
+  if(review?.centre_id&&review.bike_level&&review.service_level)await recomputeCell(supabase,review.centre_id,review.bike_level,review.service_level);
   refresh();
 }
 export async function setStoryStatus(form:FormData){

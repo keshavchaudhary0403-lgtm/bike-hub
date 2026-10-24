@@ -107,3 +107,6 @@ export const LEVEL_SLUGS:Record<BikeLevel,string>={L1:"performance",L2:"midweigh
 export const SERVICE_SLUGS:Record<ServiceLevel,string>={S1:"routine",S2:"repairs",S3:"electronics",S4:"major",S5:"performance"};
 export const levelFromSlug=(s?:string|null)=>(Object.entries(LEVEL_SLUGS).find(([,v])=>v===s)?.[0] as BikeLevel|undefined)??null;
 export const serviceFromSlug=(s?:string|null)=>(Object.entries(SERVICE_SLUGS).find(([,v])=>v===s)?.[0] as ServiceLevel|undefined)??null;
+
+/** Plain name of a cell, e.g. "Big bikes – Diagnostics & electronics". */
+export const cellLabel=(level:BikeLevel,service:ServiceLevel)=>`${LEVEL_INFO[level].name} – ${SERVICE_INFO[service].name}`;

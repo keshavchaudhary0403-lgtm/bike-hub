@@ -10,9 +10,10 @@ export type GridCell={level:BikeLevel;service:string;status:CellStatus;brands:st
 /** Only cells riders may see: verified ones, and claims where a claim is enough. */
 const visible=(cells:GridCell[])=>cells.filter(c=>meetsMinimum(c.level,c.service as never,c.status));
 
-export function CapabilityGrid({cells,shopName}:{cells:GridCell[];shopName:string}){
+/** `all` (staff only) also shows claims still waiting for a BikeHub visit. */
+export function CapabilityGrid({cells,shopName,all}:{cells:GridCell[];shopName:string;all?:boolean}){
   const mine=useRiderBike()?.level??null;
-  const shown=visible(cells);
+  const shown=all?cells:visible(cells);
   const at=(l:BikeLevel,s:string)=>shown.find(c=>c.level===l&&c.service===s);
   const rows=BIKE_LEVELS.filter(l=>shown.some(c=>c.level===l)||l===mine);
   if(!shown.length)return <p className="muted">BikeHub hasn’t checked what bikes {shopName} can handle yet, and the shop hasn’t told us. Call ahead to ask about your bike.</p>;
@@ -23,7 +24,7 @@ export function CapabilityGrid({cells,shopName}:{cells:GridCell[];shopName:strin
       <caption className="sr-only">Kinds of bike {shopName} can handle, by kind of job</caption>
       <thead><tr><th scope="col">Your bike type</th>{SERVICE_LEVELS.map(s=><th scope="col" key={s} title={SERVICE_INFO[s].covers}>{SERVICE_INFO[s].name}</th>)}</tr></thead>
       <tbody>{rows.map(l=><tr key={l} className={l===mine?"mine":undefined}><th scope="row"><b>{LEVEL_INFO[l].name}{l===mine&&<em className="your-row"> · your bike</em>}</b><small>{LEVEL_INFO[l].examples}</small></th>
-        {SERVICE_LEVELS.map(s=>{const c=at(l,s);return <td key={s} className={c?`st-${c.status}`:"st-none"}>{c?<><span>{STATUS_INFO[c.status].short}</span>{c.brands.length>0&&<small>{c.brands.join(", ")} only</small>}</>:<span className="sr-only">Not listed</span>}</td>})}</tr>)}</tbody>
+        {SERVICE_LEVELS.map(s=>{const c=at(l,s);return <td key={s} className={c?`st-${c.status}`:"st-none"}>{c?<><span>{STATUS_INFO[c.status].short}</span>{all&&!meetsMinimum(c.level,c.service as never,c.status)&&<small>waiting for a visit</small>}{c.brands.length>0&&<small>{c.brands.join(", ")} only</small>}</>:<span className="sr-only">Not listed</span>}</td>})}</tr>)}</tbody>
     </table></div>
     <ul className="cap-legend">{(["proven","visited","claimed"] as CellStatus[]).map(s=><li key={s}><span className={`dot st-${s}`} aria-hidden="true"/><b>{STATUS_INFO[s].name}</b> {STATUS_INFO[s].explain}</li>)}<li><span className="dot st-none" aria-hidden="true"/><b>Blank</b> Not checked or not offered. Call ahead to ask.</li></ul>
   </div>;

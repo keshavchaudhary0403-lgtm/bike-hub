@@ -926,3 +926,25 @@ a.stat:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:va
 .visit-box h3,.evidence h3{font-size:17px}
 .field-label{display:grid;gap:6px;font-weight:650;font-size:14px}
 .field-label textarea{min-height:80px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font:inherit}
+.audit{display:grid;gap:16px}
+.audit-section{display:grid;gap:4px}
+.audit-section legend{font-family:var(--display);font-weight:var(--display-weight);font-size:20px;padding:0 4px}
+.audit-item{display:grid;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.audit-item:last-child{border-bottom:0}
+.audit-label{margin:0;font-weight:650}
+.yesno{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.yesno.wrap{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
+.yesno button{min-height:52px;border:2px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);font:inherit;font-weight:750;font-size:16px;cursor:pointer;color:var(--ink)}
+.yesno button.on.yes{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.yesno button.on.no{background:#fdecea;border-color:var(--danger);color:var(--danger)}
+.audit-photos{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.audit-photos .thumb{position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.audit-photos .thumb img{object-fit:cover}
+.audit-photos .thumb button{position:absolute;right:2px;top:2px;width:24px;height:24px;display:grid;place-items:center;border:0;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;cursor:pointer}
+.audit-grid td.granted{background:var(--green-soft)}
+.cell-btn{width:44px;height:44px;display:grid;place-items:center;margin:auto;border:2px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;color:var(--muted)}
+.audit-grid td.granted .cell-btn{border-color:var(--green);color:var(--green)}
+.override{margin-top:10px}
+.audit-submit{width:100%;min-height:56px;margin-top:12px}
+.alert-card{border-color:var(--danger)}
+.alert-card h2,.dash-card h2 svg{vertical-align:middle}

@@ -3,7 +3,7 @@ export const revalidate=3600;
 /** Every public page: fixed pages, routes, articles and active listings. */
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   const page=(path:string,changeFrequency:"daily"|"weekly"|"monthly",priority:number,lastModified?:string|null)=>({url:`${SITE_URL}${path}`,changeFrequency,priority,...(lastModified?{lastModified}:{})});
-  const fixed=[page("/","daily",1),page("/services","daily",.9),page("/routes","weekly",.8),page("/community","daily",.8),page("/experts","weekly",.7),page("/community/share","monthly",.4),page("/partner","monthly",.5),page("/about","monthly",.4),page("/contact","monthly",.3),page("/trust","monthly",.3)];
+  const fixed=[page("/","daily",1),page("/services","daily",.9),page("/find","monthly",.8),page("/routes","weekly",.8),page("/community","daily",.8),page("/experts","weekly",.7),page("/community/share","monthly",.4),page("/partner","monthly",.5),page("/about","monthly",.4),page("/contact","monthly",.3),page("/trust","monthly",.3)];
   const [routes,posts,listings]=await Promise.all([getRoutes(),getPosts(),listingSlugs()]);
   return [...fixed,...routes.map(r=>page(`/routes/${r.slug}`,"monthly",.7,r.updatedAt)),...posts.map(p=>page(`/community/${p.slug}`,"monthly",.7,p.updatedAt||p.publishedAt)),...listings.map(l=>page(`/services/${l.slug}`,"weekly",.6,l.updated_at))];
 }

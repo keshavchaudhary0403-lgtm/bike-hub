@@ -1,7 +1,7 @@
 import Link from "next/link";import {LayoutDashboard,Store,Inbox,Mail,LogOut,Plus,ShieldCheck,Building2,Route,FileText,ClipboardCheck} from "lucide-react";import {signOut} from "@/app/partner/actions";
-type NavKey="overview"|"listings"|"enquiries"|"messages"|"routes"|"articles"|"approvals"|"partner";
+type NavKey="overview"|"listings"|"enquiries"|"messages"|"routes"|"articles"|"approvals"|"audits"|"partner";
 type NavItem=[NavKey,string,string,typeof Store];
-const ADMIN_NAV:NavItem[]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail],["approvals","/admin/approvals","Approvals",ClipboardCheck],["routes","/admin/routes","Routes",Route],["articles","/admin/articles","Articles",FileText]];
+const ADMIN_NAV:NavItem[]=[["overview","/admin","Overview",LayoutDashboard],["listings","/admin/listings","Listings",Store],["enquiries","/admin/enquiries","Enquiries",Inbox],["messages","/admin/messages","Messages",Mail],["approvals","/admin/approvals","Approvals",ClipboardCheck],["audits","/admin/audits","Audits",ShieldCheck],["routes","/admin/routes","Routes",Route],["articles","/admin/articles","Articles",FileText]];
 const PARTNER_NAV:NavItem[]=[["partner","/partner/dashboard","Overview",LayoutDashboard],["enquiries","/partner/dashboard#enquiries","Enquiries",Inbox],["listings","/partner/dashboard#profile","My listing",Building2]];
 
 /** Admin ↔ Partner switch, shown only to staff. */

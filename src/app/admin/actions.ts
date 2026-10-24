@@ -1,5 +1,5 @@
 "use server";
-import {revalidatePath} from "next/cache";import {redirect} from "next/navigation";import {requireStaff,VERIFICATION_STATUSES} from "@/lib/admin";
+import {revalidatePath} from "next/cache";import {redirect} from "next/navigation";import {requireStaff,VERIFICATION_STATUSES} from "@/lib/admin";import {isSkill} from "@/lib/matrix/config";
 const LISTING_TYPES=["service_centre","repair_shop","gear_shop"];
 const slugify=(s:string)=>s.normalize("NFKD").replace(/[^\w\s-]/g,"").trim().toLowerCase().replace(/[\s_-]+/g,"-").slice(0,60)||"listing";
 function refresh(slug?:string){revalidatePath("/admin","layout");revalidatePath("/services");revalidatePath("/");if(slug)revalidatePath(`/services/${slug}`)}
@@ -36,6 +36,8 @@ export async function saveListing(form:FormData){
   const row={name,listing_type,city,state,centre_type:text("centre_type",120),description:text("description",3000),address_line:text("address_line"),locality:text("locality",120),postal_code:text("postal_code",12),
     latitude,longitude,phone:text("phone",60),email:text("email",120),website:text("website",200),opening_hours_text:text("opening_hours_text",200),
     brands:String(form.get("brands")||"").split(",").map(b=>b.trim()).filter(Boolean).slice(0,10),
+    official_brands:String(form.get("official_brands")||"").split(",").map(b=>b.trim()).filter(Boolean).slice(0,6),
+    brand_exclusive:form.get("brand_exclusive")==="on",skills:form.getAll("skills").map(String).filter(isSkill),
     verification_status:(VERIFICATION_STATUSES as readonly string[]).includes(verification_status)?verification_status:"unverified",
     is_active:form.get("is_active")==="on",is_featured:form.get("is_featured")==="on",manually_edited:true};
   let saved:{id:string;slug:string}|null=null;let message:string|undefined;
