@@ -2,7 +2,8 @@
 // "What does your bike need?" → (details) → "Which bike do you ride?" → (warranty) → location → results.
 // Every step has a "Not sure" way forward, and the rider's bike is remembered on this device.
 import Link from "next/link";import {useEffect,useMemo,useRef,useState} from "react";import {useRouter} from "next/navigation";
-import {ArrowLeft,ArrowRight,Bike,Check,LocateFixed,LoaderCircle,MapPin,Search} from "lucide-react";
+import {ArrowLeft,ArrowRight,Bike,Check,CircleDot,Gauge,HardHat,LocateFixed,LoaderCircle,Luggage,MapPin,Search,ShieldAlert,Sparkles,TriangleAlert,Wrench} from "lucide-react";
+const TILE_ICONS:Record<string,typeof Wrench>={Wrench,TriangleAlert,CircleDot,ShieldAlert,Gauge,Luggage,HardHat,Sparkles};
 import {BIKE_BRANDS,BIKE_MODELS,SIZE_BUCKETS,bikeModel,bikeName,levelForSize,normalize,type BikeModel,type SizeBucket} from "@/data/bike-models";
 import {CUSTOM_OPTIONS,INTENTS,RIDE_OPTIONS,SERVICE_OPTIONS,SYMPTOMS,intentStep,isIntent,type Choice,type IntentId} from "@/lib/matrix/intents";
 import {CITY_KEY,bikeToParams,saveBike,saveCity,useRiderBike,useStored,type RiderBike} from "@/lib/matrix/rider-bike";
@@ -18,7 +19,8 @@ function Choices({items,onPick,selected}:{items:Choice[];onPick:(id:string)=>voi
 
 export function IntentTiles({onPick,linkBase}:{onPick?:(id:IntentId)=>void;linkBase?:string}){
   return <nav className="intent-tiles" aria-label="What does your bike need?">{INTENTS.map(t=>{
-    const body=<><span className="tile-emoji" aria-hidden="true">{t.emoji}</span><b>{t.label}</b><small>{t.hint}</small></>;
+    const Icon=TILE_ICONS[t.icon]||Wrench;
+    const body=<><span className="tile-icon" aria-hidden="true"><Icon/></span><span className="tile-text"><b>{t.label}</b><small>{t.hint}</small></span></>;
     const href=t.id==="gear"?"/services?type=gear_shop":`${linkBase||"/find"}?need=${t.id}`;
     return onPick&&t.id!=="gear"?<button type="button" key={t.id} className="intent-tile" onClick={()=>onPick(t.id)}>{body}</button>:<Link key={t.id} className="intent-tile" href={href}>{body}</Link>;
   })}</nav>;

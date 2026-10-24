@@ -34,6 +34,6 @@
 [data-theme="racing"] .page-hero-media{-webkit-mask-image:none;mask-image:none;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%)}
 [data-theme="racing"] .page-hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:repeating-conic-gradient(var(--dark) 0 25%,#fff 0 50%) 0 0/6px 6px}
 [data-theme="racing"] .page-hero::before{display:none}
-[data-theme="racing"] .category-icon,[data-theme="racing"] .panel-icon,[data-theme="racing"] .trust-icon{border-radius:4px}
+[data-theme="racing"] .tile-icon,[data-theme="racing"] .panel-icon,[data-theme="racing"] .trust-icon{border-radius:4px}
 [data-theme="racing"] .dash-nav nav em{color:var(--dark)}
 @media(max-width:900px){[data-theme="racing"] .page-hero-media{clip-path:none}}

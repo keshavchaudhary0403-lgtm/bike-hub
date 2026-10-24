@@ -5,15 +5,16 @@ import type {Fuel} from "@/data/bike-models";
 
 export type IntentId="service"|"problem"|"tyres"|"accident"|"perform"|"trip"|"gear"|"custom";
 export type Choice={id:string;label:string;hint?:string};
-export const INTENTS:{id:IntentId;emoji:string;label:string;hint:string}[]=[
-  {id:"service",emoji:"🔧",label:"Service & wash",hint:"Periodic service, oil, chain, washing"},
-  {id:"problem",emoji:"⚠️",label:"Something’s wrong",hint:"Noise, warning light, won’t start"},
-  {id:"tyres",emoji:"🛞",label:"Tyres & brakes",hint:"New tyres, punctures, brake work"},
-  {id:"accident",emoji:"💥",label:"Accident repair",hint:"After a fall or crash"},
-  {id:"perform",emoji:"🚀",label:"Make it perform better",hint:"Remaps, exhausts, suspension"},
-  {id:"trip",emoji:"🧳",label:"Get ready for a trip",hint:"Pre-trip check and touring kit"},
-  {id:"gear",emoji:"🪖",label:"Buy riding gear",hint:"Helmets, jackets, gloves"},
-  {id:"custom",emoji:"✨",label:"Customise or restore",hint:"Custom work, classics, detailing"}
+/** `icon` is a lucide icon name, drawn in the theme's icon tile. */
+export const INTENTS:{id:IntentId;icon:string;label:string;hint:string}[]=[
+  {id:"service",icon:"Wrench",label:"Service & wash",hint:"Periodic service, oil, chain, washing"},
+  {id:"problem",icon:"TriangleAlert",label:"Something’s wrong",hint:"Noise, warning light, won’t start"},
+  {id:"tyres",icon:"CircleDot",label:"Tyres & brakes",hint:"New tyres, punctures, brake work"},
+  {id:"accident",icon:"ShieldAlert",label:"Accident repair",hint:"After a fall or crash"},
+  {id:"perform",icon:"Gauge",label:"Make it perform better",hint:"Remaps, exhausts, suspension"},
+  {id:"trip",icon:"Luggage",label:"Get ready for a trip",hint:"Pre-trip check and touring kit"},
+  {id:"gear",icon:"HardHat",label:"Buy riding gear",hint:"Helmets, jackets, gloves"},
+  {id:"custom",icon:"Sparkles",label:"Customise or restore",hint:"Custom work, classics, detailing"}
 ];
 export const isIntent=(v:unknown):v is IntentId=>INTENTS.some(i=>i.id===v);
 

@@ -24,7 +24,7 @@ export default async function Home(){
 
     <nav className="marquee" aria-label="Browse by city"><div className="marquee-track">{[0,1].map(copy=><div key={copy} className="marquee-set" aria-hidden={copy===1||undefined}>{CITIES.map(c=><Link key={c} href={`/services?location=${encodeURIComponent(c)}`} tabIndex={copy===1?-1:undefined}>{c}</Link>)}</div>)}</div></nav>
 
-    <section className="section tight" style={{paddingTop:0}}><div className="container promo-grid" data-reveal="stagger">
+    <section className="section tight"><div className="container promo-grid" data-reveal="stagger">
       <article className="promo service-promo"><Image src="/images/workshop-generated.jpg" alt="" fill sizes="(max-width:900px) 100vw, 50vw"/><span className="eyebrow">Service & repair</span><h2>Workshops that can handle your bike</h2><p>Tell us your bike and the job. We show the shops that can do it, across {CITIES.length} cities.</p><Link className="button" href="/find">Find the right workshop <ArrowRight/></Link>
         <div className="promo-features"><span><ShieldCheck/>Matched to your bike</span><span><Phone/>Call in one tap</span><span><Navigation/>Directions</span><span><Send/>Free enquiries</span></div></article>
       <div className="route-promo-wrap"><article className="promo"><Image src="/images/himalayan-route-generated.jpg" alt="" fill sizes="(max-width:900px) 100vw, 50vw"/><span className="eyebrow">Routes</span><h2>Discover epic rides</h2><p>Scenic routes, weekend getaways and riding stories from across India.</p><Link className="button" href="/routes">Explore routes <ArrowRight/></Link></article>
