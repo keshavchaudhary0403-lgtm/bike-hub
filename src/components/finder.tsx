@@ -92,7 +92,7 @@ export function Finder({start}:{start:FinderStart}){
     setLocError("");if(!("geolocation" in navigator)){setLocError("Your browser can’t share location. Choose your city instead.");return}
     setLocating(true);
     navigator.geolocation.getCurrentPosition(pos=>{const o={lat:pos.coords.latitude,lng:pos.coords.longitude};const near=nearestCity(o);
-      if(!isLiveCity(near)){setLocating(false);setLocError(`BikeHub covers ${REGION} only for now, and you seem to be outside it. Choose a city in ${REGION} instead.`);return}
+      if(!isLiveCity(near)){setLocating(false);setLocError("Coming soon to your city.");return}
       results({...o,city:near!})},
       ()=>{setLocating(false);setLocError("We couldn’t get your location. Choose your city instead.")},{timeout:10000,maximumAge:600000});
   }

@@ -40,7 +40,7 @@ return <main><PageHero overlap eyebrow={REGION} title="Find motorcycle services"
 /** Shown when the rider asks for a city that is switched off for now. */
 function OffRegion({city}:{city?:string|null}){
   if(!city||isLiveCity(city))return null;
-  return <p className="widen-note" role="status"><Info aria-hidden="true"/>BikeHub covers {REGION} only for now, so we don’t show shops in {city} yet. <Link className="link" href="/services">Browse {REGION}</Link></p>;
+  return <p className="widen-note" role="status"><Info aria-hidden="true"/>{city}: coming soon.</p>;
 }
 
 function MatrixResults({p,ctx,view}:{p:Params;ctx:RiderContext;view:Awaited<ReturnType<typeof getMatrixView>>}){
