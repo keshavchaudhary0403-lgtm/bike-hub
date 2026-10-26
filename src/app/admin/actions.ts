@@ -18,7 +18,7 @@ export async function setListingActive(form:FormData){
 /** Switches a city on or off for riders. Its listings stay as they are; only who can see them changes. */
 export async function setCityLive(form:FormData){
   const {supabase,user}=await requireStaff();
-  const name=String(form.get("name")||"").trim().slice(0,80);if(!name)return;
+  const name=String(form.get("name")||"").trim().replace(/\s+/g," ").replace(/\b\p{Ll}/gu,c=>c.toUpperCase()).slice(0,80);if(!name)return;
   const {error}=await supabase.from("cities").upsert({name,is_live:form.get("live")==="true",updated_at:new Date().toISOString(),updated_by:user.id});
   if(error)redirect(`/admin/cities?error=${encodeURIComponent(error.message)}`);
   revalidatePath("/","layout");

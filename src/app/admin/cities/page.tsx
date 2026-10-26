@@ -11,6 +11,7 @@ const rows=names.map((name,i)=>({name,live:!!saved.get(name)?.is_live,listings:c
 const liveCount=rows.filter(r=>r.live).length;
 return <DashShell area="admin" active="cities" title="Cities" subtitle={`${liveCount} of ${rows.length} cities are live. Riders only see shops in live cities; other cities show “coming soon”.`}>
 <Flash error={sp.error||(error?`Couldn’t read the cities list: ${error.message}`:undefined)}/>
+<div className="dash-card"><h2>Add a city</h2><p className="muted">Type the city name exactly as it appears on its listings. It goes live straight away, with all its shops.</p><form className="inline-form" action={setCityLive}><input name="name" required maxLength={80} placeholder="e.g. Agra" aria-label="City name"/><input type="hidden" name="live" value="true"/><button className="button small">Add and switch on</button></form></div>
 <div className="dash-card flush"><div className="table-wrap"><table className="data-table"><thead><tr><th>City</th><th>Status</th><th>Shops</th><th aria-label="Actions"></th></tr></thead><tbody>{rows.map(c=><tr key={c.name}>
 <td><b>{c.name}</b></td>
 <td><Pill value={c.live?"live":"hidden"} label={c.live?"Live":"Switched off"}/></td>
