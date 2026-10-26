@@ -7,10 +7,11 @@ export const LISTING_TYPES:{value:ListingType;label:string;plural:string}[]=[
 ];
 /** Every city we hold listings for. Admins still see and edit all of them. */
 export const ALL_CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad","Mumbai","Pune","Bengaluru","Hyderabad","Chennai","Kolkata","Ahmedabad","Jaipur","Chandigarh","Lucknow","Kochi","Indore","Dehradun"];
-/** Cities switched on for the public site. Listings elsewhere stay in the database, hidden; add a city here to open it. */
-export const CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad"];
-export const REGION="Delhi NCR";
-export const isLiveCity=(city?:string|null)=>!!city&&CITIES.includes(city);
+/** Which cities are live is stored in the `cities` table (Admin → Cities); read it with getLiveCities().
+ *  Delhi NCR is the fallback when that table can't be read. */
+export const NCR_CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad"];
+/** "Delhi NCR" while only NCR cities are live, otherwise "6 cities". */
+export const coverageLabel=(live:string[])=>live.length&&live.every(c=>NCR_CITIES.includes(c))?"Delhi NCR":`${live.length} ${live.length===1?"city":"cities"}`;
 /** City centres, for "near me" (nearest city) and distances when the rider only picks a city. */
 export const CITY_COORDS:Record<string,{lat:number;lng:number}>={"New Delhi":{lat:28.6139,lng:77.209},Noida:{lat:28.5355,lng:77.391},Gurugram:{lat:28.4595,lng:77.0266},Ghaziabad:{lat:28.6692,lng:77.4538},Faridabad:{lat:28.4089,lng:77.3178},
  Mumbai:{lat:19.076,lng:72.8777},Pune:{lat:18.5204,lng:73.8567},Bengaluru:{lat:12.9716,lng:77.5946},Hyderabad:{lat:17.385,lng:78.4867},Chennai:{lat:13.0827,lng:80.2707},Kolkata:{lat:22.5726,lng:88.3639},

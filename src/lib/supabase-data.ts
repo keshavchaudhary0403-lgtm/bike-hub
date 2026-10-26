@@ -1,6 +1,7 @@
+import {cache} from "react";
 import {createClient,type SupabaseClient} from "@supabase/supabase-js";
 import {centres} from "@/lib/data";
-import {CITIES,inferType,listingImage,matchCity,officialLabel,photoUrl,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
+import {NCR_CITIES,inferType,listingImage,matchCity,officialLabel,photoUrl,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
 import {distanceKm,formatKm,type Origin} from "@/lib/matrix/match";
 
 export const PAGE_SIZE=24;
@@ -12,6 +13,14 @@ export function publicClient(){
   const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   return url&&key?createClient(url,key,{auth:{persistSession:false}}):null;
 }
+
+/** Cities switched on in Admin → Cities. Listings in other cities are hidden from riders. Read once per request. */
+export const getLiveCities=cache(async():Promise<string[]>=>{
+  const supabase=publicClient();if(!supabase)return NCR_CITIES;
+  const {data,error}=await supabase.from("cities").select("name").eq("is_live",true).order("name");
+  if(error){console.error("getLiveCities",error.message);return NCR_CITIES}
+  return data.map(r=>r.name);
+});
 
 export type CardRow={slug:string;name:string;listing_type:ListingType;centre_type:string|null;locality:string|null;city:string;phone:string|null;opening_hours_text:string|null;brands:string[]|null;official_brands?:string[]|null;photos?:string[]|null;rating_avg?:number|null;rating_count?:number|null};
 export function toListing(r:CardRow):Listing{
@@ -25,11 +34,11 @@ export type CentreFilters={q?:string;location?:string;type?:string;status?:strin
 export type MapPoint={slug:string;name:string;listingType:ListingType;location:string;lat:number;lng:number;rating?:number};
 
 /** Applies the public search filters. `location` matching a known city filters by city; other text is matched against the listing's search text. */
-function searchListings(supabase:SupabaseClient,columns:string,filters:CentreFilters,withCount=false){
+function searchListings(supabase:SupabaseClient,columns:string,filters:CentreFilters,live:string[],withCount=false){
   let query=supabase.from("service_centres").select(columns,withCount?{count:"exact"}:undefined);
   const type=(["service_centre","repair_shop","gear_shop"].includes(filters.type||"")?filters.type:undefined)||inferType(filters.q);
   const city=matchCity(filters.location);
-  query=query.eq("is_active",true).in("city",CITIES);
+  query=query.eq("is_active",true).in("city",live);
   if(type)query=query.eq("listing_type",type);
   if(filters.status==="verified")query=query.eq("verification_status","verified");
   else if(filters.status==="phone")query=query.not("phone","is",null);
@@ -50,11 +59,12 @@ function searchListings(supabase:SupabaseClient,columns:string,filters:CentreFil
 export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE,origin?:Origin|null):Promise<{items:Listing[];total:number;live:boolean}>{
   const supabase=publicClient();
   if(!supabase){const items=filterDemo(demoListings(),filters);return {items,total:items.length,live:false}}
+  const live=await getLiveCities();
   const page=Math.max(1,Number(filters.page)||1);
   const from=(page-1)*limit;
   if(origin){
     // Sort every match by distance here (a few hundred rows at most), then load the cards for this page only.
-    const {data,error}=await searchListings(supabase,"slug,latitude,longitude",filters).limit(3000);
+    const {data,error}=await searchListings(supabase,"slug,latitude,longitude",filters,live).limit(3000);
     if(error){console.error("getCentres",error.message);return {items:[],total:0,live:true}}
     const rows=(data as unknown as {slug:string;latitude:number|null;longitude:number|null}[]).map(r=>({slug:r.slug,d:r.latitude!=null&&r.longitude!=null?distanceKm(origin,{lat:Number(r.latitude),lng:Number(r.longitude)}):null}))
       .sort((a,b)=>(a.d??1e9)-(b.d??1e9));
@@ -64,7 +74,7 @@ export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE,origin
     const bySlug=new Map(((cards||[]) as unknown as CardRow[]).map(c=>[c.slug,c]));
     return {items:pageRows.flatMap(r=>{const c=bySlug.get(r.slug);return c?[{...toListing(c),distance:r.d!=null?formatKm(r.d):null}]:[]}),total:rows.length,live:true};
   }
-  const {data,count,error}=await searchListings(supabase,CARD_FIELDS,filters,true).order("is_featured",{ascending:false}).order("rating_count",{ascending:false}).order("name").range(from,from+limit-1);
+  const {data,count,error}=await searchListings(supabase,CARD_FIELDS,filters,live,true).order("is_featured",{ascending:false}).order("rating_count",{ascending:false}).order("name").range(from,from+limit-1);
   if(error){console.error("getCentres",error.message);return {items:[],total:0,live:true}}
   return {items:(data as unknown as CardRow[]).map(toListing),total:count||0,live:true};
 }
@@ -72,7 +82,7 @@ export async function getCentres(filters:CentreFilters={},limit=PAGE_SIZE,origin
 /** Every matching listing that has coordinates, for the map view (no paging). */
 export async function getMapPoints(filters:CentreFilters={}):Promise<MapPoint[]>{
   const supabase=publicClient();if(!supabase)return [];
-  const {data,error}=await searchListings(supabase,"slug,name,listing_type,locality,city,latitude,longitude,rating_avg,rating_count",filters).not("latitude","is",null).not("longitude","is",null).limit(2000);
+  const {data,error}=await searchListings(supabase,"slug,name,listing_type,locality,city,latitude,longitude,rating_avg,rating_count",filters,await getLiveCities()).not("latitude","is",null).not("longitude","is",null).limit(2000);
   if(error){console.error("getMapPoints",error.message);return []}
   type Point={slug:string;name:string;listing_type:ListingType;locality:string|null;city:string;latitude:number;longitude:number;rating_avg:number|null;rating_count:number};
   return ((data||[]) as unknown as Point[]).map(r=>({slug:r.slug,name:r.name,listingType:r.listing_type,location:[r.locality,r.city].filter(Boolean).join(", "),lat:Number(r.latitude),lng:Number(r.longitude),rating:r.rating_count?Number(r.rating_avg):undefined}));
@@ -81,7 +91,7 @@ export async function getMapPoints(filters:CentreFilters={}):Promise<MapPoint[]>
 export async function getCentre(slug:string):Promise<ListingDetail|null>{
   const supabase=publicClient();
   if(!supabase){const c=centres.find(x=>x.slug===slug);return c?{...c,listingType:"service_centre",city:c.location.split(",").pop()!.trim(),brands:[],officialBrands:[],skills:[],photos:[],source:"demo",verification:"unverified"}:null}
-  const {data:r,error}=await supabase.from("service_centres").select("*").eq("slug",slug).eq("is_active",true).in("city",CITIES).maybeSingle();
+  const {data:r,error}=await supabase.from("service_centres").select("*").eq("slug",slug).eq("is_active",true).in("city",await getLiveCities()).maybeSingle();
   if(error||!r)return null;
   return {...toListing(r as CardRow),id:r.id,description:r.description,address:r.address_line,locality:r.locality,city:r.city,state:r.state,postalCode:r.postal_code,
     latitude:r.latitude==null?null:Number(r.latitude),longitude:r.longitude==null?null:Number(r.longitude),website:r.website,email:r.email,

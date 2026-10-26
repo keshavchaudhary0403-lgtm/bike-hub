@@ -1,16 +1,16 @@
-import type {Metadata} from "next";import Link from "next/link";import {Suspense} from "react";import {CentreCard} from "@/components/ui";import {PageHero} from "@/components/page-hero";import {ArrowRight,Info,List,Map as MapIcon} from "lucide-react";import {ListingsMap} from "@/components/listings-map";import {BikeBar} from "@/components/bike-bar";import {getCentres,getMapPoints,PAGE_SIZE} from "@/lib/supabase-data";import {CITIES,LISTING_TYPES,REGION,isLiveCity,matchCity} from "@/lib/listings";
+import type {Metadata} from "next";import Link from "next/link";import {Suspense} from "react";import {CentreCard} from "@/components/ui";import {PageHero} from "@/components/page-hero";import {ArrowRight,Info,List,Map as MapIcon} from "lucide-react";import {ListingsMap} from "@/components/listings-map";import {BikeBar} from "@/components/bike-bar";import {getCentres,getLiveCities,getMapPoints,PAGE_SIZE} from "@/lib/supabase-data";import {LISTING_TYPES,coverageLabel,matchCity} from "@/lib/listings";
 import {getBikeLevels} from "@/lib/matrix/bike-levels";import {getMatrixView,isMatrixRequest,readContext,type CardView,type Params,type RiderContext} from "@/lib/matrix/data";
 import {BIKE_LEVELS,LEVEL_INFO,LEVEL_SLUGS,SERVICE_INFO,SERVICE_LEVELS,SERVICE_SLUGS} from "@/lib/matrix/config";
-export const metadata:Metadata={title:"Service centres, repair shops & riding gear",description:"Find motorcycle service centres, repair workshops and riding-gear shops across Delhi NCR: New Delhi, Noida, Gurugram, Ghaziabad and Faridabad."};
+export async function generateMetadata():Promise<Metadata>{const live=await getLiveCities();return {title:"Service centres, repair shops & riding gear",description:`Find motorcycle service centres, repair workshops and riding-gear shops in ${live.join(", ")}.`}}
 
 const KEEP=["bike","brand","size","warranty","lat","lng","area"] as const;
 const Cards=({items}:{items:CardView[]})=><div className="cards" data-reveal="stagger">{items.map(v=><CentreCard key={v.listing.slug} centre={v.listing} lines={v.lines} kind={v.kind}/>)}</div>;
 
-function FilterBar({p,ctx,isMap}:{p:Params;ctx:RiderContext;isMap:boolean}){
+function FilterBar({p,ctx,isMap,cities}:{p:Params;ctx:RiderContext;isMap:boolean;cities:string[]}){
   const classDefault=p.class||(ctx.level&&!p.bike&&!p.brand?LEVEL_SLUGS[ctx.level]:"");
   return <form className="filterbar matrix-filters" role="search">
     <input name="q" defaultValue={p.q} placeholder="Shop name, job or bike, e.g. Duke 390 service" aria-label="Search"/>
-    <input name="location" defaultValue={p.location} list="city-list" placeholder="City" aria-label="City"/><datalist id="city-list">{CITIES.map(c=><option key={c} value={c}/>)}</datalist>
+    <input name="location" defaultValue={p.location} list="city-list" placeholder="City" aria-label="City"/><datalist id="city-list">{cities.map(c=><option key={c} value={c}/>)}</datalist>
     <select name="class" aria-label="Bike type" defaultValue={classDefault}><option value="">Any bike type</option>{BIKE_LEVELS.map(l=><option key={l} value={LEVEL_SLUGS[l]}>{LEVEL_INFO[l].name}</option>)}</select>
     <select name="job" aria-label="Job" defaultValue={ctx.service?SERVICE_SLUGS[ctx.service]:""}><option value="">Any job</option>{SERVICE_LEVELS.map(s=><option key={s} value={SERVICE_SLUGS[s]}>{SERVICE_INFO[s].name}</option>)}</select>
     <select name="type" aria-label="Listing type" defaultValue={p.type||""}><option value="">All listings</option>{LISTING_TYPES.map(t=><option key={t.value} value={t.value}>{t.plural}</option>)}</select>
@@ -19,18 +19,18 @@ function FilterBar({p,ctx,isMap}:{p:Params;ctx:RiderContext;isMap:boolean}){
     {isMap&&<input type="hidden" name="view" value="map"/>}<button className="button dark">Search</button></form>;
 }
 
-export default async function Services({searchParams}:{searchParams:Promise<Params>}){const p=await searchParams;const ctx=readContext(p,await getBikeLevels());
-if(isMatrixRequest(ctx)&&p.view!=="map"){const view=await getMatrixView(ctx);return <MatrixResults p={p} ctx={ctx} view={view}/>}
+export default async function Services({searchParams}:{searchParams:Promise<Params>}){const p=await searchParams;const [ctx,cities]=await Promise.all([getBikeLevels().then(l=>readContext(p,l)),getLiveCities()]);
+if(isMatrixRequest(ctx)&&p.view!=="map"){const view=await getMatrixView(ctx);return <MatrixResults p={p} ctx={ctx} view={view} cities={cities}/>}
 const isMap=p.view==="map";
 // Gear words ("helmet near me") go to gear shops; a typed city becomes the location.
 const filters={...p,type:p.type||(ctx.gear?"gear_shop":undefined),q:ctx.gear?ctx.leftover:p.q,location:p.location||(ctx.city&&!p.location?ctx.city:undefined)};
 if(ctx.city&&p.q&&!p.location)filters.q=ctx.leftover||undefined;
 const [{items,total,live},points]=await Promise.all([getCentres(filters,PAGE_SIZE,ctx.origin),isMap?getMapPoints(filters):[]]);const page=Math.max(1,Number(p.page)||1);const pages=Math.ceil(total/PAGE_SIZE);const city=matchCity(filters.location);const href=(n:number)=>`/services?${new URLSearchParams({...p,page:String(n)} as Record<string,string>)}`;
 const {page:_page,view:_view,...rest}=p;const viewHref=(view?:string)=>`/services?${new URLSearchParams({...rest,...(view?{view}:{})} as Record<string,string>)}`;
-return <main><PageHero overlap eyebrow={REGION} title="Find motorcycle services" intro={`Service centres, repair shops and riding gear across ${REGION}.`} image="/images/workshop.jpg"/><section className="section" style={{paddingTop:0}}><div className="container">
-<FilterBar p={p} ctx={ctx} isMap={isMap}/>
+return <main><PageHero overlap eyebrow={coverageLabel(cities)} title="Find motorcycle services" intro={`Service centres, repair shops and riding gear across ${coverageLabel(cities)}.`} image="/images/workshop.jpg"/><section className="section" style={{paddingTop:0}}><div className="container">
+<FilterBar p={p} ctx={ctx} isMap={isMap} cities={cities}/>
 <Suspense><BikeBar/></Suspense>
-<OffRegion city={city}/>
+<OffRegion city={city} live={cities}/>
 <p className="finder-cta"><Link className="link" href="/find">Not sure where to go? Tell us what your bike needs <ArrowRight size={15}/></Link></p>
 <div className="results-bar">{live?<p className="results-count"><b>{total.toLocaleString("en-IN")}</b> {total===1?"listing":"listings"}{city?` in ${city}`:""}{ctx.origin?", nearest first":""}</p>:<span/>}{live&&<nav className="view-toggle" aria-label="View"><Link href={viewHref()} aria-current={!isMap?"page":undefined}><List/> List</Link><Link href={viewHref("map")} aria-current={isMap?"page":undefined}><MapIcon/> Map</Link></nav>}</div>
 {isMap?<ListingsMap points={points}/>:<>{items.length?<div className="cards" data-reveal="stagger">{items.map(c=><CentreCard key={c.slug} centre={c}/>)}</div>:<div className="panel empty-state"><h2>No matches</h2><p className="muted">Try a broader search or another city.</p></div>}
@@ -38,21 +38,21 @@ return <main><PageHero overlap eyebrow={REGION} title="Find motorcycle services"
 </div></section></main>}
 
 /** Shown when the rider asks for a city that is switched off for now. */
-function OffRegion({city}:{city?:string|null}){
-  if(!city||isLiveCity(city))return null;
+function OffRegion({city,live}:{city?:string|null;live:string[]}){
+  if(!city||live.includes(city))return null;
   return <p className="widen-note" role="status"><Info aria-hidden="true"/>{city}: coming soon.</p>;
 }
 
-function MatrixResults({p,ctx,view}:{p:Params;ctx:RiderContext;view:Awaited<ReturnType<typeof getMatrixView>>}){
+function MatrixResults({p,ctx,view,cities}:{p:Params;ctx:RiderContext;view:Awaited<ReturnType<typeof getMatrixView>>;cities:string[]}){
   const what=ctx.summary||"Workshops";const forBike=ctx.model||ctx.brand?` for your ${ctx.bikeLabel}`:ctx.level?` for ${LEVEL_INFO[ctx.level].handles}`:"";
   const where=ctx.originLabel?` ${ctx.originLabel.startsWith("near")?ctx.originLabel:`in ${ctx.originLabel}`}`:"";
   const changeNeed=ctx.need?`/find?need=${ctx.need.intent}`:"/find";
   const mapParams=new URLSearchParams({...(ctx.city?{location:ctx.city}:{}),view:"map"});
-  return <main><PageHero overlap compact eyebrow={ctx.bikeLabel?"Matches for your bike":"Shops that can help"} title={<>{what}{forBike}</>} intro={<>{where?`Shops${where}.`:`Shops across ${REGION}.`} <Link className="link" href={changeNeed}>Change what you need</Link></>}/>
+  return <main><PageHero overlap compact eyebrow={ctx.bikeLabel?"Matches for your bike":"Shops that can help"} title={<>{what}{forBike}</>} intro={<>{where?`Shops${where}.`:`Shops across ${coverageLabel(cities)}.`} <Link className="link" href={changeNeed}>Change what you need</Link></>}/>
   <section className="section" style={{paddingTop:0}}><div className="container">
-    <details className="refine"><summary className="button secondary small">Refine results</summary><FilterBar p={p} ctx={ctx} isMap={false}/></details>
+    <details className="refine"><summary className="button secondary small">Refine results</summary><FilterBar p={p} ctx={ctx} isMap={false} cities={cities}/></details>
     <Suspense><BikeBar label={ctx.bikeLabel}/></Suspense>
-    <OffRegion city={ctx.city}/>
+    <OffRegion city={ctx.city} live={cities}/>
     {!view?<div className="panel empty-state"><h2>Matches aren’t available right now</h2><p className="muted">Please try again in a moment, or <Link className="link" href="/services">browse all listings</Link>.</p></div>:<>
       {view.note&&<p className="widen-note" role="status"><Info aria-hidden="true"/>{view.note}</p>}
       {view.best.length>0&&<><div className="section-head compact"><h2>{view.widened==="official"?`Official ${ctx.brand} service centres`:view.widened==="unverified"?"Shops that say they can help":ctx.bikeLabel?"Best matches for your bike":"Best matches"}</h2>{view.total>0&&<p className="muted">{view.total} {view.total===1?"shop":"shops"}</p>}</div><Cards items={view.best}/></>}

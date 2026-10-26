@@ -15,6 +15,14 @@ export async function setListingActive(form:FormData){
   await supabase.from("service_centres").update({is_active:form.get("active")==="true",manually_edited:true}).eq("id",String(form.get("id")));
   refresh();
 }
+/** Switches a city on or off for riders. Its listings stay as they are; only who can see them changes. */
+export async function setCityLive(form:FormData){
+  const {supabase,user}=await requireStaff();
+  const name=String(form.get("name")||"").trim().slice(0,80);if(!name)return;
+  const {error}=await supabase.from("cities").upsert({name,is_live:form.get("live")==="true",updated_at:new Date().toISOString(),updated_by:user.id});
+  if(error)redirect(`/admin/cities?error=${encodeURIComponent(error.message)}`);
+  revalidatePath("/","layout");
+}
 export async function markContactRead(form:FormData){
   const {supabase}=await requireStaff();
   await supabase.from("contact_messages").update({status:form.get("status")==="new"?"new":"read"}).eq("id",String(form.get("id")));

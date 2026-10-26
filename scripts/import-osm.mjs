@@ -1,6 +1,6 @@
 // Imports motorcycle service centres, repair shops and riding-gear shops from
 // OpenStreetMap (Overpass API) into Supabase `service_centres`.
-// Usage: npm run import:osm            (Delhi NCR, the cities live on the site)
+// Usage: npm run import:osm            (cities switched on in Admin → Cities)
 //        npm run import:osm -- --all   (every city below)
 //        npm run import:osm -- pune    (cities whose key contains "pune")
 //        npm run import:osm -- --dry   (fetch and classify only, no writes)
@@ -34,9 +34,6 @@ const ENDPOINTS=["https://overpass-api.de/api/interpreter","https://overpass.kum
 const GEAR=/helmet|riding gear|rider gear|biker|moto ?gear|motorcycle gear|bike gear|riding jacket/i;
 
 const args=process.argv.slice(2);const dry=args.includes("--dry");const only=args.filter(a=>!a.startsWith("--"));
-// Keep in step with CITIES in src/lib/listings.ts: other cities are switched off on the site.
-const LIVE=["noida","ghaziabad","gurugram","faridabad","delhi"];
-const cities=only.length?CITIES.filter(c=>only.some(o=>c[0].includes(o.toLowerCase()))):args.includes("--all")?CITIES:CITIES.filter(c=>LIVE.includes(c[0]));
 
 function query([, , ,s,w,n,e]){
   const b=`(${s},${w},${n},${e})`;
@@ -104,6 +101,11 @@ const supabase=dry?null:(()=>{
   if(!url||!key){console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in .env.local (or pass --dry).");process.exit(1)}
   return createClient(url,key,{auth:{persistSession:false}});
 })();
+
+// By default only the cities live on the site (Delhi NCR if the list can't be read).
+let live=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad"];
+if(supabase){const {data,error}=await supabase.from("cities").select("name").eq("is_live",true);if(!error&&data)live=data.map(r=>r.name)}
+const cities=only.length?CITIES.filter(c=>only.some(o=>c[0].includes(o.toLowerCase()))):args.includes("--all")?CITIES:CITIES.filter(c=>live.includes(c[1]));
 
 // Partner-claimed, admin-edited and merged-away listings are never overwritten by the import.
 const claimed=new Set();

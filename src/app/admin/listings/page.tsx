@@ -1,8 +1,8 @@
-import Link from "next/link";import {Pencil,ExternalLink,Plus} from "lucide-react";import {DashShell,Pill} from "@/components/dashboard";import {escapeLike,requireStaff,VERIFICATION_STATUSES} from "@/lib/admin";import {ALL_CITIES,LISTING_TYPES,isLiveCity,typeLabel} from "@/lib/listings";import {setListingActive} from "../actions";
+import Link from "next/link";import {Pencil,ExternalLink,Plus} from "lucide-react";import {DashShell,Pill} from "@/components/dashboard";import {escapeLike,requireStaff,VERIFICATION_STATUSES} from "@/lib/admin";import {ALL_CITIES,LISTING_TYPES,typeLabel} from "@/lib/listings";import {getLiveCities} from "@/lib/supabase-data";import {setListingActive} from "../actions";
 export const metadata={title:"Listings · Admin"};
 const PER_PAGE=25;
 type Params={q?:string;city?:string;type?:string;verification?:string;visibility?:string;source?:string;page?:string};
-export default async function AdminListings({searchParams}:{searchParams:Promise<Params>}){const {supabase}=await requireStaff();const p=await searchParams;const page=Math.max(1,Number(p.page)||1);
+export default async function AdminListings({searchParams}:{searchParams:Promise<Params>}){const {supabase}=await requireStaff();const [p,live]=await Promise.all([searchParams,getLiveCities()]);const isLiveCity=(c:string)=>live.includes(c);const page=Math.max(1,Number(p.page)||1);
 let q=supabase.from("service_centres").select("id,slug,name,city,locality,listing_type,centre_type,phone,verification_status,is_active,is_featured,source,manually_edited,owner_id",{count:"exact"});
 if(p.q?.trim())q=q.ilike("search_text",`%${escapeLike(p.q.trim().toLowerCase())}%`);
 if(p.city)q=q.eq("city",p.city);if(p.type)q=q.eq("listing_type",p.type);if(p.verification)q=q.eq("verification_status",p.verification);
