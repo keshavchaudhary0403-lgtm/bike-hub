@@ -1,4 +1,4 @@
-import Link from "next/link";import {ExternalLink,Save} from "lucide-react";import {VERIFICATION_STATUSES} from "@/lib/admin";import {CITIES,LISTING_TYPES} from "@/lib/listings";import {saveListing} from "@/app/admin/actions";import {PhotoManager} from "@/components/photo-manager";import {SKILLS,SKILL_INFO} from "@/lib/matrix/config";
+import Link from "next/link";import {ExternalLink,Save} from "lucide-react";import {VERIFICATION_STATUSES} from "@/lib/admin";import {ALL_CITIES,LISTING_TYPES} from "@/lib/listings";import {saveListing} from "@/app/admin/actions";import {PhotoManager} from "@/components/photo-manager";import {SKILLS,SKILL_INFO} from "@/lib/matrix/config";
 export type ListingRow={id:string;slug:string;name:string;listing_type:string;centre_type:string|null;description:string|null;address_line:string|null;locality:string|null;city:string;state:string;postal_code:string|null;latitude:number|null;longitude:number|null;phone:string|null;email:string|null;website:string|null;opening_hours_text:string|null;brands:string[]|null;official_brands:string[]|null;brand_exclusive:boolean;skills:string[]|null;photos:string[]|null;verification_status:string;is_active:boolean;is_featured:boolean;source:string;source_id:string|null;manually_edited:boolean};
 /** Admin editor for every listing field. Without `listing` it creates a new one. */
 export function ListingForm({listing:l,ownerEmail}:{listing?:ListingRow;ownerEmail?:string|null}){
@@ -23,7 +23,7 @@ export function ListingForm({listing:l,ownerEmail}:{listing?:ListingRow;ownerEma
     <fieldset className="dash-card" aria-label="Location"><h2 className="span-2">Location</h2>
       <label className="span-2">Street address<input name="address_line" maxLength={300} defaultValue={l?.address_line||""}/></label>
       <label>Area / locality<input name="locality" maxLength={120} defaultValue={l?.locality||""}/></label>
-      <label>City<input name="city" required list="admin-cities" maxLength={80} defaultValue={l?.city||""}/><datalist id="admin-cities">{CITIES.map(c=><option key={c} value={c}/>)}</datalist></label>
+      <label>City<input name="city" required list="admin-cities" maxLength={80} defaultValue={l?.city||""}/><datalist id="admin-cities">{ALL_CITIES.map(c=><option key={c} value={c}/>)}</datalist></label>
       <label>State<input name="state" required maxLength={80} defaultValue={l?.state||""}/></label>
       <label>PIN code<input name="postal_code" inputMode="numeric" maxLength={12} defaultValue={l?.postal_code||""}/></label>
       <label>Latitude<input name="latitude" inputMode="decimal" defaultValue={l?.latitude??""} placeholder="12.9716"/></label>

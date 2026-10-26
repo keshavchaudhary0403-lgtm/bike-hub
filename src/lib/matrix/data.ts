@@ -1,5 +1,5 @@
 // Loads what the matching code needs: shops in the rider's area with their cells and rider reports.
-import {matchCity,nearestCity,type Listing} from "@/lib/listings";
+import {CITIES,matchCity,nearestCity,type Listing} from "@/lib/listings";
 import {CARD_FIELDS,publicClient,toListing,type CardRow} from "@/lib/supabase-data";
 import {bikeModel,bikeName,levelForSize,SIZE_BUCKETS,type BikeModel,type SizeBucket} from "@/data/bike-models";
 import {LEVEL_INFO,RADIUS_KM,SERVICE_INFO,isBikeLevel,isServiceLevel,isStatus,levelFromSlug,regionOf,serviceFromSlug,type BikeLevel,type ServiceLevel,type Skill} from "./config";
@@ -59,7 +59,7 @@ async function areaOrigin(city:string,area:string):Promise<Origin|null>{
 export async function getMatrixView(ctx:RiderContext):Promise<MatrixView|null>{
   const supabase=publicClient();if(!supabase)return null;
   const origin=ctx.origin??(ctx.city&&ctx.area?await areaOrigin(ctx.city,ctx.area):null);
-  let query=supabase.from("service_centres").select(`${CARD_FIELDS},id,latitude,longitude,brand_exclusive,skills,shop_capabilities(bike_level,service_level,brands,status,source)`).eq("is_active",true).neq("listing_type","gear_shop");
+  let query=supabase.from("service_centres").select(`${CARD_FIELDS},id,latitude,longitude,brand_exclusive,skills,shop_capabilities(bike_level,service_level,brands,status,source)`).eq("is_active",true).in("city",CITIES).neq("listing_type","gear_shop");
   const cities=ctx.city?regionOf(ctx.city):[];
   if(origin){
     const dLat=RADIUS_KM.wide/111,dLng=RADIUS_KM.wide/(111*Math.cos(origin.lat*Math.PI/180));

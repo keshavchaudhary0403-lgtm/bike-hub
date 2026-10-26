@@ -1,6 +1,7 @@
 // Imports motorcycle service centres, repair shops and riding-gear shops from
 // OpenStreetMap (Overpass API) into Supabase `service_centres`.
-// Usage: npm run import:osm            (all cities)
+// Usage: npm run import:osm            (Delhi NCR, the cities live on the site)
+//        npm run import:osm -- --all   (every city below)
 //        npm run import:osm -- pune    (cities whose key contains "pune")
 //        npm run import:osm -- --dry   (fetch and classify only, no writes)
 import {createClient} from "@supabase/supabase-js";
@@ -33,7 +34,9 @@ const ENDPOINTS=["https://overpass-api.de/api/interpreter","https://overpass.kum
 const GEAR=/helmet|riding gear|rider gear|biker|moto ?gear|motorcycle gear|bike gear|riding jacket/i;
 
 const args=process.argv.slice(2);const dry=args.includes("--dry");const only=args.filter(a=>!a.startsWith("--"));
-const cities=only.length?CITIES.filter(c=>only.some(o=>c[0].includes(o.toLowerCase()))):CITIES;
+// Keep in step with CITIES in src/lib/listings.ts: other cities are switched off on the site.
+const LIVE=["noida","ghaziabad","gurugram","faridabad","delhi"];
+const cities=only.length?CITIES.filter(c=>only.some(o=>c[0].includes(o.toLowerCase()))):args.includes("--all")?CITIES:CITIES.filter(c=>LIVE.includes(c[0]));
 
 function query([, , ,s,w,n,e]){
   const b=`(${s},${w},${n},${e})`;

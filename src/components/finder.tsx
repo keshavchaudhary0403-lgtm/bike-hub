@@ -7,7 +7,7 @@ const TILE_ICONS:Record<string,typeof Wrench>={Wrench,TriangleAlert,CircleDot,Sh
 import {BIKE_BRANDS,BIKE_MODELS,SIZE_BUCKETS,bikeModel,bikeName,levelForSize,normalize,type BikeModel,type SizeBucket} from "@/data/bike-models";
 import {CUSTOM_OPTIONS,INTENTS,RIDE_OPTIONS,SERVICE_OPTIONS,SYMPTOMS,intentStep,isIntent,type Choice,type IntentId} from "@/lib/matrix/intents";
 import {CITY_KEY,bikeToParams,saveBike,saveCity,useRiderBike,useStored,type RiderBike} from "@/lib/matrix/rider-bike";
-import {CITIES,nearestCity} from "@/lib/listings";
+import {CITIES,REGION,isLiveCity,nearestCity} from "@/lib/listings";
 
 type Step="intent"|"option"|"symptom"|"ride"|"bike"|"warranty"|"location";
 export type FinderStart={need?:string;opt?:string;sym?:string;ride?:string;step?:string;next?:string};
@@ -91,7 +91,9 @@ export function Finder({start}:{start:FinderStart}){
   function locate(){
     setLocError("");if(!("geolocation" in navigator)){setLocError("Your browser can’t share location. Choose your city instead.");return}
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(pos=>{const o={lat:pos.coords.latitude,lng:pos.coords.longitude};results({...o,city:nearestCity(o)||undefined})},
+    navigator.geolocation.getCurrentPosition(pos=>{const o={lat:pos.coords.latitude,lng:pos.coords.longitude};const near=nearestCity(o);
+      if(!isLiveCity(near)){setLocating(false);setLocError(`BikeHub covers ${REGION} only for now, and you seem to be outside it. Choose a city in ${REGION} instead.`);return}
+      results({...o,city:near!})},
       ()=>{setLocating(false);setLocError("We couldn’t get your location. Choose your city instead.")},{timeout:10000,maximumAge:600000});
   }
 
@@ -119,7 +121,7 @@ export function Finder({start}:{start:FinderStart}){
       <button type="button" className="choice locate" onClick={locate} disabled={locating}><span className="tile-icon" aria-hidden="true">{locating?<LoaderCircle className="spin"/>:<LocateFixed/>}</span><span className="tile-text"><b>{locating?"Finding you…":"Use my location"}</b><small>Nearest shops first</small></span></button>
       <form className="choice city-form" onSubmit={e=>{e.preventDefault();results({city:city||undefined,area:area.trim()||undefined})}}>
         <span className="tile-icon" aria-hidden="true"><MapPin/></span>
-        <div className="city-fields"><label className="field-label">City<select className="field" value={city} onChange={e=>setCity(e.target.value)}><option value="">All cities</option>{CITIES.map(c=><option key={c}>{c}</option>)}</select></label>
+        <div className="city-fields"><label className="field-label">City<select className="field" value={city} onChange={e=>setCity(e.target.value)}><option value="">All of {REGION}</option>{CITIES.map(c=><option key={c}>{c}</option>)}</select></label>
           <label className="field-label"><span>Area <span className="optional">(optional)</span></span><input className="field" value={area} onChange={e=>setArea(e.target.value)} maxLength={60} placeholder="e.g. Sector 62"/></label>
           <button className="button">Show shops <ArrowRight/></button></div>
       </form>

@@ -1,6 +1,6 @@
 import {createClient,type SupabaseClient} from "@supabase/supabase-js";
 import {centres} from "@/lib/data";
-import {inferType,listingImage,matchCity,officialLabel,photoUrl,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
+import {CITIES,inferType,listingImage,matchCity,officialLabel,photoUrl,typeLabel,type Listing,type ListingDetail,type ListingType} from "@/lib/listings";
 import {distanceKm,formatKm,type Origin} from "@/lib/matrix/match";
 
 export const PAGE_SIZE=24;
@@ -29,7 +29,7 @@ function searchListings(supabase:SupabaseClient,columns:string,filters:CentreFil
   let query=supabase.from("service_centres").select(columns,withCount?{count:"exact"}:undefined);
   const type=(["service_centre","repair_shop","gear_shop"].includes(filters.type||"")?filters.type:undefined)||inferType(filters.q);
   const city=matchCity(filters.location);
-  query=query.eq("is_active",true);
+  query=query.eq("is_active",true).in("city",CITIES);
   if(type)query=query.eq("listing_type",type);
   if(filters.status==="verified")query=query.eq("verification_status","verified");
   else if(filters.status==="phone")query=query.not("phone","is",null);
@@ -81,7 +81,7 @@ export async function getMapPoints(filters:CentreFilters={}):Promise<MapPoint[]>
 export async function getCentre(slug:string):Promise<ListingDetail|null>{
   const supabase=publicClient();
   if(!supabase){const c=centres.find(x=>x.slug===slug);return c?{...c,listingType:"service_centre",city:c.location.split(",").pop()!.trim(),brands:[],officialBrands:[],skills:[],photos:[],source:"demo",verification:"unverified"}:null}
-  const {data:r,error}=await supabase.from("service_centres").select("*").eq("slug",slug).eq("is_active",true).maybeSingle();
+  const {data:r,error}=await supabase.from("service_centres").select("*").eq("slug",slug).eq("is_active",true).in("city",CITIES).maybeSingle();
   if(error||!r)return null;
   return {...toListing(r as CardRow),id:r.id,description:r.description,address:r.address_line,locality:r.locality,city:r.city,state:r.state,postalCode:r.postal_code,
     latitude:r.latitude==null?null:Number(r.latitude),longitude:r.longitude==null?null:Number(r.longitude),website:r.website,email:r.email,

@@ -1,6 +1,7 @@
 // Routes, articles, comments and reviews, read with the public client so only published rows come back.
 // Without Supabase the launch content in data.ts is shown instead.
 import {posts as demoPosts,routes as demoRoutes} from "@/lib/data";
+import {CITIES} from "@/lib/listings";
 import {publicClient} from "@/lib/supabase-data";
 
 export type Route={id?:string;slug:string;name:string;distance:string;duration:string;level:string;image:string;season:string;summary:string;description?:string|null;start?:string|null;end?:string|null;safety?:string|null;sources?:Source[];updatedAt?:string|null};
@@ -66,7 +67,7 @@ export type SiteCounts={serviceCentres:number;repairShops:number;gearShops:numbe
 /** Live totals for the homepage. Null without Supabase, so nothing made-up is shown. */
 export async function getSiteCounts():Promise<SiteCounts|null>{
   const supabase=publicClient();if(!supabase)return null;
-  const centres=(type:string)=>supabase.from("service_centres").select("id",{count:"exact",head:true}).eq("is_active",true).eq("listing_type",type).then(r=>r.count||0);
+  const centres=(type:string)=>supabase.from("service_centres").select("id",{count:"exact",head:true}).eq("is_active",true).in("city",CITIES).eq("listing_type",type).then(r=>r.count||0);
   const count=(table:string)=>supabase.from(table).select("id",{count:"exact",head:true}).then(r=>r.count||0);
   const [serviceCentres,repairShops,gearShops,routes,guides,expertGuides,reviews]=await Promise.all([centres("service_centre"),centres("repair_shop"),centres("gear_shop"),
     count("routes"),count("posts"),supabase.from("posts").select("id",{count:"exact",head:true}).eq("is_expert_content",true).then(r=>r.count||0),count("reviews")]);

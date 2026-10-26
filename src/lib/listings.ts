@@ -5,7 +5,12 @@ export const LISTING_TYPES:{value:ListingType;label:string;plural:string}[]=[
  {value:"repair_shop",label:"Repair shop",plural:"Repair shops"},
  {value:"gear_shop",label:"Gear & accessories",plural:"Gear & accessory shops"}
 ];
-export const CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad","Mumbai","Pune","Bengaluru","Hyderabad","Chennai","Kolkata","Ahmedabad","Jaipur","Chandigarh","Lucknow","Kochi","Indore","Dehradun"];
+/** Every city we hold listings for. Admins still see and edit all of them. */
+export const ALL_CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad","Mumbai","Pune","Bengaluru","Hyderabad","Chennai","Kolkata","Ahmedabad","Jaipur","Chandigarh","Lucknow","Kochi","Indore","Dehradun"];
+/** Cities switched on for the public site. Listings elsewhere stay in the database, hidden; add a city here to open it. */
+export const CITIES=["New Delhi","Noida","Gurugram","Ghaziabad","Faridabad"];
+export const REGION="Delhi NCR";
+export const isLiveCity=(city?:string|null)=>!!city&&CITIES.includes(city);
 /** City centres, for "near me" (nearest city) and distances when the rider only picks a city. */
 export const CITY_COORDS:Record<string,{lat:number;lng:number}>={"New Delhi":{lat:28.6139,lng:77.209},Noida:{lat:28.5355,lng:77.391},Gurugram:{lat:28.4595,lng:77.0266},Ghaziabad:{lat:28.6692,lng:77.4538},Faridabad:{lat:28.4089,lng:77.3178},
  Mumbai:{lat:19.076,lng:72.8777},Pune:{lat:18.5204,lng:73.8567},Bengaluru:{lat:12.9716,lng:77.5946},Hyderabad:{lat:17.385,lng:78.4867},Chennai:{lat:13.0827,lng:80.2707},Kolkata:{lat:22.5726,lng:88.3639},
@@ -29,11 +34,11 @@ const IMAGES:Record<ListingType,string[]>={
 export function listingImage(type:ListingType,slug:string){const list=IMAGES[type]||IMAGES.service_centre;let h=0;for(const ch of slug)h=(Math.imul(h,31)+ch.charCodeAt(0))>>>0;return list[h%list.length]}
 export function typeLabel(type:string){return LISTING_TYPES.find(t=>t.value===type)?.label||"Service centre"}
 
-/** Resolves free-text location input ("Noida Sector 62", "bangalore") to a known city. */
+/** Resolves free-text location input ("Noida Sector 62", "bangalore") to a known city, live or not (see isLiveCity). */
 export function matchCity(input?:string){
  const v=input?.trim().toLowerCase();if(!v)return undefined;
  for(const [alias,city] of Object.entries(CITY_ALIASES))if(v.includes(alias))return city;
- return CITIES.find(c=>v.includes(c.toLowerCase()));
+ return ALL_CITIES.find(c=>v.includes(c.toLowerCase()));
 }
 /** Infers a listing type from a search phrase such as "Riding gear fitting" or "Tyre change". */
 export function inferType(q?:string):ListingType|undefined{

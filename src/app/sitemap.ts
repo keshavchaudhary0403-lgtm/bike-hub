@@ -1,4 +1,4 @@
-import type {MetadataRoute} from "next";import {getPosts,getRoutes} from "@/lib/content";import {publicClient} from "@/lib/supabase-data";import {SITE_URL} from "@/lib/seo";
+import type {MetadataRoute} from "next";import {getPosts,getRoutes} from "@/lib/content";import {publicClient} from "@/lib/supabase-data";import {SITE_URL} from "@/lib/seo";import {CITIES} from "@/lib/listings";
 export const revalidate=3600;
 /** Every public page: fixed pages, routes, articles and active listings. */
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
@@ -12,7 +12,7 @@ async function listingSlugs(){
   const supabase=publicClient();if(!supabase)return [];
   const all:{slug:string;updated_at:string|null}[]=[];
   for(let from=0;from<50000;from+=1000){
-    const {data,error}=await supabase.from("service_centres").select("slug,updated_at").eq("is_active",true).order("slug").range(from,from+999);
+    const {data,error}=await supabase.from("service_centres").select("slug,updated_at").eq("is_active",true).in("city",CITIES).order("slug").range(from,from+999);
     if(error||!data?.length)break;all.push(...data);if(data.length<1000)break;
   }
   return all;
